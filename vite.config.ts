@@ -84,14 +84,16 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 2000,
     cssMinify: "lightningcss",
     rollupOptions: {
       onwarn(warning, warn) {
         if (
           warning.code === "EVAL" ||
           warning.code === "SOURCEMAP_BROKEN" ||
-          warning.message.includes("eval")
+          warning.message.includes("eval") ||
+          warning.message.includes("__PURE__") ||
+          warning.message.includes("chunk size")
         ) {
           return;
         }
@@ -99,4 +101,5 @@ export default defineConfig({
       },
     },
   },
+  logLevel: "error",
 });
