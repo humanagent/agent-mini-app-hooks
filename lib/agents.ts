@@ -11,6 +11,8 @@ export type AgentConfig = {
   networks: string[];
   live: boolean;
   suggestions?: string[];
+  image?: string;
+  domain?: string;
 };
 
 export const AI_AGENTS: AgentConfig[] = [
@@ -24,6 +26,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@elsa Generate ideas for a blog post",
       "@elsa Write a poem about technology",
     ],
+    domain: "elsa.base.eth",
+    image: "https://ipfs.io/ipfs/bafkreibjqv4kxzjx62hq5scjskkaocegji4rnyjf6avbxnz6u442szo2im",
   },
   {
     name: "flaunchy",
@@ -46,6 +50,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@mamo Explain a technical concept",
       "@mamo Review my code",
     ],
+    domain: "mamo.base.eth",
+    image: "https://ipfs.io/ipfs/bafybeicgjmetc4iyla4k5ndm65xuvo6yutptloy3vdkydrat5u6tewijdu",
   },
   {
     name: "alphie.base.eth",
@@ -57,6 +63,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@alphie.base.eth Explain smart contracts",
       "@alphie.base.eth Guide me through DeFi",
     ],
+    domain: "alphie.base.eth",
+    image: "https://ipfs.io/ipfs/bafkreibaa5gfjhisegdugksqb63bwkwstmbeitxc3hkpnq3ughtmpyioq4",
   },
   {
     name: "arma",
@@ -68,6 +76,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@arma Create a data visualization",
       "@arma Explain statistical concepts",
     ],
+    domain: "armaxyz",
+    image: "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/1bf441eb-cc59-47d9-8fcc-f337c43fa600/original",
   },
   {
     name: "jesse",
@@ -79,6 +89,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@jesse Optimize my algorithm",
       "@jesse Review my implementation",
     ],
+    domain: "jessexbt.base.eth",
+    image: "https://ipfs.io/ipfs/bafkreigqyohpla5hihjqrprmynmoroce6pf7a4hniv6t77ad6yy3em7nyq",
   },
   {
     name: "freysa",
@@ -90,6 +102,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@freysa Create a color palette",
       "@freysa Suggest design improvements",
     ],
+    domain: "hifreysa.base.eth",
+    image: "https://ipfs.io/ipfs/bafkreihzf4frxkt3j42peowhm2w3ryihbbumfq6od5ace2xx2puwcyxwby",
   },
   {
     name: "neurobro",
@@ -123,12 +137,16 @@ export const AI_AGENTS: AgentConfig[] = [
       "@bankr Analyze market trends",
       "@bankr Explain investment strategies",
     ],
+    domain: "bankr.base.eth",
+    image: "https://ipfs.io/ipfs/bafkreig3hwrxfm2zkzgvlja6kgctu6qcnwztbppxrkbikvhmspfj7bpnqu",
   },
   {
     name: "basemate",
     address: "0xB257b5C180b7b2cb80E35d6079AbE68D9CF0467F",
     networks: ["production"],
-    live: false,
+    live: true,
+    domain: "askbasemate.base.eth",
+    image: "https://ipfs.io/ipfs/bafkreib6sck2doq64pwx7zqq3mvgjf5odrtdenzp6kc36enfzjl7s6zs64",
     suggestions: [
       "@basemate Help with Base network",
       "@basemate Explain Layer 2 scaling",
@@ -145,6 +163,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@echo Review my implementation",
       "@echo Debug an issue",
     ],
+    domain: "hi.xmtp.eth",
+    image: "https://ipfs.io/ipfs/QmaSZuaXfNUwhF7khaRxCwbhohBhRosVX1ZcGzmtcWnqav",
   },
   {
     name: "gm",
@@ -156,6 +176,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@gm Start a conversation",
       "@gm Get started with XMTP",
     ],
+    domain: "hi.xmtp.eth",
+    image: "https://ipfs.io/ipfs/QmaSZuaXfNUwhF7khaRxCwbhohBhRosVX1ZcGzmtcWnqav",
   },
   {
     name: "key-check",
@@ -167,6 +189,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@key-check Verify my configuration",
       "@key-check Test my setup",
     ],
+    domain: "key-check.eth",
+    image: "https://euc.li/key-check.eth",
   },
   {
     name: "xmtp-docs",
@@ -178,6 +202,7 @@ export const AI_AGENTS: AgentConfig[] = [
       "@xmtp-docs Explain XMTP concepts",
       "@xmtp-docs Show me code examples",
     ],
+    domain: "xmtp-docs.eth",
   },
 ];
 export function getAgentByAddress(address: string): AgentConfig | undefined {

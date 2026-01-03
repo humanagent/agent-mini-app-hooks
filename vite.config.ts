@@ -79,7 +79,24 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["@xmtp/wasm-bindings"],
   },
+  esbuild: {
+    logOverride: { "this-is-undefined-in-esm": "silent" },
+  },
   build: {
     sourcemap: true,
+    chunkSizeWarningLimit: 1000,
+    cssMinify: "lightningcss",
+    rollupOptions: {
+      onwarn(warning, warn) {
+        if (
+          warning.code === "EVAL" ||
+          warning.code === "SOURCEMAP_BROKEN" ||
+          warning.message.includes("eval")
+        ) {
+          return;
+        }
+        warn(warning);
+      },
+    },
   },
 });
