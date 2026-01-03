@@ -1,6 +1,6 @@
-# Wireframe UI
+# XMTP Agents
 
-A self-contained wireframe UI for the chat application.
+A self-contained UI for the XMTP Agents chat application.
 
 ## Getting Started
 
