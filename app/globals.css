@@ -1,8 +1,4 @@
 @import "tailwindcss";
-@import "katex/dist/katex.min.css";
-
-/* include utility classes in streamdown */
-@source '../node_modules/streamdown/dist/index.js';
 
 /* custom variant for setting dark mode programmatically */
 @custom-variant dark (&:is(.dark, .dark *));
@@ -34,10 +30,12 @@
   /* Primary (accent blue) */
   --primary: #2e7bff;
   --primary-foreground: #f2f3f5;
+  --primary-hover: #3d8aff; /* ~5% lighten */
 
   /* Secondary (mid-gray) */
   --secondary: #22262a;
   --secondary-foreground: #f2f3f5;
+  --secondary-hover: #2a2e33; /* ~5% lighten */
 
   /* Muted */
   --muted: #1a1d20;
@@ -50,6 +48,7 @@
   /* Destructive (error red) */
   --destructive: #e45151;
   --destructive-foreground: #f2f3f5;
+  --destructive-hover: #f06666; /* ~5% lighten */
 
   /* Success */
   --success: #18c29c;
