@@ -22,7 +22,6 @@ export function useXMTPConversations(client: Client | null) {
         setError(null);
 
         await client.conversations.sync();
-
         const allConversations = await client.conversations.list();
 
         if (mounted) {

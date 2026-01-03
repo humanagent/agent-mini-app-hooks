@@ -1,56 +1,44 @@
 import type { Signer } from "@xmtp/browser-sdk";
-import { toBytes } from "viem";
-import {
-  generatePrivateKey,
-  privateKeyToAccount,
-  type Hex,
-} from "viem/accounts";
+import { toBytes, type Hex } from "viem";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
+
+const STORAGE_KEY = "xmtp_private_key";
 
 export function getOrCreateEphemeralAccountKey(): Hex {
-  console.log(
-    "[getOrCreateEphemeralAccountKey] Generating fresh ephemeral key",
-  );
-
   if (typeof window === "undefined") {
     throw new Error(
       "getOrCreateEphemeralAccountKey can only be called in browser",
     );
   }
 
+  // Try to get existing key from localStorage
+  const storedKey = localStorage.getItem(STORAGE_KEY);
+  if (storedKey) {
+    return storedKey as Hex;
+  }
+
+  // Generate new key and store it
   const newKey = generatePrivateKey();
-  console.log("[getOrCreateEphemeralAccountKey] Fresh key generated");
+  localStorage.setItem(STORAGE_KEY, newKey);
   return newKey;
 }
 
 export function createEphemeralSigner(privateKey: Hex): Signer {
-  console.log("[createEphemeralSigner] Creating signer from private key");
   const account = privateKeyToAccount(privateKey);
-  console.log("[createEphemeralSigner] Account created", {
-    address: account.address,
-  });
 
   const signer: Signer = {
     type: "EOA",
     getIdentifier: () => {
-      const identifier = {
+      return {
         identifier: account.address.toLowerCase(),
         identifierKind: "Ethereum" as const,
       };
-      console.log("[createEphemeralSigner] getIdentifier called", identifier);
-      return identifier;
     },
     signMessage: async (message: string) => {
-      console.log("[createEphemeralSigner] signMessage called", {
-        messageLength: message.length,
-      });
       const signature = await account.signMessage({
         message,
       });
-      const signatureBytes = toBytes(signature);
-      console.log("[createEphemeralSigner] Message signed", {
-        signatureLength: signatureBytes.length,
-      });
-      return signatureBytes;
+      return toBytes(signature);
     },
   };
 

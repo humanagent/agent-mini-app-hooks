@@ -3,6 +3,7 @@ import { InputArea } from "@components/input-area";
 import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { useXMTPConversations } from "@hooks/use-xmtp-conversations";
 import { useCallback, useEffect, useState } from "react";
+import { useToast } from "@ui/toast";
 
 type Message = {
   id: string;
@@ -42,6 +43,7 @@ export function ConversationView() {
   const [messages, setMessages] = useState<Message[]>([]);
   const { client } = useXMTPClient();
   const { selectedConversation } = useXMTPConversations(client);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!client || !selectedConversation) {
@@ -94,6 +96,11 @@ export function ConversationView() {
         };
       } catch (error) {
         console.error("[ConversationView] Error setting up messages:", error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to load messages";
+        showToast(errorMessage, "error");
       }
     };
 
@@ -123,6 +130,9 @@ export function ConversationView() {
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
       } catch (error) {
         console.error("[ConversationView] Error sending message:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to send message";
+        showToast(errorMessage, "error");
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
       }
     },

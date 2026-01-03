@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { type AgentConfig } from "@/lib/agents";
 import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
 import { SidebarToggle } from "@/src/components/sidebar/sidebar-toggle";
+import { useToast } from "@ui/toast";
 
 type Message = {
   id: string;
@@ -55,6 +56,7 @@ export function ChatArea() {
   const { client } = useXMTPClient();
   const { selectedConversation, setSelectedConversation } =
     useXMTPConversations(client);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!client || !selectedConversation) {
@@ -160,8 +162,33 @@ export function ChatArea() {
             conversationType: conversation.constructor.name,
           });
           setSelectedConversation(conversation);
+          console.log("[ChatArea] Set selected conversation", {
+            conversationId: conversation.id,
+          });
+
+          console.log("[ChatArea] Syncing conversations to update sidebar...");
+          try {
+            await client.conversations.sync();
+            console.log("[ChatArea] Conversations synced successfully");
+            const updatedConversations = await client.conversations.list();
+            const conversationId = conversation.id;
+            console.log("[ChatArea] Updated conversations list", {
+              count: updatedConversations.length,
+              conversationIds: updatedConversations.map((c) => c.id),
+              includesNewGroup: updatedConversations.some(
+                (c) => c.id === conversationId,
+              ),
+            });
+          } catch (syncError) {
+            console.error("[ChatArea] Error syncing conversations:", syncError);
+          }
         } catch (error) {
           console.error("[ChatArea] Error creating conversation:", error);
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : "Failed to create conversation";
+          showToast(errorMessage, "error");
           setIsCreatingConversation(false);
           return;
         } finally {
@@ -195,6 +222,9 @@ export function ChatArea() {
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
       } catch (error) {
         console.error("[ChatArea] Error sending message:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to send message";
+        showToast(errorMessage, "error");
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
       }
     },
@@ -239,6 +269,7 @@ export function ChatArea() {
           selectedAgents={selectedAgents}
           setSelectedAgents={setSelectedAgents}
           sendMessage={handleSendMessage}
+          conversation={selectedConversation}
         />
       </div>
       {isCreatingConversation && (

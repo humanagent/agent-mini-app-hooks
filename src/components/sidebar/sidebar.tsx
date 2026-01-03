@@ -104,6 +104,7 @@ export function Sidebar() {
       for (const conversation of conversations) {
         try {
           const members = await conversation.members();
+
           const otherMember = members.find(
             (m) =>
               m.inboxId.toLowerCase() !== (client?.inboxId || "").toLowerCase(),
@@ -111,19 +112,17 @@ export function Sidebar() {
 
           if (otherMember) {
             const address = otherMember.inboxId;
-            labels.set(
-              conversation.id,
-              address.slice(0, 6) + "..." + address.slice(-4),
-            );
+            const label = address.slice(0, 6) + "..." + address.slice(-4);
+            labels.set(conversation.id, label);
           } else {
-            labels.set(conversation.id, "Unknown");
+            labels.set(conversation.id, conversation.id.slice(0, 6) + "..." + conversation.id.slice(-4));
           }
         } catch (error) {
           console.error(
             `[Sidebar] Error loading label for conversation ${conversation.id}:`,
             error,
           );
-          labels.set(conversation.id, "Unknown");
+          labels.set(conversation.id, conversation.id.slice(0, 6) + "..." + conversation.id.slice(-4));
         }
       }
 
