@@ -40,6 +40,27 @@ export function InputArea({
   const [open, setOpen] = useState(false);
   const [attachments] = useState([]);
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const messageContent = input.trim();
+    
+    if (!messageContent) {
+      console.log("[InputArea] Submit attempted but message is empty");
+      return;
+    }
+
+    console.log("[InputArea] Form submitted with message:", messageContent);
+    console.log("[InputArea] Calling sendMessage callback");
+    
+    if (sendMessage) {
+      sendMessage(messageContent);
+      setInput("");
+      console.log("[InputArea] Message sent, input cleared");
+    } else {
+      console.error("[InputArea] sendMessage callback is not provided!");
+    }
+  };
+
   return (
     <div className="relative flex w-full flex-col gap-4">
       {messages.length === 0 &&
@@ -47,7 +68,10 @@ export function InputArea({
           <SuggestedActions chatId="wireframe" sendMessage={sendMessage || (() => {})} />
         )}
 
-      <PromptInput className="rounded-md border border-border bg-background p-3 transition-all duration-150 focus-within:border-border hover:border-muted-foreground/50">
+      <PromptInput 
+        className="rounded-md border border-border bg-background p-3 transition-all duration-150 focus-within:border-border hover:border-muted-foreground/50"
+        onSubmit={handleSubmit}
+      >
         <div className="flex flex-row items-start gap-1 sm:gap-2">
           <PromptInputTextarea
             className="grow resize-none border-0! border-none! bg-transparent p-2 text-sm outline-none ring-0 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden"
