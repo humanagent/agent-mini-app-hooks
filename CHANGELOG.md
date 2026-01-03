@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.2] - 2025-01-03
+
+### Fixed
+- Fixed Vercel monorepo build by removing app-level vercel.json and using root-level configuration
+
 ## [0.1.1] - 2025-01-03
 
 ### Fixed
