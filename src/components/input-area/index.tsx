@@ -336,7 +336,7 @@ export function InputArea({
   return (
     <div
       className={`relative flex w-full flex-col ${isMultiAgentMode ? "gap-2" : "gap-4"}`}>
-      {suggestedActions.length > 0 && !input.trim() && (
+      {suggestedActions.length > 0 && !input.trim() && !conversation && (
         <div className="grid w-full gap-2 sm:grid-cols-2">
           {suggestedActions.map((suggestedAction, index) => (
             <motion.div
