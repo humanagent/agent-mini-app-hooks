@@ -63,6 +63,8 @@ export const createSCWSigner = (
 };
 
 export function getOrCreateEphemeralAccountKey(): PrivateKey {
+  console.log("[getOrCreateEphemeralAccountKey] Starting...");
+  
   if (typeof window === "undefined") {
     throw new Error(
       "Ephemeral account key can only be created in browser environment",
@@ -70,7 +72,9 @@ export function getOrCreateEphemeralAccountKey(): PrivateKey {
   }
 
   // always generate a new ephemeral identity
+  console.log("[getOrCreateEphemeralAccountKey] Generating new private key...");
   const accountKey = generatePrivateKey();
+  console.log("[getOrCreateEphemeralAccountKey] Private key generated:", accountKey.slice(0, 10) + "...");
 
   return accountKey;
 }

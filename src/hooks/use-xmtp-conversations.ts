@@ -2,6 +2,8 @@ import type { Client, Conversation } from "@xmtp/browser-sdk";
 import { useCallback, useEffect, useState } from "react";
 
 export function useXMTPConversations(client: Client | null) {
+  console.log("[useXMTPConversations] Hook called with client:", !!client);
+  
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
@@ -29,27 +31,40 @@ export function useXMTPConversations(client: Client | null) {
   }, [client]);
 
   useEffect(() => {
+    console.log("[useXMTPConversations] Effect triggered, client:", !!client);
+    
     if (!client) {
+      console.log("[useXMTPConversations] No client available, skipping initialization");
       return;
     }
+
+    console.log("[useXMTPConversations] Client available, starting conversations initialization");
+    console.log("[useXMTPConversations] Client inboxId:", client.inboxId);
 
     let mounted = true;
     let streamCleanup: (() => Promise<void>) | null = null;
 
     const init = async () => {
       try {
+        console.log("[useXMTPConversations] Initializing conversations...");
         setIsLoading(true);
         setError(null);
 
+        console.log("[useXMTPConversations] Syncing conversations...");
         await client.conversations.sync();
+        console.log("[useXMTPConversations] Conversations sync complete");
 
+        console.log("[useXMTPConversations] Listing conversations...");
         const allConversations = await client.conversations.list();
+        console.log("[useXMTPConversations] Found", allConversations.length, "conversations");
 
         if (mounted) {
           setConversations(allConversations);
           setIsLoading(false);
+          console.log("[useXMTPConversations] Conversations initialized successfully");
         }
 
+        console.log("[useXMTPConversations] Starting conversation stream...");
         const stream = await client.conversations.stream({
           onValue: (conversation) => {
             if (mounted) {

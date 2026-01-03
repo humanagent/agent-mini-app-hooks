@@ -18,23 +18,39 @@ export function useXMTPClient() {
 
     const init = async () => {
       try {
+        console.log("[useXMTPClient] Starting XMTP client initialization...");
         setIsLoading(true);
         setError(null);
 
         await new Promise((resolve) => setTimeout(resolve, 100));
 
+        console.log("[useXMTPClient] Getting ephemeral account key...");
         const accountKey = getOrCreateEphemeralAccountKey();
+        console.log("[useXMTPClient] Account key obtained:", accountKey.slice(0, 10) + "...");
+
+        console.log("[useXMTPClient] Creating XMTP client...");
         const xmtpClient = await createXMTPClient(accountKey);
         clientRef = xmtpClient;
 
+        console.log("[useXMTPClient] XMTP client created successfully");
+        console.log("[useXMTPClient] Client inboxId:", xmtpClient.inboxId);
+        console.log("[useXMTPClient] Client installationId:", xmtpClient.installationId);
+
         if (mounted) {
+          console.log("[useXMTPClient] Setting client in state...");
           setClient(xmtpClient);
           setIsLoading(false);
+          console.log("[useXMTPClient] Client initialization complete");
         } else {
+          console.log("[useXMTPClient] Component unmounted, closing client");
           xmtpClient.close();
         }
       } catch (err) {
         console.error("[useXMTPClient] Failed to initialize:", err);
+        if (err instanceof Error) {
+          console.error("[useXMTPClient] Error message:", err.message);
+          console.error("[useXMTPClient] Error stack:", err.stack);
+        }
         if (mounted) {
           setError(err instanceof Error ? err : new Error(String(err)));
           setIsLoading(false);

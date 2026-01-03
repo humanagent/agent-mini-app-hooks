@@ -23,12 +23,18 @@ export type ContentTypes = ExtractCodecContentTypes<
 export async function createXMTPClient(
   privateKey: PrivateKey,
 ): Promise<Client<ContentTypes>> {
+  console.log("[createXMTPClient] Starting client creation...");
+  
   if (typeof window === "undefined") {
     throw new Error("XMTP client can only be created in browser environment");
   }
 
+  console.log("[createXMTPClient] Creating ephemeral signer...");
   const signer = createEphemeralSigner(privateKey);
+  const identifier = signer.getIdentifier();
+  console.log("[createXMTPClient] Signer created for address:", identifier.identifier);
 
+  console.log("[createXMTPClient] Initializing codecs...");
   const codecs = [
     new ReactionCodec(),
     new ReplyCodec(),
@@ -38,13 +44,19 @@ export async function createXMTPClient(
     new ReadReceiptCodec(),
     new MarkdownCodec(),
   ];
+  console.log("[createXMTPClient] Codecs initialized:", codecs.length, "codecs");
 
+  console.log("[createXMTPClient] Calling Client.create with env: production");
   const client = await Client.create(signer, {
     env: "production",
     loggingLevel: "warn",
     appVersion: "xmtp-agents/0",
     codecs,
   });
+
+  console.log("[createXMTPClient] Client.create completed");
+  console.log("[createXMTPClient] Client inboxId:", client.inboxId);
+  console.log("[createXMTPClient] Client installationId:", client.installationId);
 
   return client;
 }
