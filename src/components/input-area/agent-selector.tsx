@@ -7,6 +7,7 @@ import {
   CommandList,
 } from "@ui/command";
 import { Dialog, DialogContent, DialogTitle } from "@ui/dialog";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type AgentConfig } from "@/lib/agents";
 
@@ -61,6 +62,9 @@ export function AgentSelector({
                     <span className="flex-1 truncate text-left">
                       {agent.name}
                     </span>
+                    {isSelected && (
+                      <Check className="ml-2 h-4 w-4 shrink-0" />
+                    )}
                   </CommandItem>
                 );
               })}
