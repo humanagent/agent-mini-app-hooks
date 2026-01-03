@@ -1,13 +1,4 @@
-import {
-  AgentSelector,
-  AgentSelectorContent,
-  AgentSelectorGroup,
-  AgentSelectorInput,
-  AgentSelectorItem,
-  AgentSelectorList,
-  AgentSelectorName,
-  AgentSelectorTrigger,
-} from "@chat-area/agent-selector";
+import { AgentSelector } from "@chat-area/agent-selector";
 import {
   PromptInput,
   PromptInputSubmit,
@@ -16,7 +7,7 @@ import {
   PromptInputTools,
 } from "@chat-area/prompt-input";
 import { Button } from "@ui/button";
-import { ArrowUpIcon, PaperclipIcon } from "@ui/icons";
+import { ArrowUpIcon, PlusIcon } from "@ui/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useState } from "react";
@@ -61,10 +52,6 @@ export function InputArea({
     setSelectedAgents(selectedAgents.filter((a) => a.address !== address));
   };
 
-  const handleAttachments = () => {
-    // TODO: Implement file attachment
-  };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const messageContent = input.trim();
@@ -80,11 +67,20 @@ export function InputArea({
   return (
     <div className="relative flex w-full flex-col gap-2">
       <PromptInput
-        className="rounded-md border border-border bg-background p-3 transition-all duration-150 focus-within:border-border hover:border-muted-foreground/50"
+        className="rounded-md border border-border bg-background p-2 transition-all duration-150 focus-within:border-border hover:border-muted-foreground/50"
         onSubmit={handleSubmit}>
-        <div className="flex flex-row items-start gap-1 sm:gap-2">
+        <div className="flex flex-row items-center gap-1 sm:gap-2">
+          <Button
+            className="h-7 w-7 p-0 shrink-0"
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              setOpen(true);
+            }}>
+            <PlusIcon size={14} />
+          </Button>
           <PromptInputTextarea
-            className="grow resize-none border-0! border-none! bg-transparent p-2 text-sm outline-none ring-0 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden"
+            className="grow resize-none border-0! border-none! bg-transparent px-1 py-1 text-sm outline-none ring-0 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden min-h-[24px] max-h-[120px]"
             placeholder="Send a message..."
             value={input}
             onChange={(e) => {
@@ -94,45 +90,13 @@ export function InputArea({
         </div>
         <PromptInputToolbar className="border-top-0! border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!">
           <PromptInputTools className="gap-0 sm:gap-0.5">
-            <Button
-              className="h-8 p-1 md:h-fit md:p-2"
-              type="button"
-              variant="ghost"
-              onClick={handleAttachments}>
-              <PaperclipIcon size={16} />
-            </Button>
-            <AgentSelector onOpenChange={setOpen} open={open}>
-              <AgentSelectorTrigger asChild>
-                <Button
-                  className="h-8 w-[200px] justify-between px-2"
-                  variant="ghost">
-                  <AgentSelectorName>
-                    {selectedAgents.length > 0
-                      ? `${selectedAgents.length} agent${
-                          selectedAgents.length > 1 ? "s" : ""
-                        }`
-                      : "Select agent"}
-                  </AgentSelectorName>
-                </Button>
-              </AgentSelectorTrigger>
-              <AgentSelectorContent>
-                <AgentSelectorInput placeholder="Search agents..." />
-                <AgentSelectorList>
-                  <AgentSelectorGroup heading="AI Agents">
-                    {liveAgents.map((agent) => (
-                      <AgentSelectorItem
-                        key={agent.address}
-                        value={agent.address}
-                        onSelect={() => {
-                          handleAddAgent(agent);
-                        }}>
-                        <AgentSelectorName>{agent.name}</AgentSelectorName>
-                      </AgentSelectorItem>
-                    ))}
-                  </AgentSelectorGroup>
-                </AgentSelectorList>
-              </AgentSelectorContent>
-            </AgentSelector>
+            <AgentSelector
+              open={open}
+              onOpenChange={setOpen}
+              agents={liveAgents}
+              selectedAgents={selectedAgents}
+              onAddAgent={handleAddAgent}
+            />
             <AnimatePresence mode="popLayout">
               {selectedAgents.length > 0 && (
                 <motion.div
@@ -166,9 +130,9 @@ export function InputArea({
           </PromptInputTools>
 
           <PromptInputSubmit
-            className="size-8 rounded-full bg-primary text-primary-foreground transition-colors duration-150 hover:bg-[#3d8aff] disabled:bg-muted disabled:text-muted-foreground"
+            className="size-7 rounded-full bg-primary text-primary-foreground transition-colors duration-150 hover:bg-[#3d8aff] disabled:bg-muted disabled:text-muted-foreground"
             disabled={!input.trim()}>
-            <ArrowUpIcon size={14} />
+            <ArrowUpIcon size={12} />
           </PromptInputSubmit>
         </PromptInputToolbar>
       </PromptInput>
