@@ -11,85 +11,84 @@
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";
 
-/* define design tokens (light mode) */
-:root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(240 10% 3.9%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(240 10% 3.9%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(240 10% 3.9%);
-  --primary: hsl(240 5.9% 10%);
-  --primary-foreground: hsl(0 0% 98%);
-  --secondary: hsl(240 4.8% 95.9%);
-  --secondary-foreground: hsl(240 5.9% 10%);
-  --muted: hsl(240 4.8% 95.9%);
-  --muted-foreground: hsl(240 3.8% 46.1%);
-  --accent: hsl(240 4.8% 95.9%);
-  --accent-foreground: hsl(240 5.9% 10%);
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 5.9% 90%);
-  --input: hsl(240 5.9% 90%);
-  --ring: hsl(240 10% 3.9%);
-  --chart-1: hsl(12 76% 61%);
-  --chart-2: hsl(173 58% 39%);
-  --chart-3: hsl(197 37% 24%);
-  --chart-4: hsl(43 74% 66%);
-  --chart-5: hsl(27 87% 67%);
-  --sidebar-background: hsl(0 0% 98%);
-  --sidebar-foreground: hsl(240 5.3% 26.1%);
-  --sidebar-primary: hsl(240 5.9% 10%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
-  /* border radius unit */
-  --radius: 0.5rem;
-  --sidebar: hsl(0 0% 98%);
-}
+/* XMTP Branding Design Tokens */
+/* Base palette: Near-black (#0B0B0D to #111316), off-white text (#F2F3F5), mid-gray surfaces (#1A1D20, #22262A) */
+/* Accent: Electric blue (#2E7BFF or #1F6BFF) */
+/* Success: Muted teal/green (#18C29C) */
+/* Warning: Amber (#FFB020) */
+/* Error: Desaturated red (#E45151) */
 
-/* define design tokens (dark mode) */
+/* define design tokens (dark mode - XMTP branding) */
+:root,
 .dark {
-  --background: hsl(240 10% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(240 10% 3.9%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(240 10% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(0 0% 98%);
-  --primary-foreground: hsl(240 5.9% 10%);
-  --secondary: hsl(240 3.7% 15.9%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(240 3.7% 15.9%);
-  --muted-foreground: hsl(240 5% 64.9%);
-  --accent: hsl(240 3.7% 15.9%);
-  --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 3.7% 15.9%);
-  --input: hsl(240 3.7% 15.9%);
-  --ring: hsl(240 4.9% 83.9%);
-  --chart-1: hsl(220 70% 50%);
-  --chart-2: hsl(160 60% 45%);
-  --chart-3: hsl(30 80% 55%);
-  --chart-4: hsl(280 65% 60%);
-  --chart-5: hsl(340 75% 55%);
-  --sidebar-background: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
-  --sidebar: hsl(240 5.9% 10%);
+  /* Base colors */
+  --background: #0b0b0d;
+  --foreground: #f2f3f5;
+
+  /* Card and surfaces */
+  --card: #1a1d20;
+  --card-foreground: #f2f3f5;
+  --popover: #1a1d20;
+  --popover-foreground: #f2f3f5;
+
+  /* Primary (accent blue) */
+  --primary: #2e7bff;
+  --primary-foreground: #f2f3f5;
+
+  /* Secondary (mid-gray) */
+  --secondary: #22262a;
+  --secondary-foreground: #f2f3f5;
+
+  /* Muted */
+  --muted: #1a1d20;
+  --muted-foreground: #6a7179;
+
+  /* Accent */
+  --accent: #2e7bff;
+  --accent-foreground: #f2f3f5;
+
+  /* Destructive (error red) */
+  --destructive: #e45151;
+  --destructive-foreground: #f2f3f5;
+
+  /* Success */
+  --success: #18c29c;
+  --success-foreground: #f2f3f5;
+
+  /* Warning */
+  --warning: #ffb020;
+  --warning-foreground: #0b0b0d;
+
+  /* Borders and separators (hairline) */
+  --border: #2a2e33;
+  --input: #13161a;
+  --ring: #2e7bff;
+
+  /* Sidebar */
+  --sidebar-background: #111316;
+  --sidebar-foreground: #f2f3f5;
+  --sidebar-primary: #2e7bff;
+  --sidebar-primary-foreground: #f2f3f5;
+  --sidebar-accent: #22262a;
+  --sidebar-accent-foreground: #f2f3f5;
+  --sidebar-border: #2a2e33;
+  --sidebar-ring: #2e7bff;
+  --sidebar: #111316;
+
+  /* Chart colors */
+  --chart-1: #2e7bff;
+  --chart-2: #18c29c;
+  --chart-3: #ffb020;
+  --chart-4: #e45151;
+  --chart-5: #6a7179;
+
+  /* Border radius - minimal for hard-edged design */
+  --radius: 0.25rem;
 }
 
 /* define theme */
 @theme {
-  --font-sans: var(--font-geist);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 
   --breakpoint-toast-mobile: 600px;
@@ -201,10 +200,36 @@
     @apply bg-background text-foreground;
     overflow-x: hidden;
     position: relative;
+    font-weight: 400;
+    letter-spacing: -0.01em;
   }
 
   html {
     overflow-x: hidden;
+  }
+
+  /* Typography - XMTP branding */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  h1 {
+    font-weight: 800;
+  }
+
+  /* Uppercase micro-labels for system states */
+  .micro-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 }
 
@@ -267,7 +292,7 @@
   @apply bg-blue-200 hover:bg-blue-300 dark:hover:bg-blue-400/50 dark:text-blue-50 dark:bg-blue-500/40;
 }
 
-/* minimal scrollbar styling */
+/* minimal scrollbar styling - XMTP branding */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -280,11 +305,11 @@
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 3px;
-  transition: background 0.2s ease;
+  transition: background 0.15s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: --alpha(var(--muted-foreground) / 0.5);
+  background: var(--muted-foreground);
 }
 
 ::-webkit-scrollbar-corner {
@@ -312,7 +337,27 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* XMTP motion - crisp fades, 120-180ms */
+  * {
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* Buttons - high contrast pills */
+  button {
+    transition: background-color 150ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      color 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* Focus rings - 2px accent ring, no shadow */
+  *:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    box-shadow: none;
   }
 }

@@ -1,0 +1,654 @@
+# XMTP Browser SDK Usage Guide
+
+# XMTP client SDK for browsers
+
+This package provides the XMTP client SDK for browsers.
+
+To keep up with the latest SDK developments, see the [Issues tab](https://github.com/xmtp/xmtp-js/issues) in this repo.
+
+## Documentation
+
+To learn how to use the XMTP client SDK for browsers, see [Get started with the XMTP Browser SDK](https://docs.xmtp.org/sdks/browser).
+
+## SDK reference
+
+Coming soon
+
+## Limitations
+
+This SDK uses the [origin private file system](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system) (OPFS) to persist a SQLite database and the [SyncAccessHandle Pool VFS](https://sqlite.org/wasm/doc/trunk/persistence.md#vfs-opfs-sahpool) to access it. This VFS does not support multiple simultaneous connections.
+
+This means that when using this SDK in your app, you must prevent multiple browser tabs or windows from accessing your app at the same time.
+
+### Bundlers
+
+This SDK and some of its dependencies use `import.meta.url`. Some bundlers must be configured to account for this during development.
+
+#### Vite
+
+Add the following to `vite.config.ts`:
+
+```typescript
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  optimizeDeps: {
+    exclude: ["@xmtp/wasm-bindings", "@xmtp/browser-sdk"],
+    include: ["@xmtp/proto"],
+  },
+});
+```
+
+## Install
+
+**NPM**
+
+```bash
+npm install @xmtp/browser-sdk
+```
+
+**PNPM**
+
+```bash
+pnpm install @xmtp/browser-sdk
+```
+
+**Yarn**
+
+```bash
+yarn add @xmtp/browser-sdk
+```
+
+## Developing
+
+Run `yarn dev` to build the SDK and watch for changes, which will trigger a rebuild.
+
+### Useful commands
+
+- `yarn build`: Builds the SDK
+- `yarn clean`: Removes `node_modules`, `dist`, and `.turbo` folders
+- `yarn dev`: Builds the SDK and watches for changes, which will trigger a rebuild
+- `yarn test`: Runs all tests
+- `yarn typecheck`: Runs `tsc`
+
+## Installation & Setup
+
+```typescript
+import { Client } from "@xmtp/browser-sdk";
+```
+
+## Client Initialization
+
+### Creating a Client
+
+```typescript
+import { Client } from "@xmtp/browser-sdk";
+import { createEOASigner, createSCWSigner } from "@/helpers/createSigner";
+
+// Create client with signer
+const client = await Client.create(signer, {
+  env: "production" | "dev" | "local",
+  loggingLevel: "off" | "error" | "warn" | "info" | "debug",
+  dbEncryptionKey: Uint8Array | undefined,
+  appVersion: "your-app/version",
+  codecs: [
+    // Register content type codecs
+    new ReactionCodec(),
+    new ReplyCodec(),
+    new RemoteAttachmentCodec(),
+    // ... other codecs
+  ],
+});
+```
+
+### Signers
+
+```typescript
+// EOA (Externally Owned Account) Signer
+const eoaSigner = createEOASigner(walletAddress, (message: string) =>
+  signMessageAsync({ message })
+);
+
+// Smart Contract Wallet Signer
+const scwSigner = createSCWSigner(
+  walletAddress,
+  (message: string) => signMessageAsync({ message }),
+  chainId
+);
+```
+
+### Closing Client
+
+```typescript
+client.close();
+```
+
+## Identity & Identifiers
+
+### Inbox ID
+
+- Every XMTP user has a unique `inboxId` that represents their identity
+- An inbox can have multiple identifiers (Ethereum addresses, etc.) associated with it
+- Inbox IDs persist across different wallets/addresses
+
+### Identifiers
+
+Identifiers link blockchain addresses to inbox IDs:
+
+```typescript
+type Identifier = {
+  identifier: string; // e.g., "0x1234..." (lowercase)
+  identifierKind: "Ethereum"; // Currently only "Ethereum" supported
+};
+```
+
+### Getting Inbox ID for Address
+
+```typescript
+// Find inbox ID by identifier
+const inboxId = await client.findInboxIdByIdentifier({
+  identifier: address.toLowerCase(),
+  identifierKind: "Ethereum",
+});
+
+// Using utils
+import { utils } from "@xmtp/browser-sdk";
+const inboxId = await utils.getInboxIdForIdentifier(
+  {
+    identifier: address.toLowerCase(),
+    identifierKind: "Ethereum",
+  },
+  environment
+);
+```
+
+### Getting Inbox State
+
+```typescript
+// Get full inbox state
+const inboxState = await client.preferences.inboxState(true);
+// Returns:
+// {
+//   inboxId: string,
+//   identifiers: Identifier[],
+//   recoveryIdentifier: Identifier | null,
+//   installations: Installation[]
+// }
+```
+
+### Managing Identifiers
+
+```typescript
+// Multiple Ethereum addresses can map to same inbox ID
+// Useful for multi-wallet support
+const accountIdentifiers = inboxState.identifiers;
+```
+
+## Conversations
+
+### Listing Conversations
+
+```typescript
+// List all conversations
+const conversations = await client.conversations.list();
+
+// List conversations created after a specific time
+const conversations = await client.conversations.list({
+  createdAfterNs: timestampInNanoseconds,
+});
+```
+
+### Syncing Conversations
+
+```typescript
+// Sync new conversations from network
+await client.conversations.sync();
+
+// Sync all conversations (including messages)
+await client.conversations.syncAll();
+```
+
+### Streaming Conversations
+
+```typescript
+// Stream new conversations in real-time
+const stream = await client.conversations.stream({
+  onValue: (conversation) => {
+    console.log("New conversation:", conversation);
+    // Handle new conversation
+  },
+});
+
+// Stop streaming
+await stream.end();
+```
+
+### Getting Specific Conversation
+
+```typescript
+// Get conversation by ID
+const conversation = await client.conversations.getConversationById(
+  conversationId
+);
+
+// Get DM by inbox ID
+const dm = await client.conversations.getDmByInboxId(inboxId);
+```
+
+### Conversation Types
+
+Two conversation types exist:
+
+- **DM (Direct Message)**: 1-on-1 conversation
+- **Group**: Multi-party conversation with permissions
+
+```typescript
+import { Dm, Group } from "@xmtp/browser-sdk";
+
+if (conversation instanceof Dm) {
+  // Handle DM
+}
+if (conversation instanceof Group) {
+  // Handle Group
+  const permissions = await conversation.permissions();
+  const name = conversation.name;
+  const description = conversation.description;
+  const imageUrl = conversation.imageUrl;
+}
+```
+
+## Creating Conversations
+
+### Creating DMs
+
+```typescript
+// Create DM with inbox ID
+const dm = await client.conversations.newDm(inboxId);
+
+// Create DM with identifier (e.g., Ethereum address)
+const dm = await client.conversations.newDmWithIdentifier({
+  identifier: address.toLowerCase(),
+  identifierKind: "Ethereum",
+});
+```
+
+### Creating Groups
+
+```typescript
+import { GroupPermissionsOptions } from "@xmtp/browser-sdk";
+
+// Create group with inbox IDs
+const group = await client.conversations.newGroup([inboxId1, inboxId2], {
+  name: "Group Name",
+  description: "Group Description",
+  imageUrlSquare: "https://...",
+  permissions: GroupPermissionsOptions.Default,
+});
+
+// Create group with identifiers
+const group = await client.conversations.newGroupWithIdentifiers(
+  [
+    { identifier: address1.toLowerCase(), identifierKind: "Ethereum" },
+    { identifier: address2.toLowerCase(), identifierKind: "Ethereum" },
+  ],
+  {
+    name: "Group Name",
+    description: "Group Description",
+    imageUrlSquare: "https://...",
+    permissions: GroupPermissionsOptions.AllMembers,
+  }
+);
+```
+
+### Group Permission Options
+
+```typescript
+enum GroupPermissionsOptions {
+  Default = "default", // Creator has full control
+  AllMembers = "all_members", // All members can add/remove
+  AdminOnly = "admin_only", // Only admins can manage
+  CustomPolicy = "custom_policy", // Custom permission set
+}
+```
+
+### Adding Members to Existing Group
+
+```typescript
+// Add members by inbox IDs
+await group.addMembers([inboxId1, inboxId2]);
+
+// Add members by identifiers
+await group.addMembersByIdentifiers([
+  { identifier: address.toLowerCase(), identifierKind: "Ethereum" },
+]);
+```
+
+## Messages
+
+### Sending Messages
+
+```typescript
+import { ContentTypeText } from "@xmtp/content-type-text";
+
+// Send text message
+await conversation.send("Hello!", ContentTypeText);
+
+// Send message without explicit content type (defaults to text)
+await conversation.send("Hello!");
+```
+
+### Sending with Content Types
+
+```typescript
+import { ContentTypeReply } from "@xmtp/content-type-reply";
+import { ContentTypeReaction } from "@xmtp/content-type-reaction";
+import { ContentTypeRemoteAttachment } from "@xmtp/content-type-remote-attachment";
+
+// Send reply
+await conversation.send(
+  {
+    reference: originalMessageId,
+    referenceInboxId: originalSenderInboxId,
+    contentType: ContentTypeText,
+    content: "Reply text",
+  },
+  ContentTypeReply
+);
+
+// Send reaction
+await conversation.send(
+  {
+    reference: messageId,
+    action: "added",
+    schema: "unicode",
+    content: "👍",
+  },
+  ContentTypeReaction
+);
+
+// Send remote attachment
+await conversation.send(remoteAttachmentContent, ContentTypeRemoteAttachment);
+```
+
+### Listing Messages
+
+```typescript
+// Get all messages in conversation
+const messages = await conversation.messages();
+
+// Get messages sent after specific time
+const messages = await conversation.messages({
+  sentAfterNs: timestampInNanoseconds,
+});
+
+// Get last message
+const lastMessage = await conversation.lastMessage();
+```
+
+### Syncing Messages
+
+```typescript
+// Sync conversation messages from network
+await conversation.sync();
+
+// Then fetch new messages
+const messages = await conversation.messages({
+  sentAfterNs: lastSentAtNs,
+});
+```
+
+### Streaming Messages
+
+```typescript
+// Stream messages for specific conversation
+const stream = await conversation.stream({
+  onValue: (message) => {
+    console.log("New message:", message);
+    // Handle new message
+  },
+});
+
+// Stream all messages across all conversations
+const allStream = await client.conversations.streamAllMessages({
+  onValue: (message) => {
+    console.log("New message:", message);
+    // message.conversationId identifies which conversation
+  },
+});
+
+// Stop streaming
+await stream.end();
+```
+
+### Getting Message by ID
+
+```typescript
+const message = await client.conversations.getMessageById(messageId);
+```
+
+### Message Structure
+
+```typescript
+type DecodedMessage<T> = {
+  id: string;
+  conversationId: string;
+  senderInboxId: string;
+  sentAtNs: number;
+  content: T;
+  contentType: ContentTypeId;
+  // ... other fields
+};
+```
+
+## Members & Permissions
+
+### Getting Conversation Members
+
+```typescript
+const members = await conversation.members();
+// Returns: Member[]
+
+type Member = {
+  inboxId: string;
+  accountAddresses: string[];
+  installationIds: Uint8Array[];
+  permissionLevel: "member" | "admin" | "super_admin";
+  consentState: "unknown" | "allowed" | "denied";
+};
+```
+
+### Group Member Management
+
+```typescript
+// Add members
+await group.addMembers([inboxId]);
+
+// Remove members
+await group.removeMembers([inboxId]);
+
+// Update member permission
+await group.updatePermissionPolicy(
+  permissionUpdateType,
+  permissionPolicyOption,
+  metadataField?
+);
+```
+
+### Checking Conversation Status
+
+```typescript
+// Check if conversation is active
+const isActive = await conversation.isActive();
+
+// Only sync if active
+if (isActive) {
+  await conversation.sync();
+}
+```
+
+## Best Practices
+
+### 1. Always Use Lowercase Identifiers
+
+```typescript
+// GOOD
+{ identifier: address.toLowerCase(), identifierKind: "Ethereum" }
+
+// BAD
+{ identifier: address, identifierKind: "Ethereum" }
+```
+
+### 2. Check for Existing Conversations Before Creating
+
+```typescript
+// Check for existing DM before creating new one
+const existingDm = await client.conversations.getDmByInboxId(inboxId);
+if (!existingDm) {
+  const newDm = await client.conversations.newDm(inboxId);
+}
+```
+
+### 3. Sync Before Listing
+
+```typescript
+// Sync from network first to get latest data
+await client.conversations.sync();
+const conversations = await client.conversations.list();
+```
+
+### 4. Handle Streams Properly
+
+```typescript
+// Store stream cleanup function
+const stopStream = await client.conversations.stream({ onValue });
+
+// Clean up when done
+useEffect(() => {
+  return () => {
+    stopStream?.();
+  };
+}, []);
+```
+
+### 5. Use Nanosecond Timestamps
+
+```typescript
+// Convert Date to nanoseconds
+const dateToNs = (date: Date) => BigInt(date.getTime()) * BigInt(1_000_000);
+
+// Use for filtering
+const messages = await conversation.messages({
+  sentAfterNs: dateToNs(lastSyncDate),
+});
+```
+
+### 6. Validate Inbox IDs and Addresses
+
+```typescript
+const isValidInboxId = (id: string) => /^0x[0-9a-fA-F]{64}$/.test(id);
+const isValidEthereumAddress = (addr: string) =>
+  /^0x[0-9a-fA-F]{40}$/i.test(addr);
+```
+
+### 7. Register Content Codecs
+
+Always register all content type codecs you plan to use when creating the client:
+
+```typescript
+const client = await Client.create(signer, {
+  codecs: [
+    new ReactionCodec(),
+    new ReplyCodec(),
+    new RemoteAttachmentCodec(),
+    new TransactionReferenceCodec(),
+    new ReadReceiptCodec(),
+    new MarkdownCodec(),
+  ],
+});
+```
+
+## Common Patterns
+
+### Pattern: Load and Stream Conversations
+
+```typescript
+// Initial load
+await client.conversations.sync();
+const conversations = await client.conversations.list();
+
+// Start streaming new ones
+const stopStream = await client.conversations.stream({
+  onValue: (conversation) => {
+    // Add to state
+  },
+});
+```
+
+### Pattern: Load and Stream Messages
+
+```typescript
+// Initial load
+await conversation.sync();
+const messages = await conversation.messages();
+
+// Stream new messages
+const stopStream = await conversation.stream({
+  onValue: (message) => {
+    // Add to state
+  },
+});
+```
+
+### Pattern: Create DM from Address
+
+```typescript
+// Resolve address to inbox ID
+const inboxId = await client.findInboxIdByIdentifier({
+  identifier: address.toLowerCase(),
+  identifierKind: "Ethereum",
+});
+
+if (!inboxId) {
+  throw new Error("Address not registered on XMTP");
+}
+
+// Check for existing DM
+const dm = await client.conversations.getDmByInboxId(inboxId);
+if (dm) {
+  return dm;
+}
+
+// Create new DM
+const newDm = await client.conversations.newDmWithIdentifier({
+  identifier: address.toLowerCase(),
+  identifierKind: "Ethereum",
+});
+return newDm;
+```
+
+### Pattern: Send Message with Error Handling
+
+```typescript
+try {
+  await conversation.send(messageContent, contentType);
+} catch (error) {
+  console.error("Failed to send message:", error);
+  // Handle error appropriately
+}
+```
+
+## Type Imports
+
+```typescript
+import type {
+  Client,
+  Conversation,
+  Dm,
+  Group,
+  DecodedMessage,
+  Identifier,
+  SafeCreateGroupOptions,
+  GroupPermissionsOptions,
+  Member,
+} from "@xmtp/browser-sdk";
+```

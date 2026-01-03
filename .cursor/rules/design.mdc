@@ -1,0 +1,31 @@
+---
+alwaysApply: true
+---
+
+Monochrome base, single electric accent, hard-edged grid, terse UI chrome.
+
+- Base palette: Near‑black (#0B0B0D to #111316), off‑white text (#F2F3F5), mid‑gray surfaces (#1A1D20, #22262A). Contrast is high; backgrounds stay dark, text stays crisp.
+
+- Accent color: One assertive hue used sparingly—electric blue (#2E7BFF or #1F6BFF). Apply only to links, primary CTAs, and interactive focus. No gradients; solid fills.
+
+- Secondary states: Muted teal or green for success (#18C29C), amber for warnings (#FFB020), desaturated red for errors (#E45151). Keep saturation restrained.
+
+- Typography: Bold, declarative sans for headings (e.g., Inter, Neue Haas Grotesk, or Söhne). Headline weight 700–800, tight tracking. Body set in geometric sans at 400–500 weight. Uppercase micro‑labels for system states.
+
+- Spacing + grid: 12‑column grid, generous gutters. Slabbed, full‑bleed sections. Hierarchy from scale and whitespace; avoid borders—use contrast and spacing.
+
+- Buttons/links: High‑contrast pills: dark surface, white text; accent outline or fill on primary. Hover = subtle 4–6% lighten; focus = 2px accent ring, no shadow.
+
+- Cards/sections: Flat layers with subtle separators: 1px hairline in #2A2E33 or soft inner padding. No drop shadows; rely on stacking order and spacing.
+
+- Iconography: Thin‑line system icons, 1.5–2px strokes, monochrome by default; switch to accent on active/selected.
+
+- Imagery: Blurred, subdued hero backgrounds; abstract “world/network” mark. Keep photos low‑saturation, cool temperature.
+
+- Motion: Crisp fades, 120–180ms; slide distances short (8–12px). No parallax; exits match entries. Easing: standard or cubic-bezier(0.2, 0.8, 0.2, 1).
+
+- Dividers + rules: Hairlines only; avoid heavy borders. Use negative space to separate blocks.
+
+- Forms: Dark fields (#13161A), white text, placeholder mid‑gray (#6A7179). Focus = accent ring; error = desat red underline; success = muted green tick.
+
+This styling communicates authority through restraint: black/white discipline, one energetic accent, grid‑tight layout, and minimal motion.

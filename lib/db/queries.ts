@@ -15,7 +15,7 @@ import {
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import type { ArtifactKind } from "@/components/artifact";
-import type { VisibilityType } from "@/components/visibility-selector";
+import type { VisibilityType } from "@/lib/types";
 import { ChatSDKError } from "../errors";
 import { generateUUID } from "../utils";
 import {
@@ -32,18 +32,34 @@ import {
   vote,
 } from "./schema";
 import { generateHashedPassword } from "./utils";
+import {
+  mockGetUser,
+  mockCreateUser,
+  mockCreateGuestUser,
+} from "./mock";
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
 // https://authjs.dev/reference/adapter/drizzle
 
-// biome-ignore lint: Forbidden non-null assertion.
-const client = postgres(process.env.POSTGRES_URL!);
-const db = drizzle(client);
+const useMockDB = !process.env.POSTGRES_URL;
+
+let client: ReturnType<typeof postgres> | null = null;
+let db: ReturnType<typeof drizzle> | null = null;
+
+if (!useMockDB) {
+  // biome-ignore lint: Forbidden non-null assertion.
+  client = postgres(process.env.POSTGRES_URL!);
+  db = drizzle(client);
+}
 
 export async function getUser(email: string): Promise<User[]> {
+  if (useMockDB) {
+    return await mockGetUser(email);
+  }
+
   try {
-    return await db.select().from(user).where(eq(user.email, email));
+    return await db!.select().from(user).where(eq(user.email, email));
   } catch (_error) {
     throw new ChatSDKError(
       "bad_request:database",
@@ -53,25 +69,36 @@ export async function getUser(email: string): Promise<User[]> {
 }
 
 export async function createUser(email: string, password: string) {
+  if (useMockDB) {
+    await mockCreateUser(email, password);
+    return;
+  }
+
   const hashedPassword = generateHashedPassword(password);
 
   try {
-    return await db.insert(user).values({ email, password: hashedPassword });
+    return await db!.insert(user).values({ email, password: hashedPassword });
   } catch (_error) {
     throw new ChatSDKError("bad_request:database", "Failed to create user");
   }
 }
 
 export async function createGuestUser() {
+  if (useMockDB) {
+    return await mockCreateGuestUser();
+  }
+
   const email = `guest-${Date.now()}`;
   const password = generateHashedPassword(generateUUID());
 
   try {
-    return await db.insert(user).values({ email, password }).returning({
+    const result = await db!.insert(user).values({ email, password }).returning({
       id: user.id,
       email: user.email,
     });
-  } catch (_error) {
+    return result;
+  } catch (error) {
+    console.error("[createGuestUser] Database error:", error);
     throw new ChatSDKError(
       "bad_request:database",
       "Failed to create guest user"
