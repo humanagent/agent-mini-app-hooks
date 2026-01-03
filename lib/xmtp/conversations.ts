@@ -1,26 +1,51 @@
-import type { Client, Conversation } from "@xmtp/browser-sdk";
+import type { Client, Group } from "@xmtp/browser-sdk";
 
 export async function createGroupWithAgentAddresses(
   client: Client,
-  agentAddresses: string[],
-): Promise<Conversation> {
-  console.log(
-    "[createGroupWithAgentAddresses] Creating group with addresses:",
-    agentAddresses,
-  );
+  addresses: string[],
+): Promise<Group> {
+  console.log("[createGroupWithAgentAddresses] Called", {
+    addressesCount: addresses.length,
+    addresses,
+    clientInboxId: client.inboxId,
+  });
 
-  const group = await client.conversations.newGroupWithIdentifiers(
-    agentAddresses.map((address) => ({
-      identifier: address.toLowerCase(),
-      identifierKind: "Ethereum" as const,
-    })),
+  if (!addresses || addresses.length === 0) {
+    throw new Error("No addresses provided for group creation");
+  }
+
+  const identifiers = addresses.map((address) => ({
+    identifier: address.toLowerCase(),
+    identifierKind: "Ethereum" as const,
+  }));
+
+  console.log(
+    "[createGroupWithAgentAddresses] Creating group with identifiers",
     {
-      name: `Group with ${agentAddresses.length} agent${agentAddresses.length > 1 ? "s" : ""}`,
-      description: "Group conversation with AI agents",
+      identifiersCount: identifiers.length,
+      identifiers,
     },
   );
 
-  console.log("[createGroupWithAgentAddresses] Group created:", group.id);
+  try {
+    const group = await client.conversations.newGroupWithIdentifiers(
+      identifiers,
+      {
+        name: "Agent Group",
+      },
+    );
 
-  return group;
+    console.log("[createGroupWithAgentAddresses] Group created successfully", {
+      groupId: group.id,
+      groupName: group.name,
+    });
+
+    return group;
+  } catch (error) {
+    console.error(
+      "[createGroupWithAgentAddresses] Error creating group",
+      error,
+    );
+    throw error;
+  }
 }

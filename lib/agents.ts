@@ -150,7 +150,7 @@ export const AI_AGENTS: AgentConfig[] = [
     name: "gm",
     address: "0x194c31cae1418d5256e8c58e0d08aee1046c6ed0",
     networks: ["dev", "production"],
-    live: false,
+    live: true,
     suggestions: [
       "@gm Good morning! How can I help?",
       "@gm Start a conversation",

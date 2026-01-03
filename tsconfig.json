@@ -14,9 +14,6 @@
       "@lib/*": ["./src/lib/*"],
       "@components/*": ["./src/components/*"],
       "@ui/*": ["./src/ui/*"],
-      "@chat-area/*": ["./src/chat-area/*"],
-      "@sidebar/*": ["./src/sidebar/*"],
-      "@message-list/*": ["./src/message-list/*"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,

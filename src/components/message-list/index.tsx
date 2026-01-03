@@ -1,9 +1,7 @@
-import { ChatHeader } from "@chat-area/chat-header";
-import { Greeting } from "@chat-area/greeting";
+import { ChatHeader, Greeting } from "@components/chat-area/index";
+import { InputArea } from "@components/input-area";
 import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { useXMTPConversations } from "@hooks/use-xmtp-conversations";
-import { MessageList } from "@message-list/index";
-import { InputArea } from "@message-list/input-area";
 import { useCallback, useEffect, useState } from "react";
 
 type Message = {
@@ -11,6 +9,34 @@ type Message = {
   role: "user" | "assistant";
   content: string;
 };
+
+export function MessageList({ messages }: { messages: Message[] }) {
+  return (
+    <>
+      {messages.map((message) => (
+        <div
+          key={message.id}
+          className="fade-in w-full animate-in duration-150">
+          <div
+            className={`flex w-full items-start gap-2 md:gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div className="flex flex-col gap-2 md:gap-4 max-w-[calc(100%-2.5rem)] sm:max-w-[min(fit-content,80%)]">
+              <div
+                className={`flex flex-col gap-2 overflow-hidden text-sm w-fit break-words rounded-md px-3 py-2 ${
+                  message.role === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-foreground"
+                }`}>
+                <div className="space-y-4 whitespace-normal size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_code]:whitespace-pre-wrap [&_code]:break-words [&_pre]:max-w-full [&_pre]:overflow-x-auto">
+                  <p>{message.content}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
 
 export function ConversationView() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -71,7 +97,7 @@ export function ConversationView() {
       }
     };
 
-    setupMessages();
+    void setupMessages();
 
     return () => {
       mounted = false;
@@ -105,7 +131,7 @@ export function ConversationView() {
 
   return (
     <div className="overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background">
-      <ChatHeader chatId="wireframe" isReadonly={false} />
+      <ChatHeader />
 
       <div className="relative flex-1">
         <div className="absolute inset-0 touch-pan-y overflow-y-auto">
@@ -117,7 +143,12 @@ export function ConversationView() {
       </div>
 
       <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
-        <InputArea messages={messages} sendMessage={handleSendMessage} />
+        <InputArea
+          messages={messages}
+          sendMessage={(content) => {
+            void handleSendMessage(content);
+          }}
+        />
       </div>
     </div>
   );

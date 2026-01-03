@@ -1,17 +1,51 @@
-import { ChatHeader } from "@chat-area/chat-header";
-import { Greeting } from "@chat-area/greeting";
-import { InputArea } from "@chat-area/input-area";
+import { InputArea } from "@components/input-area";
 import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { useXMTPConversations } from "@hooks/use-xmtp-conversations";
-import { Loader2 } from "lucide-react";
+import { Loader2Icon } from "@ui/icons";
+import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { type AgentConfig } from "@/lib/agents";
 import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
+import { SidebarToggle } from "@/src/components/sidebar/sidebar-toggle";
 
 type Message = {
   id: string;
   role: "user" | "assistant";
   content: string;
+};
+
+export const ChatHeader = () => {
+  return (
+    <header className="sticky top-0 flex items-center gap-2 bg-background px-2 py-1.5 md:px-2">
+      <SidebarToggle />
+    </header>
+  );
+};
+
+export const Greeting = () => {
+  return (
+    <div
+      className="mx-auto mt-4 flex size-full max-w-3xl flex-col justify-center px-4 md:mt-16 md:px-8"
+      key="overview">
+      <motion.div
+        animate={{ opacity: 1, y: 0 }}
+        className="font-semibold text-xl md:text-2xl"
+        exit={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 10 }}
+        transition={{ delay: 0.5, duration: 0.15 }}>
+        Hello there
+      </motion.div>
+      <motion.div
+        animate={{ opacity: 1, y: 0 }}
+        className="text-xl text-muted-foreground md:text-2xl"
+        exit={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 10 }}
+        transition={{ delay: 0.6, duration: 0.15 }}>
+        This chat is secured by XMTP. Each conversation its a new identity,
+        untraceable to the previous one
+      </motion.div>
+    </div>
+  );
 };
 
 export function ChatArea() {
@@ -85,11 +119,24 @@ export function ChatArea() {
 
   const handleSendMessage = useCallback(
     async (content: string) => {
+      console.log("[ChatArea] handleSendMessage called", {
+        content,
+        hasClient: !!client,
+        selectedAgentsCount: selectedAgents.length,
+        selectedAgents: selectedAgents.map((a) => ({
+          name: a.name,
+          address: a.address,
+        })),
+        hasSelectedConversation: !!selectedConversation,
+      });
+
       if (!client) {
+        console.log("[ChatArea] Early return - no client");
         return;
       }
 
       if (selectedAgents.length === 0) {
+        console.log("[ChatArea] Early return - no selected agents");
         return;
       }
 
@@ -97,12 +144,21 @@ export function ChatArea() {
 
       if (!conversation) {
         try {
+          console.log("[ChatArea] No existing conversation, creating group...");
           setIsCreatingConversation(true);
           const agentAddresses = selectedAgents.map((agent) => agent.address);
+          console.log(
+            "[ChatArea] Creating group with addresses:",
+            agentAddresses,
+          );
           conversation = await createGroupWithAgentAddresses(
             client,
             agentAddresses,
           );
+          console.log("[ChatArea] Group created successfully", {
+            conversationId: conversation.id,
+            conversationType: conversation.constructor.name,
+          });
           setSelectedConversation(conversation);
         } catch (error) {
           console.error("[ChatArea] Error creating conversation:", error);
@@ -114,8 +170,16 @@ export function ChatArea() {
       }
 
       if (!conversation) {
+        console.log(
+          "[ChatArea] Early return - no conversation after creation attempt",
+        );
         return;
       }
+
+      console.log("[ChatArea] Sending message to conversation", {
+        conversationId: conversation.id,
+        content,
+      });
 
       const tempMessage: Message = {
         id: `temp-${Date.now()}`,
@@ -127,6 +191,7 @@ export function ChatArea() {
 
       try {
         await conversation.send(content);
+        console.log("[ChatArea] Message sent successfully");
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
       } catch (error) {
         console.error("[ChatArea] Error sending message:", error);
@@ -138,7 +203,7 @@ export function ChatArea() {
 
   return (
     <div className="overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background">
-      <ChatHeader _chatId="wireframe" _isReadonly={false} />
+      <ChatHeader />
 
       <div className="relative flex-1">
         <div className="absolute inset-0 touch-pan-y overflow-y-auto">
@@ -169,7 +234,7 @@ export function ChatArea() {
         </div>
       </div>
 
-      <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl items-center gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
+      <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
         <InputArea
           selectedAgents={selectedAgents}
           setSelectedAgents={setSelectedAgents}
@@ -179,7 +244,7 @@ export function ChatArea() {
       {isCreatingConversation && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-3 rounded-lg bg-card p-6 shadow-lg">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <Loader2Icon size={24} className="animate-spin text-primary" />
             <p className="text-sm text-muted-foreground">
               Creating conversation...
             </p>
