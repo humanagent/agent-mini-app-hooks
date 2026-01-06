@@ -6,9 +6,14 @@ import { getOrCreateEphemeralAccountKey } from "@/lib/xmtp/signer";
 let globalClientPromise: Promise<Client<ContentTypes>> | null = null;
 let globalClient: Client<ContentTypes> | null = null;
 let isInitializing = false;
-const subscribers = new Set<(client: Client<ContentTypes> | null, error: Error | null) => void>();
+const subscribers = new Set<
+  (client: Client<ContentTypes> | null, error: Error | null) => void
+>();
 
-function notifySubscribers(client: Client<ContentTypes> | null, error: Error | null) {
+function notifySubscribers(
+  client: Client<ContentTypes> | null,
+  error: Error | null,
+) {
   subscribers.forEach((subscriber) => subscriber(client, error));
 }
 
@@ -19,12 +24,16 @@ async function initializeClient(): Promise<Client<ContentTypes>> {
   }
 
   if (isInitializing && globalClientPromise) {
-    console.log("[XMTP] Client initialization already in progress, waiting for existing promise...");
+    console.log(
+      "[XMTP] Client initialization already in progress, waiting for existing promise...",
+    );
     return globalClientPromise;
   }
 
   if (isInitializing) {
-    console.warn("[XMTP] Initialization flag set but no promise exists, waiting 100ms...");
+    console.warn(
+      "[XMTP] Initialization flag set but no promise exists, waiting 100ms...",
+    );
     await new Promise((resolve) => setTimeout(resolve, 100));
     if (globalClientPromise) {
       return globalClientPromise;
@@ -36,16 +45,19 @@ async function initializeClient(): Promise<Client<ContentTypes>> {
 
   console.log("[XMTP] Starting new client initialization...");
   isInitializing = true;
-  
+
   globalClientPromise = (async () => {
     try {
       console.log("[XMTP] Getting or creating ephemeral account key...");
       const accountKey = getOrCreateEphemeralAccountKey();
-      console.log("[XMTP] Account key obtained:", accountKey.slice(0, 10) + "...");
+      console.log(
+        "[XMTP] Account key obtained:",
+        accountKey.slice(0, 10) + "...",
+      );
 
       console.log("[XMTP] Creating XMTP client...");
       const xmtpClient = await createXMTPClient(accountKey);
-      
+
       console.log("[XMTP] XMTP client initialization complete");
       globalClient = xmtpClient;
       isInitializing = false;
@@ -66,7 +78,9 @@ async function initializeClient(): Promise<Client<ContentTypes>> {
 }
 
 export function useXMTPClient() {
-  const [client, setClient] = useState<Client<ContentTypes> | null>(globalClient);
+  const [client, setClient] = useState<Client<ContentTypes> | null>(
+    globalClient,
+  );
   const [isLoading, setIsLoading] = useState(!globalClient);
   const [error, setError] = useState<Error | null>(null);
 
@@ -83,19 +97,39 @@ export function useXMTPClient() {
     }
 
     console.log("[XMTP] useXMTPClient effect running");
-    console.log("[XMTP] Current state - globalClient:", !!globalClient, "globalClientPromise:", !!globalClientPromise, "isInitializing:", isInitializing, "subscribers:", subscribers.size);
+    console.log(
+      "[XMTP] Current state - globalClient:",
+      !!globalClient,
+      "globalClientPromise:",
+      !!globalClientPromise,
+      "isInitializing:",
+      isInitializing,
+      "subscribers:",
+      subscribers.size,
+    );
     setIsLoading(true);
     setError(null);
 
-    const subscriber = (newClient: Client<ContentTypes> | null, newError: Error | null) => {
-      console.log("[XMTP] Subscriber notified - client:", !!newClient, "error:", !!newError);
+    const subscriber = (
+      newClient: Client<ContentTypes> | null,
+      newError: Error | null,
+    ) => {
+      console.log(
+        "[XMTP] Subscriber notified - client:",
+        !!newClient,
+        "error:",
+        !!newError,
+      );
       setClient(newClient);
       setError(newError);
       setIsLoading(false);
     };
 
     subscribers.add(subscriber);
-    console.log("[XMTP] Subscriber added, total subscribers:", subscribers.size);
+    console.log(
+      "[XMTP] Subscriber added, total subscribers:",
+      subscribers.size,
+    );
 
     initializeClient().catch((err) => {
       console.error("[XMTP] Failed to initialize client:", err);

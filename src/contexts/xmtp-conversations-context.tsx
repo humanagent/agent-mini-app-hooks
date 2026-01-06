@@ -16,9 +16,19 @@ export function ConversationsProvider({
   client: Client<ContentTypes> | null;
   children: ReactNode;
 }) {
-  console.log("[XMTP] ConversationsProvider - client:", client ? "exists" : "null");
+  console.log(
+    "[XMTP] ConversationsProvider - client:",
+    client ? "exists" : "null",
+  );
   const value = useXMTPConversations(client);
-  console.log("[XMTP] ConversationsProvider - conversations:", value.conversations.length, "isLoading:", value.isLoading, "error:", value.error?.message);
+  console.log(
+    "[XMTP] ConversationsProvider - conversations:",
+    value.conversations.length,
+    "isLoading:",
+    value.isLoading,
+    "error:",
+    value.error?.message,
+  );
   return (
     <ConversationsContext.Provider value={value}>
       {children}

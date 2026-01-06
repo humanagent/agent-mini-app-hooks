@@ -21,7 +21,8 @@ export function ExplorePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const navigate = useNavigate();
   const { client } = useXMTPClient();
-  const { setSelectedConversation, refreshConversations } = useConversationsContext();
+  const { setSelectedConversation, refreshConversations } =
+    useConversationsContext();
 
   const filteredAgents = useMemo(() => {
     if (selectedCategory === "All") {
@@ -41,23 +42,29 @@ export function ExplorePage() {
 
   const handleAgentClick = async (agent: AgentConfig) => {
     if (!client) {
-      console.warn("[Explore] Cannot create conversation: client not available");
+      console.warn(
+        "[Explore] Cannot create conversation: client not available",
+      );
       return;
     }
 
     try {
-      console.log("[Explore] Creating conversation with agent:", agent.name, agent.address);
-      
+      console.log(
+        "[Explore] Creating conversation with agent:",
+        agent.name,
+        agent.address,
+      );
+
       const conversation = await createGroupWithAgentAddresses(client, [
         agent.address,
       ]);
-      
+
       console.log("[Explore] Conversation created:", conversation.id);
       setSelectedConversation(conversation);
-      
+
       await refreshConversations();
       console.log("[Explore] Conversations refreshed");
-      
+
       console.log("[Explore] Navigating to chat...");
       navigate("/", { replace: true });
     } catch (error) {
@@ -69,7 +76,9 @@ export function ExplorePage() {
           stack: error.stack,
         });
       }
-      alert(`Failed to start conversation with ${agent.name}. Please try again.`);
+      alert(
+        `Failed to start conversation with ${agent.name}. Please try again.`,
+      );
     }
   };
 

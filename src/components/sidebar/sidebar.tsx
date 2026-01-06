@@ -19,9 +19,11 @@ import {
 } from "@ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import type { Conversation } from "@xmtp/browser-sdk";
+import { Group } from "@xmtp/browser-sdk";
 import { useEffect } from "react";
 import { shortAddress } from "@/lib/utils";
 import { Link, useLocation } from "react-router";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ChevronUpIcon = ({
   size = 16,
@@ -91,7 +93,7 @@ const SidebarUserNav = () => {
 };
 
 export function Sidebar() {
-  const { client } = useXMTPClient();
+  const { client: _client } = useXMTPClient();
   const { conversations, selectedConversation, setSelectedConversation } =
     useConversationsContext();
   const location = useLocation();
@@ -104,7 +106,7 @@ export function Sidebar() {
         index: i,
         id: c.id,
         type: c.constructor.name,
-        peerInboxId: 'peerInboxId' in c ? c.peerInboxId : undefined,
+        peerInboxId: "peerInboxId" in c ? c.peerInboxId : undefined,
       })),
     });
   }, [conversations]);
@@ -182,14 +184,20 @@ export function Sidebar() {
               // Log raw conversations array
               console.log("[Sidebar] ===== CONVERSATION LIST DEBUG =====");
               console.log("[Sidebar] Raw conversations array:", conversations);
-              console.log("[Sidebar] Raw conversations count:", conversations.length);
-              console.log("[Sidebar] Raw conversation IDs:", conversations.map((c, i) => ({
-                index: i,
-                id: c.id,
-                type: c.constructor.name,
-                peerInboxId: 'peerInboxId' in c ? c.peerInboxId : undefined,
-              })));
-              
+              console.log(
+                "[Sidebar] Raw conversations count:",
+                conversations.length,
+              );
+              console.log(
+                "[Sidebar] Raw conversation IDs:",
+                conversations.map((c, i) => ({
+                  index: i,
+                  id: c.id,
+                  type: c.constructor.name,
+                  peerInboxId: "peerInboxId" in c ? c.peerInboxId : undefined,
+                })),
+              );
+
               // Check for duplicates in raw array
               const rawIdCounts = new Map<string, number[]>();
               conversations.forEach((c, i) => {
@@ -198,62 +206,95 @@ export function Sidebar() {
                 }
                 rawIdCounts.get(c.id)?.push(i);
               });
-              const rawDuplicates = Array.from(rawIdCounts.entries()).filter(([_, indices]) => indices.length > 1);
+              const rawDuplicates = Array.from(rawIdCounts.entries()).filter(
+                ([_, indices]) => indices.length > 1,
+              );
               if (rawDuplicates.length > 0) {
-                console.warn("[Sidebar] DUPLICATES IN RAW ARRAY:", rawDuplicates.map(([id, indices]) => ({
-                  id,
-                  count: indices.length,
-                  indices,
-                })));
+                console.warn(
+                  "[Sidebar] DUPLICATES IN RAW ARRAY:",
+                  rawDuplicates.map(([id, indices]) => ({
+                    id,
+                    count: indices.length,
+                    indices,
+                  })),
+                );
               }
-              
+
               // Deduplicate conversations by ID - keep the first occurrence
               const seenIds = new Set<string>();
               const uniqueConversations = conversations.filter((c, index) => {
                 if (seenIds.has(c.id)) {
-                  console.warn("[Sidebar] Filtering out duplicate conversation:", {
-                    id: c.id,
-                    index,
-                    type: c.constructor.name,
-                  });
+                  console.warn(
+                    "[Sidebar] Filtering out duplicate conversation:",
+                    {
+                      id: c.id,
+                      index,
+                      type: c.constructor.name,
+                    },
+                  );
                   return false;
                 }
                 seenIds.add(c.id);
                 return true;
               });
-              
+
               console.log("[Sidebar] After deduplication:");
-              console.log("[Sidebar] - Total conversations:", conversations.length);
-              console.log("[Sidebar] - Unique conversations:", uniqueConversations.length);
-              console.log("[Sidebar] - Unique conversation IDs:", uniqueConversations.map(c => c.id));
-              console.log("[Sidebar] - Unique conversation details:", uniqueConversations.map((c, i) => ({
-                index: i,
-                id: c.id,
-                type: c.constructor.name,
-                peerInboxId: 'peerInboxId' in c ? c.peerInboxId : undefined,
-                key: c.id,
-              })));
-              
+              console.log(
+                "[Sidebar] - Total conversations:",
+                conversations.length,
+              );
+              console.log(
+                "[Sidebar] - Unique conversations:",
+                uniqueConversations.length,
+              );
+              console.log(
+                "[Sidebar] - Unique conversation IDs:",
+                uniqueConversations.map((c) => c.id),
+              );
+              console.log(
+                "[Sidebar] - Unique conversation details:",
+                uniqueConversations.map((c, i) => ({
+                  index: i,
+                  id: c.id,
+                  type: c.constructor.name,
+                  peerInboxId: "peerInboxId" in c ? c.peerInboxId : undefined,
+                  key: c.id,
+                })),
+              );
+
               // Verify no duplicates remain
               const idCounts = new Map<string, number>();
-              uniqueConversations.forEach(c => {
+              uniqueConversations.forEach((c) => {
                 idCounts.set(c.id, (idCounts.get(c.id) || 0) + 1);
               });
-              const duplicateIds = Array.from(idCounts.entries()).filter(([_, count]) => count > 1);
+              const duplicateIds = Array.from(idCounts.entries()).filter(
+                ([_, count]) => count > 1,
+              );
               if (duplicateIds.length > 0) {
-                console.error("[Sidebar] ERROR: Still have duplicate IDs after filtering:", duplicateIds);
+                console.error(
+                  "[Sidebar] ERROR: Still have duplicate IDs after filtering:",
+                  duplicateIds,
+                );
               } else {
                 console.log("[Sidebar] ✓ No duplicates in final array");
               }
-              
+
               console.log("[Sidebar] ===== END DEBUG =====");
-              
-              return uniqueConversations.map((conversation, renderIndex) => {
-                // Show conversation ID instead of label
-                const displayId = conversation.id.length > 20 
-                  ? `${conversation.id.slice(0, 10)}...${conversation.id.slice(-6)}`
-                  : conversation.id;
+
+              return uniqueConversations.map((conversation, _renderIndex) => {
                 const isActive = selectedConversation?.id === conversation.id;
+                const isGroup = conversation instanceof Group;
+                const groupName = isGroup ? conversation.name : null;
+                const displayId =
+                  conversation.id.length > 20
+                    ? `${conversation.id.slice(0, 10)}...${conversation.id.slice(-6)}`
+                    : conversation.id;
+                const displayText =
+                  isGroup && groupName && groupName !== "Agent Group"
+                    ? groupName
+                    : displayId;
+                const isNamed =
+                  isGroup && groupName && groupName !== "Agent Group";
 
                 return (
                   <SidebarMenuItem key={conversation.id}>
@@ -264,7 +305,18 @@ export function Sidebar() {
                         handleConversationClick(conversation);
                       }}
                     >
-                      <span className="truncate font-mono text-xs">{displayId}</span>
+                      <AnimatePresence mode="wait">
+                        <motion.span
+                          key={displayText}
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 4 }}
+                          transition={{ duration: 0.15 }}
+                          className={`truncate text-xs ${isNamed ? "font-medium" : "font-mono"}`}
+                        >
+                          {displayText}
+                        </motion.span>
+                      </AnimatePresence>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );

@@ -54,8 +54,8 @@ const PromptInputTextarea = ({
   onKeyDown,
   className,
   placeholder = "What would you like to know?",
-  minHeight = 48,
-  maxHeight = 164,
+  minHeight: _minHeight = 48,
+  maxHeight: _maxHeight = 164,
   disableAutoResize = false,
   resizeOnNewLinesOnly = false,
   ...props
@@ -179,8 +179,9 @@ export function InputArea({
   // Message List Mode: conversation provided AND selectedAgents not provided (conversation ongoing)
   const isChatAreaMode =
     selectedAgents !== undefined && setSelectedAgents !== undefined;
-  const isMessageListMode = conversation !== undefined && selectedAgents === undefined;
-  
+  const isMessageListMode =
+    conversation !== undefined && selectedAgents === undefined;
+
   console.log("[InputArea] Mode detection:", {
     hasSelectedAgents: selectedAgents !== undefined,
     hasSetSelectedAgents: setSelectedAgents !== undefined,
@@ -237,7 +238,10 @@ export function InputArea({
 
     const loadConversationAgents = async () => {
       try {
-        console.log("[InputArea] Loading conversation agents for conversation:", conversation.id);
+        console.log(
+          "[InputArea] Loading conversation agents for conversation:",
+          conversation.id,
+        );
         const members = await conversation.members();
         const memberAddresses = new Set(
           members.flatMap((member) =>
@@ -247,13 +251,19 @@ export function InputArea({
           ),
         );
 
-        console.log("[InputArea] Member addresses:", Array.from(memberAddresses));
+        console.log(
+          "[InputArea] Member addresses:",
+          Array.from(memberAddresses),
+        );
 
         const agents = AI_AGENTS.filter((agent) =>
           memberAddresses.has(agent.address.toLowerCase()),
         );
 
-        console.log("[InputArea] Found agents:", agents.map(a => a.name));
+        console.log(
+          "[InputArea] Found agents:",
+          agents.map((a) => a.name),
+        );
 
         setConversationAgents(agents);
 
@@ -261,7 +271,9 @@ export function InputArea({
           console.log("[InputArea] Setting singleAgent to:", agents[0].name);
           setSingleAgent(agents[0]);
         } else if (!isMultiAgentMode && agents.length === 0) {
-          console.log("[InputArea] No agents found in conversation, clearing singleAgent");
+          console.log(
+            "[InputArea] No agents found in conversation, clearing singleAgent",
+          );
           setSingleAgent(undefined);
         }
       } catch (error) {
@@ -302,15 +314,23 @@ export function InputArea({
       }
       setAgents([...agents, agent]);
     } else {
-      console.log("[InputArea] handleAddAgent called in single-agent mode with agent:", agent.name);
+      console.log(
+        "[InputArea] handleAddAgent called in single-agent mode with agent:",
+        agent.name,
+      );
       console.log("[InputArea] Current conversation:", conversation?.id);
       if (conversation) {
-        console.log("[InputArea] Conversation exists, agent should be derived from conversation members, not modal selection");
+        console.log(
+          "[InputArea] Conversation exists, agent should be derived from conversation members, not modal selection",
+        );
         setOpenDialog(false);
         textareaRef.current?.focus();
         return;
       }
-      console.log("[InputArea] No conversation, setting singleAgent to:", agent.name);
+      console.log(
+        "[InputArea] No conversation, setting singleAgent to:",
+        agent.name,
+      );
       setSingleAgent(agent);
       setOpenDialog(false);
       textareaRef.current?.focus();
@@ -360,7 +380,10 @@ export function InputArea({
     isSubmittingRef.current = true;
 
     try {
-      sendMessage?.(messageContent, isMultiAgentMode ? currentSelectedAgents : undefined);
+      sendMessage?.(
+        messageContent,
+        isMultiAgentMode ? currentSelectedAgents : undefined,
+      );
       setInput("");
     } catch {
       // Error handling - sendMessage callback handles errors
@@ -373,7 +396,10 @@ export function InputArea({
 
   const handleSuggestionClick = (suggestion: string) => {
     if (sendMessage) {
-      sendMessage(suggestion, isMultiAgentMode ? currentSelectedAgents : undefined);
+      sendMessage(
+        suggestion,
+        isMultiAgentMode ? currentSelectedAgents : undefined,
+      );
     }
   };
 
@@ -381,30 +407,33 @@ export function InputArea({
     <div
       className={`relative flex w-full flex-col ${isMultiAgentMode ? "gap-2" : "gap-4"}`}
     >
-      {suggestedActions.length > 0 && !input.trim() && isChatAreaMode && !conversation && (
-        <div className="grid w-full gap-2 sm:grid-cols-2">
-          {suggestedActions.map((suggestedAction, index) => (
-            <motion.div
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              initial={{ opacity: 0, y: 20 }}
-              key={suggestedAction}
-              transition={{ delay: 0.05 * index }}
-            >
-              <Button
-                className="h-auto w-full whitespace-normal p-3 text-left"
-                onClick={() => {
-                  handleSuggestionClick(suggestedAction);
-                }}
-                type="button"
-                variant="outline"
+      {suggestedActions.length > 0 &&
+        !input.trim() &&
+        isChatAreaMode &&
+        !conversation && (
+          <div className="grid w-full gap-2 sm:grid-cols-2">
+            {suggestedActions.map((suggestedAction, index) => (
+              <motion.div
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 20 }}
+                key={suggestedAction}
+                transition={{ delay: 0.05 * index }}
               >
-                {suggestedAction}
-              </Button>
-            </motion.div>
-          ))}
-        </div>
-      )}
+                <Button
+                  className="h-auto w-full whitespace-normal p-3 text-left"
+                  onClick={() => {
+                    handleSuggestionClick(suggestedAction);
+                  }}
+                  type="button"
+                  variant="outline"
+                >
+                  {suggestedAction}
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+        )}
       <Popover
         open={openPopover && isMultiAgentMode}
         onOpenChange={setOpenPopover}

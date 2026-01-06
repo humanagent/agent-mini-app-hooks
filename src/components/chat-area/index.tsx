@@ -2,12 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { SidebarToggle } from "@/src/components/sidebar/sidebar-toggle";
 import { Button } from "@ui/button";
-import {
-  ShareIcon,
-  AddPeopleIcon,
-  MenuIcon,
-  ChevronDownIcon,
-} from "@ui/icons";
+import { ShareIcon, AddPeopleIcon, MenuIcon } from "@ui/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import {
   Dialog,
@@ -42,7 +37,7 @@ function AddPeopleDialog({
 
   const handleAdd = async () => {
     const trimmedAddress = address.trim();
-    
+
     if (!trimmedAddress) {
       setError("Address is required");
       return;
@@ -70,9 +65,7 @@ function AddPeopleDialog({
       void refreshConversations();
     } catch (err) {
       console.error("[AddPeople] Error adding member:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to add member",
-      );
+      setError(err instanceof Error ? err.message : "Failed to add member");
     } finally {
       setIsAdding(false);
     }
@@ -102,9 +95,7 @@ function AddPeopleDialog({
             }}
             disabled={isAdding}
           />
-          {error && (
-            <p className="text-sm text-destructive">{error}</p>
-          )}
+          {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
         <DialogFooter>
           <Button
@@ -136,7 +127,6 @@ export const ChatHeader = ({
       <header className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-border bg-background px-3 py-2 md:px-4">
         <div className="flex items-center gap-2">
           <SidebarToggle />
-         
         </div>
         <div className="flex items-center gap-1">
           <Tooltip>
@@ -162,7 +152,9 @@ export const ChatHeader = ({
                   onClick={() => setAddPeopleOpen(true)}
                 >
                   <AddPeopleIcon size={16} />
-                  <span className="ml-1 hidden md:inline text-sm">Add people</span>
+                  <span className="ml-1 hidden md:inline text-sm">
+                    Add people
+                  </span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Add people to conversation</TooltipContent>
@@ -221,4 +213,3 @@ export const Greeting = () => {
     </div>
   );
 };
-

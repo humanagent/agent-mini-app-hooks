@@ -48,17 +48,25 @@ export function useXMTPConversations(client: Client<ContentTypes> | null) {
         console.log("[XMTP] Listing conversations...");
         const allConversations = await client.conversations.list();
         console.log("[XMTP] Found conversations:", allConversations.length);
-        console.log("[XMTP] Conversation IDs:", allConversations.map(c => c.id));
-        console.log("[XMTP] Conversation details:", allConversations.map(c => ({
-          id: c.id,
-          type: c.constructor.name,
-          peerInboxId: 'peerInboxId' in c ? c.peerInboxId : 'N/A',
-        })));
-        
+        console.log(
+          "[XMTP] Conversation IDs:",
+          allConversations.map((c) => c.id),
+        );
+        console.log(
+          "[XMTP] Conversation details:",
+          allConversations.map((c) => ({
+            id: c.id,
+            type: c.constructor.name,
+            peerInboxId: "peerInboxId" in c ? c.peerInboxId : "N/A",
+          })),
+        );
+
         // Check for duplicates
-        const uniqueIds = new Set(allConversations.map(c => c.id));
+        const uniqueIds = new Set(allConversations.map((c) => c.id));
         if (uniqueIds.size !== allConversations.length) {
-          const duplicateIds = allConversations.map(c => c.id).filter((id, index, arr) => arr.indexOf(id) !== index);
+          const duplicateIds = allConversations
+            .map((c) => c.id)
+            .filter((id, index, arr) => arr.indexOf(id) !== index);
           console.warn("[XMTP] Found duplicate conversation IDs:", {
             total: allConversations.length,
             unique: uniqueIds.size,
@@ -74,7 +82,11 @@ export function useXMTPConversations(client: Client<ContentTypes> | null) {
           );
           setConversations(uniqueConversations);
           setIsLoading(false);
-          console.log("[XMTP] Conversations state updated with", uniqueConversations.length, "unique conversations");
+          console.log(
+            "[XMTP] Conversations state updated with",
+            uniqueConversations.length,
+            "unique conversations",
+          );
         }
 
         const stream = await client.conversations.stream({
@@ -85,14 +97,16 @@ export function useXMTPConversations(client: Client<ContentTypes> | null) {
                 const dedupedPrev = Array.from(
                   new Map(prev.map((c) => [c.id, c])).values(),
                 );
-                
-                const exists = dedupedPrev.some((c) => c.id === conversation.id);
+
+                const exists = dedupedPrev.some(
+                  (c) => c.id === conversation.id,
+                );
                 console.log("[XMTP] Stream conversation:", {
                   id: conversation.id,
                   exists,
                   prevCount: dedupedPrev.length,
                 });
-                
+
                 if (exists) {
                   // Update existing conversation
                   const updated = dedupedPrev.map((c) =>
@@ -103,7 +117,7 @@ export function useXMTPConversations(client: Client<ContentTypes> | null) {
                     new Map(updated.map((c) => [c.id, c])).values(),
                   );
                 }
-                
+
                 // Add new conversation and deduplicate
                 const withNew = [...dedupedPrev, conversation];
                 return Array.from(

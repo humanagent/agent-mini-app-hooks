@@ -14,7 +14,10 @@ export function ThinkingIndicator({
           {error ? (
             <XIcon size={14} className="text-white shrink-0" />
           ) : (
-            <Loader2Icon size={14} className="animate-spin text-white shrink-0" />
+            <Loader2Icon
+              size={14}
+              className="animate-spin text-white shrink-0"
+            />
           )}
           <p className="text-sm text-white">{message}</p>
         </div>

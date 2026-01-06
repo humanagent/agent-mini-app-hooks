@@ -8,7 +8,11 @@ type AgentCardProps = {
   featured?: boolean;
 };
 
-export function AgentCard({ agent, onClick, featured = false }: AgentCardProps) {
+export function AgentCard({
+  agent,
+  onClick,
+  featured = false,
+}: AgentCardProps) {
   const description =
     agent.suggestions?.[0]?.replace(`@${agent.name}`, "").trim() ||
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.";
