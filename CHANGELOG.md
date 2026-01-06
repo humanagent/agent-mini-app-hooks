@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.8] - 2025-01-03
+
+### Fixed
+
+- Fixed agent click functionality in explore page to properly create conversations
+- Improved error handling and user feedback when creating conversations with agents
+
+### Added
+
+- Added explore page with agent browsing and search functionality
+- Added agent card component for displaying agent information
+- Added thinking indicator component for loading states
+- Added comprehensive logging for conversation creation flow
+- Added documentation for OPFS troubleshooting in browser-sdk rules
+
 ## [0.1.7] - 2025-01-03
 
 ### Fixed
