@@ -41,18 +41,42 @@ export async function createXMTPClient(
   console.log("[XMTP] Creating client...");
   console.log("[XMTP] Signer address:", signer.getIdentifier().identifier);
   console.log("[XMTP] Environment: production");
-  console.log("[XMTP] Codecs:", codecs.map((c) => c.contentType.definition));
+  console.log("[XMTP] Codecs count:", codecs.length);
+  console.log("[XMTP] Codec types:", codecs.map((c) => c.constructor.name));
 
-  const client = await Client.create(signer, {
-    env: "production",
-    loggingLevel: "debug",
-    appVersion: "xmtp-agents/0",
-    codecs,
-  });
+  console.log("[XMTP] Starting Client.create() call...");
+  console.log("[XMTP] Browser environment check:", typeof window !== "undefined");
+  console.log("[XMTP] IndexedDB available:", typeof indexedDB !== "undefined");
 
-  console.log("[XMTP] Client created successfully");
-  console.log("[XMTP] Client inbox ID:", client.inboxId);
-  console.log("[XMTP] Client installation ID:", client.installationId);
+  try {
+    const startTime = Date.now();
+    console.log("[XMTP] Calling Client.create()...");
+    
+    const client = await Client.create(signer, {
+      env: "production",
+      loggingLevel: "debug",
+      appVersion: "xmtp-agents/0",
+      codecs,
+    });
 
-  return client;
+    const duration = Date.now() - startTime;
+    console.log(`[XMTP] Client.create() completed in ${duration}ms`);
+    console.log("[XMTP] Client created successfully");
+    console.log("[XMTP] Client inbox ID:", client.inboxId);
+    console.log("[XMTP] Client installation ID:", client.installationId);
+
+    return client;
+  } catch (error) {
+    console.error("[XMTP] Failed to create client:", error);
+    if (error instanceof Error) {
+      console.error("[XMTP] Error name:", error.name);
+      console.error("[XMTP] Error message:", error.message);
+      console.error("[XMTP] Error stack:", error.stack);
+      if (error.cause) {
+        console.error("[XMTP] Error cause:", error.cause);
+      }
+    }
+    console.error("[XMTP] Full error object:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    throw error;
+  }
 }

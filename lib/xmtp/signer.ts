@@ -75,5 +75,16 @@ export function getOrCreateEphemeralAccountKey(): PrivateKey {
     );
   }
 
-  return generatePrivateKey();
+  const STORAGE_KEY = "xmtp-ephemeral-account-key";
+  const stored = localStorage.getItem(STORAGE_KEY);
+  
+  if (stored) {
+    console.log("[XMTP] Using stored ephemeral account key");
+    return stored as PrivateKey;
+  }
+
+  console.log("[XMTP] Generating new ephemeral account key");
+  const newKey = generatePrivateKey();
+  localStorage.setItem(STORAGE_KEY, newKey);
+  return newKey;
 }
