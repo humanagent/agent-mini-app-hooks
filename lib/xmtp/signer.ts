@@ -68,6 +68,8 @@ export const createSCWSigner = (
   };
 };
 
+let accountKeyCache: PrivateKey | null = null;
+
 export function getOrCreateEphemeralAccountKey(): PrivateKey {
   if (typeof window === "undefined") {
     throw new Error(
@@ -75,16 +77,23 @@ export function getOrCreateEphemeralAccountKey(): PrivateKey {
     );
   }
 
+  if (accountKeyCache) {
+    console.log("[XMTP] Using cached ephemeral account key");
+    return accountKeyCache;
+  }
+
   const STORAGE_KEY = "xmtp-ephemeral-account-key";
   const stored = localStorage.getItem(STORAGE_KEY);
   
   if (stored) {
     console.log("[XMTP] Using stored ephemeral account key");
-    return stored as PrivateKey;
+    accountKeyCache = stored as PrivateKey;
+    return accountKeyCache;
   }
 
   console.log("[XMTP] Generating new ephemeral account key");
   const newKey = generatePrivateKey();
   localStorage.setItem(STORAGE_KEY, newKey);
+  accountKeyCache = newKey;
   return newKey;
 }
