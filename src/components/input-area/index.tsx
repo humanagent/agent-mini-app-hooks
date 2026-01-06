@@ -214,13 +214,21 @@ export function InputArea({
       : [];
 
   useEffect(() => {
-    if (!conversation || !isMultiAgentMode) {
+    if (!conversation) {
       setConversationAgents([]);
+      if (!isMultiAgentMode) {
+        setSingleAgent(undefined);
+      }
       return;
+    }
+
+    if (!isMultiAgentMode) {
+      setSingleAgent(undefined);
     }
 
     const loadConversationAgents = async () => {
       try {
+        console.log("[InputArea] Loading conversation agents for conversation:", conversation.id);
         const members = await conversation.members();
         const memberAddresses = new Set(
           members.flatMap((member) =>
@@ -230,13 +238,29 @@ export function InputArea({
           ),
         );
 
+        console.log("[InputArea] Member addresses:", Array.from(memberAddresses));
+
         const agents = AI_AGENTS.filter((agent) =>
           memberAddresses.has(agent.address.toLowerCase()),
         );
 
+        console.log("[InputArea] Found agents:", agents.map(a => a.name));
+
         setConversationAgents(agents);
-      } catch {
+
+        if (!isMultiAgentMode && agents.length > 0) {
+          console.log("[InputArea] Setting singleAgent to:", agents[0].name);
+          setSingleAgent(agents[0]);
+        } else if (!isMultiAgentMode && agents.length === 0) {
+          console.log("[InputArea] No agents found in conversation, clearing singleAgent");
+          setSingleAgent(undefined);
+        }
+      } catch (error) {
+        console.error("[InputArea] Error loading conversation agents:", error);
         setConversationAgents([]);
+        if (!isMultiAgentMode) {
+          setSingleAgent(undefined);
+        }
       }
     };
 
@@ -269,6 +293,15 @@ export function InputArea({
       }
       setAgents([...agents, agent]);
     } else {
+      console.log("[InputArea] handleAddAgent called in single-agent mode with agent:", agent.name);
+      console.log("[InputArea] Current conversation:", conversation?.id);
+      if (conversation) {
+        console.log("[InputArea] Conversation exists, agent should be derived from conversation members, not modal selection");
+        setOpenDialog(false);
+        textareaRef.current?.focus();
+        return;
+      }
+      console.log("[InputArea] No conversation, setting singleAgent to:", agent.name);
       setSingleAgent(agent);
       setOpenDialog(false);
       textareaRef.current?.focus();

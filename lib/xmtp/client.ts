@@ -63,16 +63,9 @@ export async function createXMTPClient(
     const startTime = Date.now();
     console.log("[XMTP] Calling Client.create()...");
     console.log("[XMTP] Signer type:", typeof signer);
-    console.log("[XMTP] Options:", {
-      env: "production",
-      loggingLevel: "debug",
-      appVersion: "xmtp-agents/0",
-      codecsCount: codecs.length,
-    });
-    
+
     const clientPromise = Client.create(signer, {
       env: "production",
-      loggingLevel: "debug",
       appVersion: "xmtp-agents/0",
       codecs,
     });

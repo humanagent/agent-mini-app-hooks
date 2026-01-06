@@ -1,12 +1,13 @@
 import { ChatHeader, Greeting } from "@components/chat-area/index";
 import { InputArea, type Message } from "@components/input-area";
 import { useXMTPClient } from "@hooks/use-xmtp-client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import type { DecodedMessage } from "@xmtp/browser-sdk";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 import { ThinkingIndicator } from "@ui/thinking-indicator";
 import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
 import type { AgentConfig } from "@/lib/agents";
+import { motion } from "framer-motion";
 
 export function MessageList({ messages }: { messages: Message[] }) {
   return (
@@ -41,9 +42,15 @@ export function MessageList({ messages }: { messages: Message[] }) {
 
 export function ConversationView() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [selectedAgents, setSelectedAgents] = useState<AgentConfig[]>([]);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [isSyncingConversation, setIsSyncingConversation] = useState(false);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isWaitingForAgent, setIsWaitingForAgent] = useState(false);
+  const waitingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { client } = useXMTPClient();
   const {
     selectedConversation,
@@ -60,59 +67,97 @@ export function ConversationView() {
 
     const setupMessages = async () => {
       try {
+        setSyncError(null);
+        setLoadError(null);
         setIsSyncingConversation(true);
-        await selectedConversation.sync();
+        try {
+          await selectedConversation.sync();
+        } catch (error) {
+          if (mounted) {
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "Failed to sync conversation";
+            setSyncError(errorMessage);
+            setIsSyncingConversation(false);
+            return;
+          }
+        }
         setIsSyncingConversation(false);
 
         setIsLoadingMessages(true);
-        const existingMessages = await selectedConversation.messages();
+        try {
+          const existingMessages = await selectedConversation.messages();
 
-        const chatMessages: Message[] = existingMessages
-          .filter(
-            (msg: DecodedMessage<unknown>): msg is DecodedMessage<string> =>
-              typeof msg.content === "string",
-          )
-          .map((msg) => {
-            const content = typeof msg.content === "string" ? msg.content : "";
-            return {
-              id: msg.id,
-              role: msg.senderInboxId === client.inboxId ? "user" : "assistant",
-              content,
-            };
+          const chatMessages: Message[] = existingMessages
+            .filter(
+              (msg: DecodedMessage<unknown>): msg is DecodedMessage<string> =>
+                typeof msg.content === "string",
+            )
+            .map((msg) => {
+              const content = typeof msg.content === "string" ? msg.content : "";
+              return {
+                id: msg.id,
+                role: msg.senderInboxId === client.inboxId ? "user" : "assistant",
+                content,
+              };
+            });
+
+          if (mounted) {
+            setMessages(chatMessages);
+            setIsLoadingMessages(false);
+          }
+
+          const stream = await selectedConversation.stream({
+            onValue: (message: DecodedMessage<unknown>) => {
+              if (!mounted || typeof message.content !== "string") {
+                return;
+              }
+
+              const newMessage: Message = {
+                id: message.id,
+                role:
+                  message.senderInboxId === client.inboxId ? "user" : "assistant",
+                content: message.content,
+              };
+
+              setMessages((prev) => {
+                if (prev.some((m) => m.id === message.id)) {
+                  return prev;
+                }
+                return [...prev, newMessage];
+              });
+
+              if (newMessage.role === "assistant" && mounted) {
+                setIsWaitingForAgent(false);
+                if (waitingTimeoutRef.current) {
+                  clearTimeout(waitingTimeoutRef.current);
+                  waitingTimeoutRef.current = null;
+                }
+              }
+            },
           });
 
-        if (mounted) {
-          setMessages(chatMessages);
-          setIsLoadingMessages(false);
+          return () => {
+            void stream.end();
+          };
+        } catch (error) {
+          if (mounted) {
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "Failed to load messages";
+            setLoadError(errorMessage);
+            setIsLoadingMessages(false);
+          }
         }
-
-        const stream = await selectedConversation.stream({
-          onValue: (message: DecodedMessage<unknown>) => {
-            if (!mounted || typeof message.content !== "string") {
-              return;
-            }
-
-            const newMessage: Message = {
-              id: message.id,
-              role:
-                message.senderInboxId === client.inboxId ? "user" : "assistant",
-              content: message.content,
-            };
-
-            setMessages((prev) => {
-              if (prev.some((m) => m.id === message.id)) {
-                return prev;
-              }
-              return [...prev, newMessage];
-            });
-          },
-        });
-
-        return () => {
-          void stream.end();
-        };
-      } catch {
+      } catch (error) {
         if (mounted) {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : "Failed to load conversation";
+          setSyncError(errorMessage);
           setIsSyncingConversation(false);
           setIsLoadingMessages(false);
         }
@@ -126,6 +171,14 @@ export function ConversationView() {
     };
   }, [client, selectedConversation]);
 
+  useEffect(() => {
+    return () => {
+      if (waitingTimeoutRef.current) {
+        clearTimeout(waitingTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleSendMessage = useCallback(
     async (content: string, agents?: AgentConfig[]) => {
       if (!client) {
@@ -135,20 +188,27 @@ export function ConversationView() {
       let conversation = selectedConversation;
 
       if (!conversation) {
-        if (!agents || agents.length === 0) {
+        const agentsToUse = agents || selectedAgents;
+        if (agentsToUse.length === 0) {
           return;
         }
 
         try {
+          setCreateError(null);
           setIsCreatingConversation(true);
-          const agentAddresses = agents.map((agent) => agent.address);
+          const agentAddresses = agentsToUse.map((agent) => agent.address);
           conversation = await createGroupWithAgentAddresses(
             client,
             agentAddresses,
           );
           setSelectedConversation(conversation);
           void refreshConversations();
-        } catch {
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : "Failed to create conversation";
+          setCreateError(errorMessage);
           setIsCreatingConversation(false);
           return;
         } finally {
@@ -171,11 +231,31 @@ export function ConversationView() {
       try {
         await conversation.send(content);
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
+        
+        setIsWaitingForAgent(true);
+        if (waitingTimeoutRef.current) {
+          clearTimeout(waitingTimeoutRef.current);
+        }
+        waitingTimeoutRef.current = setTimeout(() => {
+          setIsWaitingForAgent(false);
+          waitingTimeoutRef.current = null;
+        }, 10000);
       } catch {
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
+        setIsWaitingForAgent(false);
+        if (waitingTimeoutRef.current) {
+          clearTimeout(waitingTimeoutRef.current);
+          waitingTimeoutRef.current = null;
+        }
       }
     },
-    [client, selectedConversation, setSelectedConversation, refreshConversations],
+    [
+      client,
+      selectedConversation,
+      selectedAgents,
+      setSelectedConversation,
+      refreshConversations,
+    ],
   );
 
   return (
@@ -185,16 +265,39 @@ export function ConversationView() {
       <div className="relative flex-1">
         <div className="absolute inset-0 touch-pan-y overflow-y-auto">
           <div className="mx-auto flex min-w-0 max-w-4xl flex-col gap-4 px-2 py-4 md:gap-6 md:px-4">
-            {isCreatingConversation && (
+            {createError && (
+              <ThinkingIndicator
+                error
+                message={`Error creating conversation: ${createError}`}
+              />
+            )}
+            {isCreatingConversation && !createError && (
               <ThinkingIndicator message="Creating conversation..." />
             )}
-            {isSyncingConversation && !isCreatingConversation && (
+            {syncError && (
+              <ThinkingIndicator
+                error
+                message={`Error syncing conversation: ${syncError}`}
+              />
+            )}
+            {isSyncingConversation && !syncError && !isCreatingConversation && (
               <ThinkingIndicator message="Syncing conversation..." />
             )}
-            {isLoadingMessages && !isSyncingConversation && !isCreatingConversation && (
+            {loadError && (
+              <ThinkingIndicator
+                error
+                message={`Error loading messages: ${loadError}`}
+              />
+            )}
+            {isLoadingMessages && !loadError && !isSyncingConversation && !isCreatingConversation && (
               <ThinkingIndicator message="Loading messages..." />
             )}
-            {messages.length === 0 && !isCreatingConversation && !isSyncingConversation && !isLoadingMessages && <Greeting />}
+            {isWaitingForAgent && !isCreatingConversation && !isSyncingConversation && !isLoadingMessages && (
+              <ThinkingIndicator message="Waiting for agent response..." />
+            )}
+            {!selectedConversation && !isCreatingConversation && !createError && selectedAgents.length === 0 && (
+              <Greeting />
+            )}
             {messages.length > 0 && <MessageList messages={messages} />}
           </div>
         </div>
@@ -202,6 +305,8 @@ export function ConversationView() {
 
       <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
         <InputArea
+          selectedAgents={selectedAgents}
+          setSelectedAgents={setSelectedAgents}
           messages={messages}
           sendMessage={(content, agents) => {
             void handleSendMessage(content, agents);
