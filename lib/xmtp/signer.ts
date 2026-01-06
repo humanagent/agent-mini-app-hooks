@@ -5,20 +5,26 @@ import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 export type PrivateKey = Hex;
 
 export const createEphemeralSigner = (privateKey: Hex): Signer => {
+  console.log("[XMTP] Creating ephemeral signer...");
   const account = privateKeyToAccount(privateKey);
+  console.log("[XMTP] Signer account address:", account.address);
   const signer = {
     type: "EOA" as const,
     getIdentifier: () => {
-      return {
+      const identifier = {
         identifier: account.address.toLowerCase(),
         identifierKind: "Ethereum" as const,
       };
+      console.log("[XMTP] Signer getIdentifier called:", identifier);
+      return identifier;
     },
     signMessage: async (message: string) => {
+      console.log("[XMTP] Signing message...");
       const signature = await account.signMessage({
         message,
       });
       const signatureBytes = toBytes(signature);
+      console.log("[XMTP] Message signed, signature length:", signatureBytes.length);
       return signatureBytes;
     },
   };
@@ -63,18 +69,22 @@ export const createSCWSigner = (
 };
 
 export function getOrCreateEphemeralAccountKey(): PrivateKey {
-  console.log("[getOrCreateEphemeralAccountKey] Starting...");
-  
   if (typeof window === "undefined") {
     throw new Error(
       "Ephemeral account key can only be created in browser environment",
     );
   }
 
-  // always generate a new ephemeral identity
-  console.log("[getOrCreateEphemeralAccountKey] Generating new private key...");
-  const accountKey = generatePrivateKey();
-  console.log("[getOrCreateEphemeralAccountKey] Private key generated:", accountKey.slice(0, 10) + "...");
+  const STORAGE_KEY = "xmtp-ephemeral-account-key";
+  const stored = localStorage.getItem(STORAGE_KEY);
+  
+  if (stored) {
+    console.log("[XMTP] Using stored ephemeral account key");
+    return stored as PrivateKey;
+  }
 
-  return accountKey;
+  console.log("[XMTP] Generating new ephemeral account key");
+  const newKey = generatePrivateKey();
+  localStorage.setItem(STORAGE_KEY, newKey);
+  return newKey;
 }

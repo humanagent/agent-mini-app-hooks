@@ -13,7 +13,7 @@
       "@hooks/*": ["./src/hooks/*"],
       "@lib/*": ["./src/lib/*"],
       "@components/*": ["./src/components/*"],
-      "@ui/*": ["./src/ui/*"],
+      "@ui/*": ["./src/ui/*"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,

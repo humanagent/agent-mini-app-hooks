@@ -23,18 +23,11 @@ export type ContentTypes = ExtractCodecContentTypes<
 export async function createXMTPClient(
   privateKey: PrivateKey,
 ): Promise<Client<ContentTypes>> {
-  console.log("[createXMTPClient] Starting client creation...");
-  
   if (typeof window === "undefined") {
     throw new Error("XMTP client can only be created in browser environment");
   }
 
-  console.log("[createXMTPClient] Creating ephemeral signer...");
   const signer = createEphemeralSigner(privateKey);
-  const identifier = signer.getIdentifier();
-  console.log("[createXMTPClient] Signer created for address:", identifier.identifier);
-
-  console.log("[createXMTPClient] Initializing codecs...");
   const codecs = [
     new ReactionCodec(),
     new ReplyCodec(),
@@ -44,19 +37,46 @@ export async function createXMTPClient(
     new ReadReceiptCodec(),
     new MarkdownCodec(),
   ];
-  console.log("[createXMTPClient] Codecs initialized:", codecs.length, "codecs");
 
-  console.log("[createXMTPClient] Calling Client.create with env: production");
-  const client = await Client.create(signer, {
-    env: "production",
-    loggingLevel: "warn",
-    appVersion: "xmtp-agents/0",
-    codecs,
-  });
+  console.log("[XMTP] Creating client...");
+  console.log("[XMTP] Signer address:", signer.getIdentifier().identifier);
+  console.log("[XMTP] Environment: production");
+  console.log("[XMTP] Codecs count:", codecs.length);
+  console.log("[XMTP] Codec types:", codecs.map((c) => c.constructor.name));
 
-  console.log("[createXMTPClient] Client.create completed");
-  console.log("[createXMTPClient] Client inboxId:", client.inboxId);
-  console.log("[createXMTPClient] Client installationId:", client.installationId);
+  console.log("[XMTP] Starting Client.create() call...");
+  console.log("[XMTP] Browser environment check:", typeof window !== "undefined");
+  console.log("[XMTP] IndexedDB available:", typeof indexedDB !== "undefined");
 
-  return client;
+  try {
+    const startTime = Date.now();
+    console.log("[XMTP] Calling Client.create()...");
+    
+    const client = await Client.create(signer, {
+      env: "production",
+      loggingLevel: "debug",
+      appVersion: "xmtp-agents/0",
+      codecs,
+    });
+
+    const duration = Date.now() - startTime;
+    console.log(`[XMTP] Client.create() completed in ${duration}ms`);
+    console.log("[XMTP] Client created successfully");
+    console.log("[XMTP] Client inbox ID:", client.inboxId);
+    console.log("[XMTP] Client installation ID:", client.installationId);
+
+    return client;
+  } catch (error) {
+    console.error("[XMTP] Failed to create client:", error);
+    if (error instanceof Error) {
+      console.error("[XMTP] Error name:", error.name);
+      console.error("[XMTP] Error message:", error.message);
+      console.error("[XMTP] Error stack:", error.stack);
+      if (error.cause) {
+        console.error("[XMTP] Error cause:", error.cause);
+      }
+    }
+    console.error("[XMTP] Full error object:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    throw error;
+  }
 }

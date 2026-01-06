@@ -101,5 +101,22 @@ export default defineConfig({
       },
     },
   },
-  logLevel: "error",
+  server: {
+    port: 3000,
+    watch: {
+      usePolling: false,
+    },
+  },
+  logLevel: "info",
+  onLog(level, log, options) {
+    if (
+      level === "warn" &&
+      (log.includes("workers/client") ||
+        log.includes("optimize deps directory") ||
+        log.includes("dep optimizer") ||
+        log.includes("The file does not exist"))
+    ) {
+      return;
+    }
+  },
 });

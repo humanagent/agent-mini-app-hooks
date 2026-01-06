@@ -28,14 +28,17 @@ export function useToast() {
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const showToast = useCallback((message: string, type: ToastType = "error") => {
-    const id = `toast-${Date.now()}-${Math.random()}`;
-    setToasts((prev) => [...prev, { id, message, type }]);
+  const showToast = useCallback(
+    (message: string, type: ToastType = "error") => {
+      const id = `toast-${Date.now()}-${Math.random()}`;
+      setToasts((prev) => [...prev, { id, message, type }]);
 
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, 5000);
-  }, []);
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((toast) => toast.id !== id));
+      }, 5000);
+    },
+    [],
+  );
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
@@ -60,12 +63,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               )}
               exit={{ opacity: 0, y: 10 }}
               initial={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.15 }}>
+              transition={{ duration: 0.15 }}
+            >
               <p className="flex-1">{toast.message}</p>
               <button
                 className="text-muted-foreground hover:text-foreground"
                 onClick={() => removeToast(toast.id)}
-                type="button">
+                type="button"
+              >
                 <XIcon size={16} />
               </button>
             </motion.div>
