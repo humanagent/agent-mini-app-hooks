@@ -5,31 +5,41 @@ import { AgentCard } from "./agent-card";
 import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
+import { Input } from "@ui/input";
 import { SidebarToggle } from "@/src/components/sidebar/sidebar-toggle";
 import { ShareButton } from "@/src/components/sidebar/share-button";
 
 export function ExplorePage() {
-  const categories = useMemo(() => {
-    const uniqueCategories = new Set(
-      AI_AGENTS.map((agent) => agent.category).filter(
-        (category): category is string => Boolean(category),
-      ),
-    );
-    return ["All", ...Array.from(uniqueCategories).sort()];
-  }, []);
-
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<"all" | "production" | "dev">("all");
   const navigate = useNavigate();
   const { client } = useXMTPClient();
-  const { setSelectedConversation, refreshConversations } =
-    useConversationsContext();
+  const { setSelectedConversation, refreshConversations } = useConversationsContext();
 
   const filteredAgents = useMemo(() => {
-    if (selectedCategory === "All") {
-      return AI_AGENTS;
+    let filtered = AI_AGENTS;
+
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter((agent) => {
+        if (selectedCategory === "production") {
+          return agent.networks.includes("production");
+        }
+        return agent.networks.includes("dev");
+      });
     }
-    return AI_AGENTS.filter((agent) => agent.category === selectedCategory);
-  }, [selectedCategory]);
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (agent) =>
+          agent.name.toLowerCase().includes(query) ||
+          agent.domain?.toLowerCase().includes(query) ||
+          agent.suggestions?.some((s) => s.toLowerCase().includes(query)),
+      );
+    }
+
+    return filtered;
+  }, [searchQuery, selectedCategory]);
 
   const featuredAgent = useMemo(() => {
     const withImages = filteredAgents.filter((a) => a.image);
@@ -42,29 +52,23 @@ export function ExplorePage() {
 
   const handleAgentClick = async (agent: AgentConfig) => {
     if (!client) {
-      console.warn(
-        "[Explore] Cannot create conversation: client not available",
-      );
+      console.warn("[Explore] Cannot create conversation: client not available");
       return;
     }
 
     try {
-      console.log(
-        "[Explore] Creating conversation with agent:",
-        agent.name,
-        agent.address,
-      );
-
+      console.log("[Explore] Creating conversation with agent:", agent.name, agent.address);
+      
       const conversation = await createGroupWithAgentAddresses(client, [
         agent.address,
       ]);
-
+      
       console.log("[Explore] Conversation created:", conversation.id);
       setSelectedConversation(conversation);
-
+      
       await refreshConversations();
       console.log("[Explore] Conversations refreshed");
-
+      
       console.log("[Explore] Navigating to chat...");
       navigate("/", { replace: true });
     } catch (error) {
@@ -76,9 +80,7 @@ export function ExplorePage() {
           stack: error.stack,
         });
       }
-      alert(
-        `Failed to start conversation with ${agent.name}. Please try again.`,
-      );
+      alert(`Failed to start conversation with ${agent.name}. Please try again.`);
     }
   };
 
@@ -98,21 +100,49 @@ export function ExplorePage() {
             </p>
           </div>
 
+          <div className="mb-6 flex items-center gap-4">
+            <Input
+              className="max-w-md"
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search agents..."
+              value={searchQuery}
+            />
+          </div>
+
           <div className="mb-6 flex gap-2 border-b border-border">
-            {categories.map((category) => (
-              <button
-                key={category}
-                className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-                  selectedCategory === category
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-                onClick={() => setSelectedCategory(category)}
-                type="button"
-              >
-                {category}
-              </button>
-            ))}
+            <button
+              className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                selectedCategory === "all"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={() => setSelectedCategory("all")}
+              type="button"
+            >
+              All
+            </button>
+            <button
+              className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                selectedCategory === "production"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={() => setSelectedCategory("production")}
+              type="button"
+            >
+              Production
+            </button>
+            <button
+              className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                selectedCategory === "dev"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={() => setSelectedCategory("dev")}
+              type="button"
+            >
+              Dev
+            </button>
           </div>
 
           {featuredAgent && (
@@ -138,7 +168,7 @@ export function ExplorePage() {
           {filteredAgents.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <p className="text-muted-foreground">
-                No agents found in this category.
+                No agents found matching your search.
               </p>
             </div>
           )}
