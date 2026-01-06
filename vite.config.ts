@@ -109,7 +109,7 @@ export default defineConfig({
     },
   },
   logLevel: "info",
-  onLog(level, log, _options) {
+  onLog(level, log, options) {
     if (
       level === "warn" &&
       (log.includes("workers/client") ||

@@ -1,11 +1,5 @@
 # Changelog
 
-## [0.1.10] - 2025-01-03
-
-### Changed
-
-- Enhanced chat UI with improved components and interactions
-
 ## [0.1.9] - 2025-01-03
 
 ### Added
