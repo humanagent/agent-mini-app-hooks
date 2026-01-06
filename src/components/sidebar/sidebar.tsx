@@ -19,7 +19,12 @@ import {
 } from "@ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import type { Conversation } from "@xmtp/browser-sdk";
-import { Group, Dm } from "@xmtp/browser-sdk";
+import {
+  Group,
+  Dm,
+  ConsentState,
+  ConsentEntityType,
+} from "@xmtp/browser-sdk";
 import { useEffect, useState, useCallback } from "react";
 import { shortAddress } from "@/lib/utils";
 import { Link, useLocation, useNavigate } from "react-router";
@@ -119,39 +124,17 @@ export function Sidebar() {
       for (const conversation of conversations) {
         if (conversation instanceof Group) {
           try {
-            const members = await conversation.members();
-            const clientInboxId = client.inboxId;
-            const nonSelfMembers = members.filter(
-              (m) => m.inboxId !== clientInboxId,
-            );
-
-            if (nonSelfMembers.length === 0) {
-              // Group with only self - don't block
-              continue;
-            }
-
-            // Check if all non-self members are blocked
-            let allBlocked = true;
-            for (const member of nonSelfMembers) {
-              const isAllowed = await (
-                client.preferences as any
-              ).isAllowed(member.inboxId);
-              if (isAllowed) {
-                allBlocked = false;
-              } else {
-                blocked.add(member.inboxId);
-              }
-            }
-
-            if (allBlocked) {
+            // Check group consent state
+            const groupConsentState = await conversation.consentState;
+            if (groupConsentState === ConsentState.Denied) {
               blockedGroups.add(conversation.id);
               console.log(
-                "[Sidebar] Group is blocked (all members blocked):",
+                "[Sidebar] Group is blocked:",
                 conversation.id,
               );
             }
           } catch (error) {
-            console.error("[Sidebar] Error checking group members:", error);
+            console.error("[Sidebar] Error checking group consent state:", error);
           }
         } else if (conversation instanceof Dm) {
           // DM - check peer inbox ID
@@ -187,16 +170,19 @@ export function Sidebar() {
         console.log("[Sidebar] Deleting conversation:", conversation.id);
 
         if (conversation instanceof Group) {
-          // Block all members of the group
-          const members = await conversation.members();
-          console.log("[Sidebar] Blocking group members:", members.length);
-          const clientInboxId = client.inboxId;
-          for (const member of members) {
-            if (member.inboxId !== clientInboxId) {
-              await (client.preferences as any).deny(member.inboxId);
-              console.log("[Sidebar] Blocked inbox ID:", member.inboxId);
-            }
-          }
+          // Block the group using consent state
+          const currentState = await conversation.consentState;
+          await client.preferences.setConsentStates([
+            {
+              entity: conversation.id,
+              entityType: ConsentEntityType.GroupId,
+              state:
+                currentState === ConsentState.Allowed
+                  ? ConsentState.Denied
+                  : ConsentState.Allowed,
+            },
+          ]);
+          console.log("[Sidebar] Blocked group:", conversation.id);
         } else if (conversation instanceof Dm) {
           // DM - block the peer
           const peerInboxId = conversation.peerInboxId as unknown as string;
@@ -211,7 +197,11 @@ export function Sidebar() {
           setSelectedConversation(null);
         }
 
-        // Update blocked sets immediately
+        // Refresh conversations to update the list
+        // This will trigger the useEffect that checks blocked/denied states
+        await refreshConversations();
+
+        // Update blocked sets immediately for instant UI feedback
         if (conversation instanceof Group) {
           setBlockedGroupIds((prev) => new Set(prev).add(conversation.id));
         } else if (conversation instanceof Dm) {
@@ -220,9 +210,6 @@ export function Sidebar() {
             setBlockedInboxIds((prev) => new Set(prev).add(peerInboxId));
           }
         }
-
-        // Refresh conversations to update the list
-        await refreshConversations();
       } catch (error) {
         console.error("[Sidebar] Error blocking conversation:", error);
       }
@@ -407,14 +394,15 @@ export function Sidebar() {
 
               console.log("[Sidebar] ===== END DEBUG =====");
 
-              // Filter out blocked conversations
+              // Filter out blocked/denied conversations
+              // We filter synchronously using the blocked sets that are updated by useEffect
               const nonBlockedConversations = uniqueConversations.filter(
                 (conversation) => {
                   if (conversation instanceof Group) {
-                    // Check if group is in blocked groups set
+                    // Check if group is in blocked groups set (denied consent state)
                     if (blockedGroupIds.has(conversation.id)) {
                       console.log(
-                        "[Sidebar] Filtering out blocked group:",
+                        "[Sidebar] Filtering out denied group:",
                         conversation.id,
                       );
                       return false;
