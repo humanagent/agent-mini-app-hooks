@@ -3,11 +3,11 @@ import { InputArea, type Message } from "@components/input-area";
 import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { useCallback, useEffect, useState, useRef } from "react";
 import type { DecodedMessage } from "@xmtp/browser-sdk";
-import { Group } from "@xmtp/browser-sdk";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 import { ThinkingIndicator } from "@ui/thinking-indicator";
 import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
 import type { AgentConfig } from "@/agent-registry/agents";
+import { motion } from "framer-motion";
 import { CopyIcon, CheckIcon } from "@ui/icons";
 import { Button } from "@ui/button";
 import {
@@ -16,8 +16,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@ui/tooltip";
-import { generateConversationMetadata } from "@/lib/generate-conversation-name";
-import { AI_AGENTS } from "@/agent-registry/agents";
 
 export function MessageList({ messages }: { messages: Message[] }) {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
@@ -46,9 +44,7 @@ export function MessageList({ messages }: { messages: Message[] }) {
             <div
               className={`group flex w-full items-start ${message.role === "user" ? "justify-end" : "justify-start"} mb-6`}
             >
-              <div
-                className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%] sm:max-w-[80%] md:max-w-[70%]`}
-              >
+              <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%] sm:max-w-[80%] md:max-w-[70%]`}>
                 <div
                   className={`flex flex-col overflow-hidden text-sm w-fit break-words rounded-lg px-4 py-3 ${
                     message.role === "user"
@@ -106,7 +102,6 @@ export function ConversationView() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isWaitingForAgent, setIsWaitingForAgent] = useState(false);
   const waitingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const streamCleanupRef = useRef<(() => Promise<void>) | null>(null);
   const { client } = useXMTPClient();
   const {
     selectedConversation,
@@ -115,31 +110,6 @@ export function ConversationView() {
   } = useConversationsContext();
 
   useEffect(() => {
-    console.log(
-      "[ConversationView] selectedConversation changed:",
-      selectedConversation?.id,
-    );
-
-    // Clear messages immediately when conversation changes
-    setMessages([]);
-    setSyncError(null);
-    setLoadError(null);
-    setIsSyncingConversation(false);
-    setIsLoadingMessages(false);
-    setIsWaitingForAgent(false);
-
-    // Cleanup previous stream
-    if (streamCleanupRef.current) {
-      console.log("[ConversationView] Cleaning up previous stream");
-      void streamCleanupRef.current();
-      streamCleanupRef.current = null;
-    }
-
-    if (waitingTimeoutRef.current) {
-      clearTimeout(waitingTimeoutRef.current);
-      waitingTimeoutRef.current = null;
-    }
-
     if (!client || !selectedConversation) {
       return;
     }
@@ -148,10 +118,6 @@ export function ConversationView() {
 
     const setupMessages = async () => {
       try {
-        console.log(
-          "[ConversationView] Setting up messages for conversation:",
-          selectedConversation.id,
-        );
         setSyncError(null);
         setLoadError(null);
         setIsSyncingConversation(true);
@@ -163,7 +129,6 @@ export function ConversationView() {
               error instanceof Error
                 ? error.message
                 : "Failed to sync conversation";
-            console.error("[ConversationView] Sync error:", errorMessage);
             setSyncError(errorMessage);
             setIsSyncingConversation(false);
             return;
@@ -174,10 +139,6 @@ export function ConversationView() {
         setIsLoadingMessages(true);
         try {
           const existingMessages = await selectedConversation.messages();
-          console.log(
-            "[ConversationView] Loaded messages:",
-            existingMessages.length,
-          );
 
           const chatMessages: Message[] = existingMessages
             .filter(
@@ -185,21 +146,15 @@ export function ConversationView() {
                 typeof msg.content === "string",
             )
             .map((msg) => {
-              const content =
-                typeof msg.content === "string" ? msg.content : "";
+              const content = typeof msg.content === "string" ? msg.content : "";
               return {
                 id: msg.id,
-                role:
-                  msg.senderInboxId === client.inboxId ? "user" : "assistant",
+                role: msg.senderInboxId === client.inboxId ? "user" : "assistant",
                 content,
               };
             });
 
           if (mounted) {
-            console.log(
-              "[ConversationView] Setting messages:",
-              chatMessages.length,
-            );
             setMessages(chatMessages);
             setIsLoadingMessages(false);
           }
@@ -213,9 +168,7 @@ export function ConversationView() {
               const newMessage: Message = {
                 id: message.id,
                 role:
-                  message.senderInboxId === client.inboxId
-                    ? "user"
-                    : "assistant",
+                  message.senderInboxId === client.inboxId ? "user" : "assistant",
                 content: message.content,
               };
 
@@ -236,9 +189,8 @@ export function ConversationView() {
             },
           });
 
-          streamCleanupRef.current = async () => {
-            console.log("[ConversationView] Ending stream");
-            await stream.end();
+          return () => {
+            void stream.end();
           };
         } catch (error) {
           if (mounted) {
@@ -246,7 +198,6 @@ export function ConversationView() {
               error instanceof Error
                 ? error.message
                 : "Failed to load messages";
-            console.error("[ConversationView] Load error:", errorMessage);
             setLoadError(errorMessage);
             setIsLoadingMessages(false);
           }
@@ -257,7 +208,6 @@ export function ConversationView() {
             error instanceof Error
               ? error.message
               : "Failed to load conversation";
-          console.error("[ConversationView] Setup error:", errorMessage);
           setSyncError(errorMessage);
           setIsSyncingConversation(false);
           setIsLoadingMessages(false);
@@ -268,12 +218,7 @@ export function ConversationView() {
     void setupMessages();
 
     return () => {
-      console.log("[ConversationView] Cleanup effect");
       mounted = false;
-      if (streamCleanupRef.current) {
-        void streamCleanupRef.current();
-        streamCleanupRef.current = null;
-      }
     };
   }, [client, selectedConversation]);
 
@@ -337,7 +282,7 @@ export function ConversationView() {
       try {
         await conversation.send(content);
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
-
+        
         setIsWaitingForAgent(true);
         if (waitingTimeoutRef.current) {
           clearTimeout(waitingTimeoutRef.current);
@@ -346,46 +291,6 @@ export function ConversationView() {
           setIsWaitingForAgent(false);
           waitingTimeoutRef.current = null;
         }, 10000);
-
-        if (
-          conversation instanceof Group &&
-          conversation.name === "Agent Group"
-        ) {
-          console.log("[ConversationView] Generating conversation metadata...");
-          try {
-            const members = await conversation.members();
-            const allAddresses = members.flatMap((member) =>
-              member.accountIdentifiers
-                .filter((id) => id.identifierKind === "Ethereum")
-                .map((id) => id.identifier.toLowerCase()),
-            );
-
-            const agentAddresses = allAddresses.filter((addr) => {
-              const normalizedAddr = addr.toLowerCase();
-              return AI_AGENTS.some(
-                (agent) => agent.address.toLowerCase() === normalizedAddr,
-              );
-            });
-
-            if (agentAddresses.length > 0) {
-              const metadata = await generateConversationMetadata(
-                content,
-                agentAddresses,
-              );
-              console.log("[ConversationView] Generated metadata:", metadata);
-              await conversation.updateName(metadata.name);
-              if (metadata.description) {
-                await conversation.updateDescription(metadata.description);
-              }
-              void refreshConversations();
-            }
-          } catch (error) {
-            console.error(
-              "[ConversationView] Error generating conversation metadata:",
-              error,
-            );
-          }
-        }
       } catch {
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
         setIsWaitingForAgent(false);
@@ -406,7 +311,7 @@ export function ConversationView() {
 
   return (
     <div className="overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background">
-      <ChatHeader conversation={selectedConversation} />
+      <ChatHeader />
 
       <div className="relative flex-1">
         <div className="absolute inset-0 touch-pan-y overflow-y-auto">
@@ -435,22 +340,15 @@ export function ConversationView() {
                 message={`Error loading messages: ${loadError}`}
               />
             )}
-            {isLoadingMessages &&
-              !loadError &&
-              !isSyncingConversation &&
-              !isCreatingConversation && (
-                <ThinkingIndicator message="Loading messages..." />
-              )}
-            {isWaitingForAgent &&
-              !isCreatingConversation &&
-              !isSyncingConversation &&
-              !isLoadingMessages && (
-                <ThinkingIndicator message="Waiting for agent response..." />
-              )}
-            {!selectedConversation &&
-              !isCreatingConversation &&
-              !createError &&
-              selectedAgents.length === 0 && <Greeting />}
+            {isLoadingMessages && !loadError && !isSyncingConversation && !isCreatingConversation && (
+              <ThinkingIndicator message="Loading messages..." />
+            )}
+            {isWaitingForAgent && !isCreatingConversation && !isSyncingConversation && !isLoadingMessages && (
+              <ThinkingIndicator message="Waiting for agent response..." />
+            )}
+            {!selectedConversation && !isCreatingConversation && !createError && selectedAgents.length === 0 && (
+              <Greeting />
+            )}
             {messages.length > 0 && <MessageList messages={messages} />}
           </div>
         </div>

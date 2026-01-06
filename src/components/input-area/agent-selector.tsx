@@ -6,12 +6,7 @@ import {
   CommandItem,
   CommandList,
 } from "@ui/command";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@ui/dialog";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type AgentConfig } from "@/agent-registry/agents";
