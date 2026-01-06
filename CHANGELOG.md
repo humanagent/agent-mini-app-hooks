@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.6] - 2025-01-03
+
+### Added
+
+- Added comprehensive XMTP authentication logging throughout client initialization
+- Added detailed error logging for client creation failures
+- Added account key persistence to localStorage to prevent regeneration on each load
+- Added timeout detection for hanging client creation (30s timeout)
+- Added initialization guard to prevent infinite loops in React Strict Mode
+
+### Fixed
+
+- Fixed infinite loop in useXMTPClient hook by preventing multiple initializations
+- Fixed Dialog accessibility warnings by adding DialogDescription components
+- Fixed codec logging to show actual class names instead of undefined values
+
 ## [0.1.5] - 2025-01-03
 
 ### Fixed
