@@ -170,26 +170,26 @@ function MetadataDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Group Metadata</DialogTitle>
           <DialogDescription>
             JSON details of the group including id, members, name, and
             description.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
           {isLoading ? (
             <div className="py-8 text-center text-muted-foreground">
               Loading metadata...
             </div>
           ) : (
-            <pre className="max-h-[60vh] overflow-auto rounded-md border border-border bg-muted p-4 text-sm">
-              <code>{metadata || "No data available"}</code>
+            <pre className="flex-1 min-h-0 overflow-auto rounded-md border border-border bg-muted p-4 text-[10px]">
+              <code className="block whitespace-pre-wrap break-words">{metadata || "No data available"}</code>
             </pre>
           )}
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Close
           </Button>

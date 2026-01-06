@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "c":"yarn build && yarn lint",
     "fix": "prettier --log-level error -w . && eslint . --fix",
     "format": "prettier -w .",
     "format:check": "prettier -c .",

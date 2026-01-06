@@ -19,7 +19,7 @@ import {
 } from "@ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import type { Conversation } from "@xmtp/browser-sdk";
-import { Group, Dm, ConsentState, ConsentEntityType } from "@xmtp/browser-sdk";
+import { Group, Dm } from "@xmtp/browser-sdk";
 import { useEffect, useState, useCallback } from "react";
 import { shortAddress } from "@/lib/utils";
 import { Link, useLocation, useNavigate } from "react-router";
@@ -101,7 +101,6 @@ export function Sidebar() {
     refreshConversations,
   } = useConversationsContext();
   const location = useLocation();
-  const navigate = useNavigate();
   const [blockedInboxIds, setBlockedInboxIds] = useState<Set<string>>(
     new Set(),
   );
@@ -120,35 +119,54 @@ export function Sidebar() {
       for (const conversation of conversations) {
         if (conversation instanceof Group) {
           try {
-            const getState = await conversation.consentState;
-            if (getState === ConsentState.Denied) {
+            const members = await conversation.members();
+            const clientInboxId = client.inboxId;
+            const nonSelfMembers = members.filter(
+              (m) => m.inboxId !== clientInboxId,
+            );
+
+            if (nonSelfMembers.length === 0) {
+              // Group with only self - don't block
+              continue;
+            }
+
+            // Check if all non-self members are blocked
+            let allBlocked = true;
+            for (const member of nonSelfMembers) {
+              const isAllowed = await (
+                client.preferences as any
+              ).isAllowed(member.inboxId);
+              if (isAllowed) {
+                allBlocked = false;
+              } else {
+                blocked.add(member.inboxId);
+              }
+            }
+
+            if (allBlocked) {
               blockedGroups.add(conversation.id);
-              console.log("[Sidebar] Group is blocked:", conversation.id);
+              console.log(
+                "[Sidebar] Group is blocked (all members blocked):",
+                conversation.id,
+              );
             }
           } catch (error) {
-            console.error(
-              "[Sidebar] Error checking group consent state:",
-              error,
-            );
+            console.error("[Sidebar] Error checking group members:", error);
           }
         } else if (conversation instanceof Dm) {
-          // DM - check peer inbox ID consent state
+          // DM - check peer inbox ID
           const peerInboxId = conversation.peerInboxId as unknown as string;
           if (peerInboxId) {
             try {
-              const consentState = await client.preferences.getConsentState(
-                peerInboxId,
-                ConsentEntityType.InboxId,
-              );
-              if (consentState === ConsentState.Denied) {
+              const isAllowed = await (
+                client.preferences as any
+              ).isAllowed(peerInboxId);
+              if (!isAllowed) {
                 blocked.add(peerInboxId);
                 console.log("[Sidebar] DM is blocked:", peerInboxId);
               }
             } catch (error) {
-              console.error(
-                "[Sidebar] Error checking peer inbox ID consent:",
-                error,
-              );
+              console.error("[Sidebar] Error checking peer inbox ID:", error);
             }
           }
         }
@@ -169,31 +187,22 @@ export function Sidebar() {
         console.log("[Sidebar] Deleting conversation:", conversation.id);
 
         if (conversation instanceof Group) {
-          // Block the group using consent state
-          const getState = await conversation.consentState;
-          await client.preferences.setConsentStates([
-            {
-              entity: conversation.id,
-              entityType: ConsentEntityType.GroupId,
-              state:
-                getState === ConsentState.Allowed
-                  ? ConsentState.Denied
-                  : ConsentState.Allowed,
-            },
-          ]);
-          console.log("[Sidebar] Group blocked:", conversation.id);
+          // Block all members of the group
+          const members = await conversation.members();
+          console.log("[Sidebar] Blocking group members:", members.length);
+          const clientInboxId = client.inboxId;
+          for (const member of members) {
+            if (member.inboxId !== clientInboxId) {
+              await (client.preferences as any).deny(member.inboxId);
+              console.log("[Sidebar] Blocked inbox ID:", member.inboxId);
+            }
+          }
         } else if (conversation instanceof Dm) {
-          // DM - block the peer using consent state
+          // DM - block the peer
           const peerInboxId = conversation.peerInboxId as unknown as string;
           if (peerInboxId) {
-            await client.preferences.setConsentStates([
-              {
-                entity: peerInboxId,
-                entityType: ConsentEntityType.InboxId,
-                state: ConsentState.Denied,
-              },
-            ]);
-            console.log("[Sidebar] Peer blocked:", peerInboxId);
+            await (client.preferences as any).deny(peerInboxId);
+            console.log("[Sidebar] Blocked peer inbox ID:", peerInboxId);
           }
         }
 
@@ -225,6 +234,7 @@ export function Sidebar() {
       refreshConversations,
     ],
   );
+  const navigate = useNavigate();
 
   // Log conversations when they change
   useEffect(() => {
@@ -426,61 +436,59 @@ export function Sidebar() {
                 },
               );
 
-              return nonBlockedConversations.map(
-                (conversation, _renderIndex) => {
-                  const isActive = selectedConversation?.id === conversation.id;
-                  const isGroup = conversation instanceof Group;
-                  const groupName = isGroup ? conversation.name : null;
-                  const displayId =
-                    conversation.id.length > 20
-                      ? `${conversation.id.slice(0, 10)}...${conversation.id.slice(-6)}`
-                      : conversation.id;
-                  const displayText =
-                    isGroup && groupName && groupName !== "Agent Group"
-                      ? groupName
-                      : displayId;
-                  const isNamed =
-                    isGroup && groupName && groupName !== "Agent Group";
+              return nonBlockedConversations.map((conversation, _renderIndex) => {
+                const isActive = selectedConversation?.id === conversation.id;
+                const isGroup = conversation instanceof Group;
+                const groupName = isGroup ? conversation.name : null;
+                const displayId =
+                  conversation.id.length > 20
+                    ? `${conversation.id.slice(0, 10)}...${conversation.id.slice(-6)}`
+                    : conversation.id;
+                const displayText =
+                  isGroup && groupName && groupName !== "Agent Group"
+                    ? groupName
+                    : displayId;
+                const isNamed =
+                  isGroup && groupName && groupName !== "Agent Group";
 
-                  return (
-                    <SidebarMenuItem key={conversation.id}>
-                      <div className="group/conversation relative flex w-full items-center">
-                        <SidebarMenuButton
-                          isActive={isActive}
-                          className="cursor-pointer flex-1"
-                          onClick={() => {
-                            handleConversationClick(conversation);
-                          }}
-                        >
-                          <AnimatePresence mode="wait">
-                            <motion.span
-                              key={displayText}
-                              initial={{ opacity: 0, y: -4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 4 }}
-                              transition={{ duration: 0.15 }}
-                              className={`truncate text-xs ${isNamed ? "font-medium" : "font-mono"}`}
-                            >
-                              {displayText}
-                            </motion.span>
-                          </AnimatePresence>
-                        </SidebarMenuButton>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="opacity-0 group-hover/conversation:opacity-100 h-6 w-6 p-0 ml-1 transition-opacity"
-                          onClick={(e) => {
-                            void handleDeleteConversation(conversation, e);
-                          }}
-                        >
-                          <TrashIcon size={14} />
-                        </Button>
-                      </div>
-                    </SidebarMenuItem>
-                  );
-                },
-              );
+                return (
+                  <SidebarMenuItem key={conversation.id}>
+                    <div className="group/conversation relative flex w-full items-center">
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        className="cursor-pointer flex-1"
+                        onClick={() => {
+                          handleConversationClick(conversation);
+                        }}
+                      >
+                        <AnimatePresence mode="wait">
+                          <motion.span
+                            key={displayText}
+                            initial={{ opacity: 0, y: -4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 4 }}
+                            transition={{ duration: 0.15 }}
+                            className={`truncate text-xs ${isNamed ? "font-medium" : "font-mono"}`}
+                          >
+                            {displayText}
+                          </motion.span>
+                        </AnimatePresence>
+                      </SidebarMenuButton>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="opacity-0 group-hover/conversation:opacity-100 h-6 w-6 p-0 ml-1 transition-opacity"
+                        onClick={(e) => {
+                          void handleDeleteConversation(conversation, e);
+                        }}
+                      >
+                        <TrashIcon size={14} />
+                      </Button>
+                    </div>
+                  </SidebarMenuItem>
+                );
+              });
             })()
           )}
         </SidebarMenu>
