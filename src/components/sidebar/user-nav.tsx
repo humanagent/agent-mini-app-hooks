@@ -5,33 +5,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@ui/dropdown-menu";
+import { ChevronUpIcon } from "@ui/icons";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@ui/sidebar";
 import { shortAddress } from "@/lib/utils";
-
-const ChevronUpIcon = ({
-  size = 16,
-  ...props
-}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
-  <svg
-    height={size}
-    strokeLinejoin="round"
-    style={{ color: "currentcolor", ...props.style }}
-    viewBox="0 0 16 16"
-    width={size}
-    {...props}
-  >
-    <path
-      clipRule="evenodd"
-      d="M7.29289 4.29289C7.68342 3.90237 8.31658 3.90237 8.70711 4.29289L13.7071 9.29289C14.0976 9.68342 14.0976 10.3166 13.7071 10.7071C13.3166 11.0976 12.6834 11.0976 12.2929 10.7071L8 6.41421L3.70711 10.7071C3.31658 11.0976 2.68342 11.0976 2.29289 10.7071C1.90237 10.3166 1.90237 9.68342 2.29289 9.29289L7.29289 4.29289Z"
-      fill="currentColor"
-      fillRule="evenodd"
-    />
-  </svg>
-);
 
 export function SidebarUserNav() {
   const { client } = useXMTPClient();
@@ -47,8 +27,7 @@ export function SidebarUserNav() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
-              className="h-10 justify-between bg-transparent hover:px-0 !transition-none !transform-none active:!scale-100 hover:!scale-100 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground data-[state=open]:px-0 data-[state=open]:!scale-100"
-              style={{ transform: "none" }}
+              className="h-10 justify-between bg-transparent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               data-testid="user-nav-button"
             >
               <div className="flex aspect-square size-6 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground">

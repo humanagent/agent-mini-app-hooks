@@ -6,7 +6,7 @@ import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
 import { SidebarToggle } from "@/src/components/sidebar/sidebar-toggle";
-import { ShareButton } from "@/src/components/sidebar/share-button";
+import { ShareButton } from "./share-button";
 
 export function ExplorePage() {
   const categories = useMemo(() => {

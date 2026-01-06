@@ -74,7 +74,7 @@ export function ConversationItem({
         <SidebarMenuButton
           isActive={isActive}
           className={`
-            cursor-pointer flex-1
+            flex-1
             touch-manipulation
             ${isPressed ? "scale-[0.97] bg-sidebar-accent" : ""}
             active:scale-[0.97] active:bg-sidebar-accent

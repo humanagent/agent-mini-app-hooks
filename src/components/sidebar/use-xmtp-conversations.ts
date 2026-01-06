@@ -14,26 +14,12 @@ async function filterAllowedConversations(
       const isAllowed = await isConversationAllowed(conversation, client);
       if (isAllowed) {
         allowedList.push(conversation);
-      } else {
-        console.log("[XMTP] Filtered denied conversation:", {
-          id: conversation.id,
-          type: conversation.constructor.name,
-        });
       }
-    } catch (error) {
-      console.error("[XMTP] Error checking consent, allowing by default:", {
-        id: conversation.id,
-        error,
-      });
+    } catch {
+      // Allow by default on error
       allowedList.push(conversation);
     }
   }
-
-  console.log("[XMTP] Consent filter:", {
-    total: conversations.length,
-    allowed: allowedList.length,
-    filtered: conversations.length - allowedList.length,
-  });
 
   return allowedList;
 }
@@ -51,14 +37,8 @@ export function useXMTPConversations(client: Client<ContentTypes> | null) {
     }
 
     try {
-      console.log("[XMTP] Refreshing conversations...");
       await client.conversations.sync();
       const allConversations = await client.conversations.list();
-
-      console.log("[XMTP] Total conversations before filtering:", {
-        count: allConversations.length,
-        ids: allConversations.map((c) => c.id),
-      });
 
       const uniqueConversations = Array.from(
         new Map(allConversations.map((c) => [c.id, c])).values(),
@@ -69,14 +49,8 @@ export function useXMTPConversations(client: Client<ContentTypes> | null) {
         client,
       );
 
-      console.log("[XMTP] Conversations after filtering:", {
-        allowed: allowedConversations.length,
-        ids: allowedConversations.map((c) => c.id),
-      });
-
       setConversations(allowedConversations);
     } catch (err) {
-      console.error("[XMTP] Error refreshing conversations:", err);
       setError(err instanceof Error ? err : new Error(String(err)));
     }
   }, [client]);
@@ -121,29 +95,15 @@ export function useXMTPConversations(client: Client<ContentTypes> | null) {
                 client,
               );
               if (!isAllowed) {
-                console.log(
-                  "[XMTP] Streamed conversation is denied, filtering out:",
-                  conversation.id,
+                setConversations((prev: Conversation[]) =>
+                  prev.filter((c) => c.id !== conversation.id),
                 );
-                setConversations((prev: Conversation[]) => {
-                  const filtered = prev.filter((c) => c.id !== conversation.id);
-                  return filtered;
-                });
                 return;
               }
-            } catch (error) {
-              console.error(
-                "[XMTP] Error checking streamed conversation consent:",
-                error,
+            } catch {
+              setConversations((prev: Conversation[]) =>
+                prev.filter((c) => c.id !== conversation.id),
               );
-              console.log(
-                "[XMTP] Filtering out conversation due to consent check error:",
-                conversation.id,
-              );
-              setConversations((prev: Conversation[]) => {
-                const filtered = prev.filter((c) => c.id !== conversation.id);
-                return filtered;
-              });
               return;
             }
 

@@ -19,6 +19,15 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { getGroupConsentState } from "@/lib/xmtp/consent";
 import { sortConversationsByLastMessage } from "@/src/components/sidebar/utils";
+import { cn } from "@/lib/utils";
+
+const SidebarLogo = ({ className }: { className?: string }) => (
+  <img
+    src="/icon.svg"
+    alt="XMTP Agents"
+    className={cn("size-8 rounded-md p-2 hover:bg-sidebar-accent", className)}
+  />
+);
 
 export function Sidebar() {
   const { client } = useXMTPClient();
@@ -58,7 +67,6 @@ export function Sidebar() {
     async (conversation: Conversation, event: React.MouseEvent) => {
       event.stopPropagation();
       if (!client) {
-        console.log("[Sidebar] No client available for deny action");
         return;
       }
 
@@ -77,10 +85,13 @@ export function Sidebar() {
             },
           ]);
         } else if (conversation instanceof Dm) {
-          const peerInboxId = conversation.peerInboxId as unknown as string;
-          if (peerInboxId) {
-            await (client.preferences as any).deny(peerInboxId);
-          }
+          await client.preferences.setConsentStates([
+            {
+              entity: conversation.id,
+              entityType: ConsentEntityType.ConversationId,
+              state: ConsentState.Denied,
+            },
+          ]);
         }
 
         if (selectedConversation?.id === conversation.id) {
@@ -88,11 +99,8 @@ export function Sidebar() {
         }
 
         await refreshConversations();
-      } catch (error) {
-        console.error("[Sidebar] Error denying conversation:", {
-          id: conversation.id,
-          error,
-        });
+      } catch {
+        // Silently fail - conversation state unchanged
       }
     },
     [
@@ -113,11 +121,7 @@ export function Sidebar() {
       <SidebarHeader className="group-data-[collapsible=icon]:p-0">
         <SidebarMenu>
           <div className="flex flex-row items-center justify-between group-data-[collapsible=icon]:justify-center">
-            <img
-              src="/icon.svg"
-              alt="XMTP Agents"
-              className="size-8 cursor-pointer rounded-md p-2 hover:bg-sidebar-accent group-data-[collapsible=icon]:hidden"
-            />
+            <SidebarLogo className="group-data-[collapsible=icon]:hidden" />
             <SidebarToggle />
           </div>
         </SidebarMenu>
@@ -126,7 +130,6 @@ export function Sidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              className="cursor-pointer"
               tooltip="New Chat"
               onClick={() => {
                 setSelectedConversation(null);
@@ -144,10 +147,9 @@ export function Sidebar() {
             <SidebarMenuButton
               asChild
               isActive={location.pathname === "/explore"}
-              className="cursor-pointer"
               tooltip="Explore"
             >
-              <Link to="/explore" className="cursor-pointer">
+              <Link to="/explore">
                 <ExploreIcon size={16} />
                 <span className="group-data-[collapsible=icon]:hidden">
                   Explore
@@ -178,13 +180,9 @@ export function Sidebar() {
           )}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter className="group-data-[collapsible=icon]:p-0 hover:p-0 group-data-[collapsible=icon]:hover:p-0">
+      <SidebarFooter className="group-data-[collapsible=icon]:p-0">
         <div className="hidden group-data-[collapsible=icon]:flex items-center justify-center">
-          <img
-            src="/icon.svg"
-            alt="XMTP Agents"
-            className="size-8 cursor-pointer rounded-md p-2 hover:bg-sidebar-accent"
-          />
+          <SidebarLogo />
         </div>
         <div className="group-data-[collapsible=icon]:hidden">
           <SidebarUserNav />
