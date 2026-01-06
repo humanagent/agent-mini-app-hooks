@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.7] - 2025-01-03
+
+### Fixed
+
+- Fixed OPFS database conflicts by implementing proper singleton pattern for XMTP client initialization
+- Fixed race condition in client creation that caused "Access Handles cannot be created" errors
+- Fixed multiple private key generation by adding account key caching
+
+### Added
+
+- Added `isCreatingClient` guard to prevent concurrent Client.create() calls
+- Added `isInitializing` flag to prevent race conditions in singleton pattern
+- Added account key caching to ensure consistent key usage across initialization attempts
+- Added enhanced logging for debugging client initialization issues
+
 ## [0.1.6] - 2025-01-03
 
 ### Added

@@ -77,7 +77,8 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ["@xmtp/wasm-bindings"],
+    exclude: ["@xmtp/wasm-bindings", "@xmtp/browser-sdk"],
+    include: ["@xmtp/proto"],
   },
   esbuild: {
     logOverride: { "this-is-undefined-in-esm": "silent" },
