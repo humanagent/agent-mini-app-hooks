@@ -20,6 +20,8 @@ This SDK uses the [origin private file system](https://developer.mozilla.org/en-
 
 This means that when using this SDK in your app, you must prevent multiple browser tabs or windows from accessing your app at the same time.
 
+**Important**: You must also ensure only **one** `Client.create()` call happens at a time within a single tab/window. Multiple simultaneous client creation attempts will cause OPFS errors.
+
 ### Bundlers
 
 This SDK and some of its dependencies use `import.meta.url`. Some bundlers must be configured to account for this during development.
@@ -636,6 +638,180 @@ try {
   // Handle error appropriately
 }
 ```
+
+## Troubleshooting
+
+### OPFS "Access Handles cannot be created" Error
+
+**Error Message:**
+```
+Failed to execute 'createSyncAccessHandle' on 'FileSystemFileHandle': 
+Access Handles cannot be created if there is another open Access Handle 
+or Writable stream associated with the same file.
+```
+
+**Cause:**
+Multiple `Client.create()` calls are happening simultaneously, all trying to access the same OPFS database file. The XMTP Browser SDK uses OPFS which doesn't allow multiple simultaneous connections.
+
+**Symptoms:**
+- Multiple client initialization attempts in logs
+- Different private keys being generated for each attempt
+- Client creation hangs or fails
+- Error appears in browser console
+
+**Solution:**
+Implement a proper singleton pattern to ensure only one client instance is created:
+
+```typescript
+// Global singleton state
+let globalClientPromise: Promise<Client> | null = null;
+let globalClient: Client | null = null;
+let isInitializing = false;
+
+async function initializeClient(): Promise<Client> {
+  // Return existing client if available
+  if (globalClient) {
+    return globalClient;
+  }
+
+  // Wait for existing initialization if in progress
+  if (isInitializing && globalClientPromise) {
+    return globalClientPromise;
+  }
+
+  // Prevent race conditions
+  if (isInitializing) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    if (globalClientPromise) return globalClientPromise;
+    if (globalClient) return globalClient;
+  }
+
+  // Start initialization
+  isInitializing = true;
+  globalClientPromise = (async () => {
+    try {
+      const client = await Client.create(signer, options);
+      globalClient = client;
+      isInitializing = false;
+      globalClientPromise = null;
+      return client;
+    } catch (err) {
+      isInitializing = false;
+      globalClientPromise = null;
+      throw err;
+    }
+  })();
+
+  return globalClientPromise;
+}
+```
+
+**Additional Guards:**
+Add a guard in your client creation function to prevent concurrent calls:
+
+```typescript
+let isCreatingClient = false;
+
+export async function createXMTPClient(signer: Signer): Promise<Client> {
+  if (isCreatingClient) {
+    throw new Error(
+      "XMTP client creation already in progress. " +
+      "Only one client can be created at a time due to OPFS limitations."
+    );
+  }
+
+  isCreatingClient = true;
+  try {
+    const client = await Client.create(signer, options);
+    isCreatingClient = false;
+    return client;
+  } catch (error) {
+    isCreatingClient = false;
+    throw error;
+  }
+}
+```
+
+**Account Key Caching:**
+Ensure the same private key is used across initialization attempts:
+
+```typescript
+let accountKeyCache: string | null = null;
+
+export function getOrCreateEphemeralAccountKey(): string {
+  // Return cached key if available
+  if (accountKeyCache) {
+    return accountKeyCache;
+  }
+
+  // Check localStorage
+  const STORAGE_KEY = "xmtp-ephemeral-account-key";
+  const stored = localStorage.getItem(STORAGE_KEY);
+  
+  if (stored) {
+    accountKeyCache = stored;
+    return accountKeyCache;
+  }
+
+  // Generate and cache new key
+  const newKey = generatePrivateKey();
+  localStorage.setItem(STORAGE_KEY, newKey);
+  accountKeyCache = newKey;
+  return newKey;
+}
+```
+
+**React Hook Pattern:**
+For React applications, use a hook with subscriber pattern:
+
+```typescript
+const subscribers = new Set<(client: Client | null, error: Error | null) => void>();
+
+function notifySubscribers(client: Client | null, error: Error | null) {
+  subscribers.forEach((subscriber) => subscriber(client, error));
+}
+
+export function useXMTPClient() {
+  const [client, setClient] = useState<Client | null>(globalClient);
+  const [isLoading, setIsLoading] = useState(!globalClient);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (globalClient) {
+      setClient(globalClient);
+      setIsLoading(false);
+      return;
+    }
+
+    const subscriber = (newClient: Client | null, newError: Error | null) => {
+      setClient(newClient);
+      setError(newError);
+      setIsLoading(false);
+    };
+
+    subscribers.add(subscriber);
+    initializeClient().catch((err) => {
+      setError(err);
+      setIsLoading(false);
+    });
+
+    return () => {
+      subscribers.delete(subscriber);
+    };
+  }, []);
+
+  return { client, isLoading, error };
+}
+```
+
+**Key Points:**
+1. ✅ Use a global singleton pattern - only one client instance per application
+2. ✅ Add `isInitializing` flag to prevent race conditions
+3. ✅ Add `isCreatingClient` guard to prevent concurrent `Client.create()` calls
+4. ✅ Cache account keys to ensure consistent identity
+5. ✅ Use subscriber pattern for React hooks to share the same client instance
+6. ❌ Don't create multiple clients in different components
+7. ❌ Don't call `Client.create()` multiple times simultaneously
 
 ## Type Imports
 

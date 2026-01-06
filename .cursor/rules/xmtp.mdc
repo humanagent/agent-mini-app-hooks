@@ -360,6 +360,3 @@ const client = await Client.create(signer, {
     "." + `/${process.env.XMTP_ENV}-${inboxId.slice(0, 8)}.db3`,
 });
 ```
----
-alwaysApply: true
----

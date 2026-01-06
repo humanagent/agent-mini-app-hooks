@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@ui/dropdown-menu";
-import { PlusIcon, TrashIcon } from "@ui/icons";
+import { ExploreIcon, PlusIcon, TrashIcon } from "@ui/icons";
 import {
   SidebarContent,
   SidebarFooter,
@@ -21,6 +21,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import type { Conversation } from "@xmtp/browser-sdk";
 import { useEffect, useState } from "react";
 import { shortAddress } from "@/lib/utils";
+import { Link, useLocation } from "react-router";
 
 const ChevronUpIcon = ({
   size = 16,
@@ -93,6 +94,7 @@ export function Sidebar() {
   const { client } = useXMTPClient();
   const { conversations, selectedConversation, setSelectedConversation } =
     useConversationsContext();
+  const location = useLocation();
   const [conversationLabels, setConversationLabels] = useState<
     Map<string, string>
   >(new Map());
@@ -182,6 +184,19 @@ export function Sidebar() {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={location.pathname === "/explore"}
+            >
+              <Link to="/explore">
+                <ExploreIcon size={16} />
+                <span>Explore</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <SidebarMenu>
           {!conversations || conversations.length === 0 ? (
             <div className="flex w-full flex-row items-center justify-center gap-2 px-2 py-2 text-sm text-muted-foreground">

@@ -205,3 +205,24 @@ export const ShareIcon = ({
     />
   </svg>
 );
+
+export const ExploreIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM1.5 8C1.5 4.41015 4.41015 1.5 8 1.5C11.5899 1.5 14.5 4.41015 14.5 8C14.5 11.5899 11.5899 14.5 8 14.5C4.41015 14.5 1.5 11.5899 1.5 8ZM8 4.5C6.067 4.5 4.5 6.067 4.5 8C4.5 9.933 6.067 11.5 8 11.5C9.933 11.5 11.5 9.933 11.5 8C11.5 6.067 9.933 4.5 8 4.5ZM6 8C6 6.89543 6.89543 6 8 6C9.10457 6 10 6.89543 10 8C10 9.10457 9.10457 10 8 10C6.89543 10 6 9.10457 6 8Z"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
