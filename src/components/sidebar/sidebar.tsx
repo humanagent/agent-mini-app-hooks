@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@ui/dropdown-menu";
-import { ExploreIcon, PlusIcon } from "@ui/icons";
+import { ExploreIcon, PlusIcon, TrashIcon } from "@ui/icons";
 import {
   SidebarContent,
   SidebarFooter,
@@ -102,10 +102,10 @@ export function Sidebar() {
   } = useConversationsContext();
   const location = useLocation();
   const navigate = useNavigate();
-  const [_blockedInboxIds, setBlockedInboxIds] = useState<Set<string>>(
+  const [blockedInboxIds, setBlockedInboxIds] = useState<Set<string>>(
     new Set(),
   );
-  const [_blockedGroupIds, setBlockedGroupIds] = useState<Set<string>>(
+  const [blockedGroupIds, setBlockedGroupIds] = useState<Set<string>>(
     new Set(),
   );
 
@@ -120,7 +120,7 @@ export function Sidebar() {
       for (const conversation of conversations) {
         if (conversation instanceof Group) {
           try {
-            const getState = await conversation.consentState();
+            const getState = await conversation.consentState;
             if (getState === ConsentState.Denied) {
               blockedGroups.add(conversation.id);
               console.log("[Sidebar] Group is blocked:", conversation.id);
@@ -170,11 +170,15 @@ export function Sidebar() {
 
         if (conversation instanceof Group) {
           // Block the group using consent state
+          const getState = await conversation.consentState;
           await client.preferences.setConsentStates([
             {
               entity: conversation.id,
               entityType: ConsentEntityType.GroupId,
-              state: ConsentState.Denied,
+              state:
+                getState === ConsentState.Allowed
+                  ? ConsentState.Denied
+                  : ConsentState.Allowed,
             },
           ]);
           console.log("[Sidebar] Group blocked:", conversation.id);
