@@ -102,6 +102,7 @@ export function ConversationView() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isWaitingForAgent, setIsWaitingForAgent] = useState(false);
   const waitingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const streamCleanupRef = useRef<(() => Promise<void>) | null>(null);
   const { client } = useXMTPClient();
   const {
     selectedConversation,
@@ -110,6 +111,28 @@ export function ConversationView() {
   } = useConversationsContext();
 
   useEffect(() => {
+    console.log("[ConversationView] selectedConversation changed:", selectedConversation?.id);
+    
+    // Clear messages immediately when conversation changes
+    setMessages([]);
+    setSyncError(null);
+    setLoadError(null);
+    setIsSyncingConversation(false);
+    setIsLoadingMessages(false);
+    setIsWaitingForAgent(false);
+    
+    // Cleanup previous stream
+    if (streamCleanupRef.current) {
+      console.log("[ConversationView] Cleaning up previous stream");
+      void streamCleanupRef.current();
+      streamCleanupRef.current = null;
+    }
+    
+    if (waitingTimeoutRef.current) {
+      clearTimeout(waitingTimeoutRef.current);
+      waitingTimeoutRef.current = null;
+    }
+
     if (!client || !selectedConversation) {
       return;
     }
@@ -118,6 +141,7 @@ export function ConversationView() {
 
     const setupMessages = async () => {
       try {
+        console.log("[ConversationView] Setting up messages for conversation:", selectedConversation.id);
         setSyncError(null);
         setLoadError(null);
         setIsSyncingConversation(true);
@@ -129,6 +153,7 @@ export function ConversationView() {
               error instanceof Error
                 ? error.message
                 : "Failed to sync conversation";
+            console.error("[ConversationView] Sync error:", errorMessage);
             setSyncError(errorMessage);
             setIsSyncingConversation(false);
             return;
@@ -139,6 +164,7 @@ export function ConversationView() {
         setIsLoadingMessages(true);
         try {
           const existingMessages = await selectedConversation.messages();
+          console.log("[ConversationView] Loaded messages:", existingMessages.length);
 
           const chatMessages: Message[] = existingMessages
             .filter(
@@ -155,6 +181,7 @@ export function ConversationView() {
             });
 
           if (mounted) {
+            console.log("[ConversationView] Setting messages:", chatMessages.length);
             setMessages(chatMessages);
             setIsLoadingMessages(false);
           }
@@ -189,8 +216,9 @@ export function ConversationView() {
             },
           });
 
-          return () => {
-            void stream.end();
+          streamCleanupRef.current = async () => {
+            console.log("[ConversationView] Ending stream");
+            await stream.end();
           };
         } catch (error) {
           if (mounted) {
@@ -198,6 +226,7 @@ export function ConversationView() {
               error instanceof Error
                 ? error.message
                 : "Failed to load messages";
+            console.error("[ConversationView] Load error:", errorMessage);
             setLoadError(errorMessage);
             setIsLoadingMessages(false);
           }
@@ -208,6 +237,7 @@ export function ConversationView() {
             error instanceof Error
               ? error.message
               : "Failed to load conversation";
+          console.error("[ConversationView] Setup error:", errorMessage);
           setSyncError(errorMessage);
           setIsSyncingConversation(false);
           setIsLoadingMessages(false);
@@ -218,7 +248,12 @@ export function ConversationView() {
     void setupMessages();
 
     return () => {
+      console.log("[ConversationView] Cleanup effect");
       mounted = false;
+      if (streamCleanupRef.current) {
+        void streamCleanupRef.current();
+        streamCleanupRef.current = null;
+      }
     };
   }, [client, selectedConversation]);
 
@@ -311,7 +346,7 @@ export function ConversationView() {
 
   return (
     <div className="overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background">
-      <ChatHeader />
+      <ChatHeader conversation={selectedConversation} />
 
       <div className="relative flex-1">
         <div className="absolute inset-0 touch-pan-y overflow-y-auto">

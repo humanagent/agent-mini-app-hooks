@@ -415,3 +415,46 @@ export const ChevronDownIcon = ({
     />
   </svg>
 );
+
+export const BaseIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM11.5 5.5C11.7761 5.5 12 5.72386 12 6V10C12 10.2761 11.7761 10.5 11.5 10.5H4.5C4.22386 10.5 4 10.2761 4 10V6C4 5.72386 4.22386 5.5 4.5 5.5H11.5ZM10.5 7H5.5V9.5H10.5V7Z"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
+
+export const WorldIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM8 1.5C11.5899 1.5 14.5 4.41015 14.5 8C14.5 11.5899 11.5899 14.5 8 14.5C4.41015 14.5 1.5 11.5899 1.5 8C1.5 4.41015 4.41015 1.5 8 1.5ZM2.5 6.5H13.5M2.5 9.5H13.5M8 1.5V14.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+  </svg>
+);

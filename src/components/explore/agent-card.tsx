@@ -1,5 +1,5 @@
 import type { AgentConfig } from "@/agent-registry/agents";
-import { ArrowUpIcon } from "@ui/icons";
+import { ArrowUpIcon, BaseIcon, WorldIcon } from "@ui/icons";
 import { motion } from "framer-motion";
 
 type AgentCardProps = {
@@ -12,6 +12,16 @@ export function AgentCard({ agent, onClick, featured = false }: AgentCardProps) 
   const description =
     agent.suggestions?.[0]?.replace(`@${agent.name}`, "").trim() ||
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.";
+
+  const handleBaseClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.location.href = `cbwallet://messaging/${agent.address}`;
+  };
+
+  const handleWorldClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(`https://world.xmtp.org/chat/${agent.address}`, "_blank");
+  };
 
   if (featured) {
     return (
@@ -37,6 +47,22 @@ export function AgentCard({ agent, onClick, featured = false }: AgentCardProps) 
             <div className="flex-1">
               <h3 className="font-semibold text-lg">{agent.name}</h3>
               <p className="text-sm text-muted-foreground">{description}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                className="flex items-center justify-center rounded p-1.5 transition-colors hover:bg-primary/20"
+                onClick={handleBaseClick}
+                type="button"
+              >
+                <BaseIcon size={18} />
+              </button>
+              <button
+                className="flex items-center justify-center rounded p-1.5 transition-colors hover:bg-primary/20"
+                onClick={handleWorldClick}
+                type="button"
+              >
+                <WorldIcon size={18} />
+              </button>
             </div>
           </div>
         </div>
@@ -66,10 +92,26 @@ export function AgentCard({ agent, onClick, featured = false }: AgentCardProps) 
         <h3 className="truncate font-semibold text-sm">{agent.name}</h3>
         <p className="truncate text-xs text-muted-foreground">{description}</p>
       </div>
-      <ArrowUpIcon
-        className="shrink-0 rotate-45 opacity-0 transition-opacity group-hover:opacity-100"
-        size={16}
-      />
+      <div className="flex items-center gap-1.5">
+        <button
+          className="flex items-center justify-center rounded p-1 transition-colors hover:bg-primary/20"
+          onClick={handleBaseClick}
+          type="button"
+        >
+          <BaseIcon size={14} />
+        </button>
+        <button
+          className="flex items-center justify-center rounded p-1 transition-colors hover:bg-primary/20"
+          onClick={handleWorldClick}
+          type="button"
+        >
+          <WorldIcon size={14} />
+        </button>
+        <ArrowUpIcon
+          className="shrink-0 rotate-45 opacity-0 transition-opacity group-hover:opacity-100"
+          size={16}
+        />
+      </div>
     </motion.div>
   );
 }

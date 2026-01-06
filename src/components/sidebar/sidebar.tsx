@@ -19,7 +19,7 @@ import {
 } from "@ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import type { Conversation } from "@xmtp/browser-sdk";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { shortAddress } from "@/lib/utils";
 import { Link, useLocation } from "react-router";
 
@@ -95,45 +95,19 @@ export function Sidebar() {
   const { conversations, selectedConversation, setSelectedConversation } =
     useConversationsContext();
   const location = useLocation();
-  const [conversationLabels, setConversationLabels] = useState<
-    Map<string, string>
-  >(new Map());
 
+  // Log conversations when they change
   useEffect(() => {
-    if (!client || conversations.length === 0) {
-      return;
-    }
-
-    const loadLabels = async () => {
-      const labels = new Map<string, string>();
-
-      for (const conversation of conversations) {
-        try {
-          const members = await conversation.members();
-          const otherMember = members.find(
-            (m) =>
-              m.inboxId.toLowerCase() !== (client?.inboxId || "").toLowerCase(),
-          );
-
-          if (otherMember) {
-            const address = otherMember.inboxId;
-            labels.set(
-              conversation.id,
-              address.slice(0, 6) + "..." + address.slice(-4),
-            );
-          } else {
-            labels.set(conversation.id, "Unknown");
-          }
-        } catch {
-          labels.set(conversation.id, "Unknown");
-        }
-      }
-
-      setConversationLabels(labels);
-    };
-
-    void loadLabels();
-  }, [client, conversations]);
+    console.log("[Sidebar] Conversations changed:", {
+      count: conversations.length,
+      conversations: conversations.map((c, i) => ({
+        index: i,
+        id: c.id,
+        type: c.constructor.name,
+        peerInboxId: 'peerInboxId' in c ? c.peerInboxId : undefined,
+      })),
+    });
+  }, [conversations]);
 
   const handleConversationClick = (conversation: Conversation) => {
     setSelectedConversation(conversation);
@@ -189,8 +163,9 @@ export function Sidebar() {
             <SidebarMenuButton
               asChild
               isActive={location.pathname === "/explore"}
+              className="cursor-pointer"
             >
-              <Link to="/explore">
+              <Link to="/explore" className="cursor-pointer">
                 <ExploreIcon size={16} />
                 <span>Explore</span>
               </Link>
@@ -203,26 +178,98 @@ export function Sidebar() {
               Your conversations will appear here once you start chatting!
             </div>
           ) : (
-            conversations.map((conversation) => {
-              const label =
-                conversationLabels.get(conversation.id) ||
-                conversation.id.slice(0, 20) ||
-                "Conversation";
-              const isActive = selectedConversation?.id === conversation.id;
+            (() => {
+              // Log raw conversations array
+              console.log("[Sidebar] ===== CONVERSATION LIST DEBUG =====");
+              console.log("[Sidebar] Raw conversations array:", conversations);
+              console.log("[Sidebar] Raw conversations count:", conversations.length);
+              console.log("[Sidebar] Raw conversation IDs:", conversations.map((c, i) => ({
+                index: i,
+                id: c.id,
+                type: c.constructor.name,
+                peerInboxId: 'peerInboxId' in c ? c.peerInboxId : undefined,
+              })));
+              
+              // Check for duplicates in raw array
+              const rawIdCounts = new Map<string, number[]>();
+              conversations.forEach((c, i) => {
+                if (!rawIdCounts.has(c.id)) {
+                  rawIdCounts.set(c.id, []);
+                }
+                rawIdCounts.get(c.id)?.push(i);
+              });
+              const rawDuplicates = Array.from(rawIdCounts.entries()).filter(([_, indices]) => indices.length > 1);
+              if (rawDuplicates.length > 0) {
+                console.warn("[Sidebar] DUPLICATES IN RAW ARRAY:", rawDuplicates.map(([id, indices]) => ({
+                  id,
+                  count: indices.length,
+                  indices,
+                })));
+              }
+              
+              // Deduplicate conversations by ID - keep the first occurrence
+              const seenIds = new Set<string>();
+              const uniqueConversations = conversations.filter((c, index) => {
+                if (seenIds.has(c.id)) {
+                  console.warn("[Sidebar] Filtering out duplicate conversation:", {
+                    id: c.id,
+                    index,
+                    type: c.constructor.name,
+                  });
+                  return false;
+                }
+                seenIds.add(c.id);
+                return true;
+              });
+              
+              console.log("[Sidebar] After deduplication:");
+              console.log("[Sidebar] - Total conversations:", conversations.length);
+              console.log("[Sidebar] - Unique conversations:", uniqueConversations.length);
+              console.log("[Sidebar] - Unique conversation IDs:", uniqueConversations.map(c => c.id));
+              console.log("[Sidebar] - Unique conversation details:", uniqueConversations.map((c, i) => ({
+                index: i,
+                id: c.id,
+                type: c.constructor.name,
+                peerInboxId: 'peerInboxId' in c ? c.peerInboxId : undefined,
+                key: c.id,
+              })));
+              
+              // Verify no duplicates remain
+              const idCounts = new Map<string, number>();
+              uniqueConversations.forEach(c => {
+                idCounts.set(c.id, (idCounts.get(c.id) || 0) + 1);
+              });
+              const duplicateIds = Array.from(idCounts.entries()).filter(([_, count]) => count > 1);
+              if (duplicateIds.length > 0) {
+                console.error("[Sidebar] ERROR: Still have duplicate IDs after filtering:", duplicateIds);
+              } else {
+                console.log("[Sidebar] ✓ No duplicates in final array");
+              }
+              
+              console.log("[Sidebar] ===== END DEBUG =====");
+              
+              return uniqueConversations.map((conversation, renderIndex) => {
+                // Show conversation ID instead of label
+                const displayId = conversation.id.length > 20 
+                  ? `${conversation.id.slice(0, 10)}...${conversation.id.slice(-6)}`
+                  : conversation.id;
+                const isActive = selectedConversation?.id === conversation.id;
 
-              return (
-                <SidebarMenuItem key={conversation.id}>
-                  <SidebarMenuButton
-                    isActive={isActive}
-                    onClick={() => {
-                      handleConversationClick(conversation);
-                    }}
-                  >
-                    <span className="truncate">{label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })
+                return (
+                  <SidebarMenuItem key={conversation.id}>
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      className="cursor-pointer"
+                      onClick={() => {
+                        handleConversationClick(conversation);
+                      }}
+                    >
+                      <span className="truncate font-mono text-xs">{displayId}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              });
+            })()
           )}
         </SidebarMenu>
       </SidebarContent>

@@ -13,6 +13,7 @@ export type AgentConfig = {
   suggestions?: string[];
   image?: string;
   domain?: string;
+  category?: string;
 };
 
 export const AI_AGENTS: AgentConfig[] = [
@@ -21,6 +22,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0xe15aa1ba585aea8a4639331ce5f9aec86f8c4541",
     networks: ["production"],
     live: true,
+    category: "Games",
     suggestions: [
       "@elsa Help me write a creative story",
       "@elsa Generate ideas for a blog post",
@@ -35,6 +37,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x557463B158F70e4E269bB7BCcF6C587e3BC878F4",
     networks: ["production"],
     live: true,
+    category: "Business",
     suggestions: [
       "@flaunchy Help me launch a new project",
       "@flaunchy Create a marketing strategy",
@@ -46,6 +49,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x99B10779557cc52c6E3a97C9A6C3446f021290cc",
     networks: ["production"],
     live: true,
+    category: "Business",
     suggestions: [
       "@mamo Help me with my project",
       "@mamo Explain a technical concept",
@@ -60,6 +64,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x5154C8707f7Fa18961E03F5b51edB2fb56a206dc",
     networks: ["production"],
     live: true,
+    category: "Games",
     suggestions: [
       "@alphie.base.eth Help with blockchain development",
       "@alphie.base.eth Explain smart contracts",
@@ -74,6 +79,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x1456350CD79c51814567b0c1E767d3032dBD1647",
     networks: ["production"],
     live: true,
+    category: "Trading",
     suggestions: [
       "@arma Help me analyze data",
       "@arma Create a data visualization",
@@ -88,6 +94,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x2f9e2F8FdDEae391720D58D656a8Af0578006eD2",
     networks: ["production"],
     live: true,
+    category: "Business",
     suggestions: [
       "@jesse Help me debug my code",
       "@jesse Optimize my algorithm",
@@ -102,6 +109,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0xEb7DB3ED8609165Ec5d99966CfDdeaE587070cD8",
     networks: ["production"],
     live: true,
+    category: "Games",
     suggestions: [
       "@freysa Help me design a UI",
       "@freysa Create a color palette",
@@ -116,6 +124,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x9D2B24b027F4732BB87cD6531E16ce4Dc571c30c",
     networks: ["production"],
     live: true,
+    category: "Trading",
     suggestions: [
       "@neurobro Explain machine learning concepts",
       "@neurobro Help me train a model",
@@ -127,6 +136,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x62db4c5A8fdF004754b9EFe92dF39927aB68920d",
     networks: ["production"],
     live: true,
+    category: "Games",
     suggestions: [
       "@bracky Help me build a website",
       "@bracky Create a landing page",
@@ -138,6 +148,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x7f1c0d2955f873fc91f1728c19b2ed7be7a9684d",
     networks: ["production"],
     live: true,
+    category: "Finance",
     suggestions: [
       "@bankr Help with financial planning",
       "@bankr Analyze market trends",
@@ -152,6 +163,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0xB257b5C180b7b2cb80E35d6079AbE68D9CF0467F",
     networks: ["production"],
     live: true,
+    category: "Business",
     domain: "askbasemate.base.eth",
     image:
       "https://ipfs.io/ipfs/bafkreib6sck2doq64pwx7zqq3mvgjf5odrtdenzp6kc36enfzjl7s6zs64",
@@ -166,6 +178,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x194c31cae1418d5256e8c58e0d08aee1046c6ed0",
     networks: ["dev"],
     live: false,
+    category: "Games",
     suggestions: [
       "@echo Help me test my code",
       "@echo Review my implementation",
@@ -180,6 +193,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x194c31cae1418d5256e8c58e0d08aee1046c6ed0",
     networks: ["dev", "production"],
     live: true,
+    category: "Business",
     suggestions: [
       "@gm Good morning! How can I help?",
       "@gm Start a conversation",
@@ -194,6 +208,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x235017975ed5F55e23a71979697Cd67DcAE614Fa",
     networks: ["dev", "production"],
     live: false,
+    category: "Business",
     suggestions: [
       "@key-check Check my API keys",
       "@key-check Verify my configuration",
@@ -207,6 +222,7 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x212906fdbdb70771461e6cb3376a740132e56b14",
     networks: ["production"],
     live: false,
+    category: "Finance",
     suggestions: [
       "@xmtp-docs How do I send a message?",
       "@xmtp-docs Explain XMTP concepts",
