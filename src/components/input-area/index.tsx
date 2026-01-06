@@ -6,8 +6,18 @@ import {
   CommandItem,
   CommandList,
 } from "@ui/command";
-import { ArrowUpIcon, PaperclipIcon, PlusIcon, XIcon } from "@ui/icons";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@ui/dialog";
+import { Input } from "@ui/input";
+import { ArrowUpIcon, PaperclipIcon, PlusIcon, XIcon, AddPeopleIcon, MetadataIcon, ShareIcon } from "@ui/icons";
 import { Popover, PopoverAnchor, PopoverContent } from "@ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { AgentSelector } from "./agent-selector";
 import { Textarea } from "@ui/textarea";
 import { AnimatePresence, motion } from "framer-motion";
@@ -21,8 +31,10 @@ import {
   useState,
 } from "react";
 import type { Conversation } from "@xmtp/browser-sdk";
+import { Group } from "@xmtp/browser-sdk";
 import { AI_AGENTS, type AgentConfig } from "@/agent-registry/agents";
 import { cn } from "@/lib/utils";
+import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 
 export type Message = {
   id: string;
@@ -151,6 +163,188 @@ const PromptInputSubmit = ({
   );
 };
 
+function isValidEthereumAddress(address: string): boolean {
+  return /^0x[a-fA-F0-9]{40}$/.test(address);
+}
+
+function AddPeopleDialog({
+  open,
+  onOpenChange,
+  group,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  group: Group;
+}) {
+  const [address, setAddress] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { refreshConversations } = useConversationsContext();
+
+  const handleAdd = async () => {
+    const trimmedAddress = address.trim();
+
+    if (!trimmedAddress) {
+      setError("Address is required");
+      return;
+    }
+
+    if (!isValidEthereumAddress(trimmedAddress)) {
+      setError("Invalid Ethereum address format");
+      return;
+    }
+
+    setError(null);
+    setIsAdding(true);
+
+    try {
+      console.log("[AddPeople] Adding member:", trimmedAddress);
+      await group.addMembersByIdentifiers([
+        {
+          identifier: trimmedAddress.toLowerCase(),
+          identifierKind: "Ethereum" as const,
+        },
+      ]);
+      console.log("[AddPeople] Member added successfully");
+      setAddress("");
+      onOpenChange(false);
+      void refreshConversations();
+    } catch (err) {
+      console.error("[AddPeople] Error adding member:", err);
+      setError(err instanceof Error ? err.message : "Failed to add member");
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add people to group</DialogTitle>
+          <DialogDescription>
+            Enter an Ethereum address to add to this group.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <Input
+            placeholder="0x..."
+            value={address}
+            onChange={(e) => {
+              setAddress(e.target.value);
+              setError(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !isAdding) {
+                void handleAdd();
+              }
+            }}
+            disabled={isAdding}
+          />
+          {error && <p className="text-sm text-destructive">{error}</p>}
+        </div>
+        <DialogFooter>
+          <Button
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+            disabled={isAdding}
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleAdd} disabled={isAdding || !address.trim()}>
+            {isAdding ? "Adding..." : "Add"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function MetadataDialog({
+  open,
+  onOpenChange,
+  group,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  group: Group;
+}) {
+  const [metadata, setMetadata] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      void (async () => {
+        setIsLoading(true);
+        try {
+          console.log("[Metadata] Fetching group metadata");
+          const members = await group.members();
+          const groupData = {
+            id: group.id,
+            name: group.name,
+            description: group.description,
+            members: members.map((member) => ({
+              inboxId: member.inboxId,
+              accountIdentifiers: member.accountIdentifiers,
+              installationIds: member.installationIds,
+              permissionLevel: member.permissionLevel,
+              consentState: member.consentState,
+            })),
+          };
+          setMetadata(JSON.stringify(groupData, null, 2));
+          console.log("[Metadata] Group metadata fetched successfully");
+        } catch (err) {
+          console.error("[Metadata] Error fetching metadata:", err);
+          setMetadata(
+            JSON.stringify(
+              {
+                error:
+                  err instanceof Error
+                    ? err.message
+                    : "Failed to fetch metadata",
+              },
+              null,
+              2,
+            ),
+          );
+        } finally {
+          setIsLoading(false);
+        }
+      })();
+    }
+  }, [open, group]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle>Group Metadata</DialogTitle>
+          <DialogDescription>
+            JSON details of the group including id, members, name, and
+            description.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          {isLoading ? (
+            <div className="py-8 text-center text-muted-foreground">
+              Loading metadata...
+            </div>
+          ) : (
+            <pre className="flex-1 min-h-0 overflow-auto rounded-md border border-border bg-muted p-4 text-[10px]">
+              <code className="block whitespace-pre-wrap break-words">{metadata || "No data available"}</code>
+            </pre>
+          )}
+        </div>
+        <DialogFooter className="flex-shrink-0">
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function InputArea({
   selectedAgents,
   setSelectedAgents,
@@ -167,12 +361,15 @@ export function InputArea({
   const [input, setInput] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
+  const [addPeopleOpen, setAddPeopleOpen] = useState(false);
+  const [metadataOpen, setMetadataOpen] = useState(false);
   const [conversationAgents, setConversationAgents] = useState<AgentConfig[]>(
     [],
   );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isSubmittingRef = useRef(false);
   const lastEnterPressRef = useRef<number>(0);
+  const isGroup = conversation instanceof Group;
 
   // Determine context mode:
   // Chat Area Mode: selectedAgents provided AND conversation is null/undefined (conversation not started)
@@ -573,15 +770,61 @@ export function InputArea({
               )}
             </PromptInputTools>
 
-            <PromptInputSubmit
-              className={`rounded-full bg-primary text-primary-foreground transition-colors duration-150 hover:bg-[#3d8aff] disabled:bg-muted disabled:text-muted-foreground ${isMultiAgentMode ? "size-7" : "size-8"}`}
-              disabled={
-                !input.trim() ||
-                (isMultiAgentMode && currentSelectedAgents.length === 0)
-              }
-            >
-              <ArrowUpIcon size={isMultiAgentMode ? 12 : 14} />
-            </PromptInputSubmit>
+            <div className="flex items-center gap-1">
+              {conversation && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      className={`${isMultiAgentMode ? "h-7 w-7 p-0" : "h-8 w-8 p-0"}`}
+                      variant="ghost"
+                      type="button"
+                    >
+                      <ShareIcon size={isMultiAgentMode ? 12 : 14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Share conversation</TooltipContent>
+                </Tooltip>
+              )}
+              {isGroup && (
+                <>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        className={`${isMultiAgentMode ? "h-7 w-7 p-0" : "h-8 w-8 p-0"}`}
+                        variant="ghost"
+                        type="button"
+                        onClick={() => setAddPeopleOpen(true)}
+                      >
+                        <AddPeopleIcon size={isMultiAgentMode ? 12 : 14} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Add people to conversation</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        className={`${isMultiAgentMode ? "h-7 w-7 p-0" : "h-8 w-8 p-0"}`}
+                        variant="ghost"
+                        type="button"
+                        onClick={() => setMetadataOpen(true)}
+                      >
+                        <MetadataIcon size={isMultiAgentMode ? 12 : 14} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>View group metadata</TooltipContent>
+                  </Tooltip>
+                </>
+              )}
+              <PromptInputSubmit
+                className={`rounded-full bg-primary text-primary-foreground transition-colors duration-150 hover:bg-[#3d8aff] disabled:bg-muted disabled:text-muted-foreground ${isMultiAgentMode ? "size-7" : "size-8"}`}
+                disabled={
+                  !input.trim() ||
+                  (isMultiAgentMode && currentSelectedAgents.length === 0)
+                }
+              >
+                <ArrowUpIcon size={isMultiAgentMode ? 12 : 14} />
+              </PromptInputSubmit>
+            </div>
           </PromptInputToolbar>
         </PromptInput>
         {isMultiAgentMode && (
@@ -638,6 +881,20 @@ export function InputArea({
           </PopoverContent>
         )}
       </Popover>
+      {isGroup && (
+        <>
+          <AddPeopleDialog
+            open={addPeopleOpen}
+            onOpenChange={setAddPeopleOpen}
+            group={conversation}
+          />
+          <MetadataDialog
+            open={metadataOpen}
+            onOpenChange={setMetadataOpen}
+            group={conversation}
+          />
+        </>
+      )}
     </div>
   );
 }

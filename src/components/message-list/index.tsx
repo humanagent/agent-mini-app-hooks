@@ -114,9 +114,76 @@ export function ConversationView() {
     setSelectedConversation,
     conversations,
     refreshConversations,
+    pendingConversation,
+    setPendingConversation,
   } = useConversationsContext();
   const { conversationId } = useParams();
   const navigate = useNavigate();
+
+  // Handle pending conversation creation (optimistic loading)
+  useEffect(() => {
+    if (!pendingConversation || !client) {
+      return;
+    }
+
+    console.log(
+      "[ConversationView] Pending conversation detected, creating...",
+      pendingConversation.agentAddresses,
+    );
+
+    let mounted = true;
+
+    const createPendingConversation = async () => {
+      try {
+        setIsCreatingConversation(true);
+        setCreateError(null);
+
+        const conversation = await createGroupWithAgentAddresses(
+          client,
+          pendingConversation.agentAddresses,
+        );
+
+        if (!mounted) {
+          return;
+        }
+
+        console.log(
+          "[ConversationView] Pending conversation created:",
+          conversation.id,
+        );
+
+        setPendingConversation(null);
+        setSelectedConversation(conversation);
+        setIsCreatingConversation(false);
+
+        console.log(
+          "[ConversationView] Conversation will appear via stream, skipping refresh",
+        );
+      } catch (error) {
+        if (!mounted) {
+          return;
+        }
+
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to create conversation";
+        console.error(
+          "[ConversationView] Failed to create pending conversation:",
+          errorMessage,
+        );
+        setCreateError(errorMessage);
+        setIsCreatingConversation(false);
+        setPendingConversation(null);
+      }
+    };
+
+    void createPendingConversation();
+
+    return () => {
+      mounted = false;
+    };
+  }, [pendingConversation, client, setPendingConversation, setSelectedConversation, refreshConversations]);
 
   // Sync selected conversation with URL params
   useEffect(() => {
@@ -501,7 +568,7 @@ export function ConversationView() {
                 message={`Error creating conversation: ${createError}`}
               />
             )}
-            {isCreatingConversation && !createError && (
+            {(isCreatingConversation || pendingConversation) && !createError && (
               <ThinkingIndicator message="Creating conversation..." />
             )}
             {syncError && (
@@ -510,9 +577,12 @@ export function ConversationView() {
                 message={`Error syncing conversation: ${syncError}`}
               />
             )}
-            {isSyncingConversation && !syncError && !isCreatingConversation && (
-              <ThinkingIndicator message="Syncing conversation..." />
-            )}
+            {isSyncingConversation &&
+              !syncError &&
+              !isCreatingConversation &&
+              !pendingConversation && (
+                <ThinkingIndicator message="Syncing conversation..." />
+              )}
             {loadError && (
               <ThinkingIndicator
                 error
@@ -522,20 +592,21 @@ export function ConversationView() {
             {isLoadingMessages &&
               !loadError &&
               !isSyncingConversation &&
-              !isCreatingConversation && (
-                <ThinkingIndicator message="Loading messages..." />
-              )}
-            {isWaitingForAgent &&
               !isCreatingConversation &&
-              !isSyncingConversation &&
-              !isLoadingMessages && (
-                <ThinkingIndicator message="Waiting for agent response..." />
+              !pendingConversation && (
+                <ThinkingIndicator message="Loading messages..." />
               )}
             {!selectedConversation &&
               !isCreatingConversation &&
               !createError &&
               selectedAgents.length === 0 && <Greeting />}
             {messages.length > 0 && <MessageList messages={messages} />}
+            {isWaitingForAgent &&
+              !isCreatingConversation &&
+              !isSyncingConversation &&
+              !isLoadingMessages && (
+                <ThinkingIndicator message="Waiting for agent response..." />
+              )}
           </div>
         </div>
       </div>

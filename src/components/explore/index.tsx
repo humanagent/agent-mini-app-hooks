@@ -21,8 +21,11 @@ export function ExplorePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const navigate = useNavigate();
   const { client } = useXMTPClient();
-  const { setSelectedConversation, refreshConversations } =
-    useConversationsContext();
+  const {
+    setSelectedConversation,
+    refreshConversations,
+    setPendingConversation,
+  } = useConversationsContext();
 
   const filteredAgents = useMemo(() => {
     if (selectedCategory === "All") {
@@ -48,6 +51,19 @@ export function ExplorePage() {
       return;
     }
 
+    console.log(
+      "[Explore] Starting optimistic navigation for agent:",
+      agent.name,
+      agent.address,
+    );
+
+    setPendingConversation({
+      agentAddresses: [agent.address],
+      agentConfigs: [agent],
+    });
+
+    navigate("/", { replace: true });
+
     try {
       console.log(
         "[Explore] Creating conversation with agent:",
@@ -60,15 +76,15 @@ export function ExplorePage() {
       ]);
 
       console.log("[Explore] Conversation created:", conversation.id);
+      setPendingConversation(null);
       setSelectedConversation(conversation);
 
-      await refreshConversations();
-      console.log("[Explore] Conversations refreshed");
-
-      console.log("[Explore] Navigating to chat...");
-      navigate("/", { replace: true });
+      console.log(
+        "[Explore] Conversation will appear via stream, skipping refresh",
+      );
     } catch (error) {
       console.error("[Explore] Failed to create conversation:", error);
+      setPendingConversation(null);
       if (error instanceof Error) {
         console.error("[Explore] Error details:", {
           name: error.name,
