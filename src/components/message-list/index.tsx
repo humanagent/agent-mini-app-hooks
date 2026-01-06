@@ -8,8 +8,17 @@ import { ThinkingIndicator } from "@ui/thinking-indicator";
 import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
 import type { AgentConfig } from "@/lib/agents";
 import { motion } from "framer-motion";
+import { CopyIcon } from "@ui/icons";
 
 export function MessageList({ messages }: { messages: Message[] }) {
+  const handleCopy = useCallback(async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+    } catch (error) {
+      console.error("Failed to copy:", error);
+    }
+  }, []);
+
   return (
     <>
       {messages.map((message) => (
@@ -32,6 +41,18 @@ export function MessageList({ messages }: { messages: Message[] }) {
                   <p>{message.content}</p>
                 </div>
               </div>
+              {message.role === "assistant" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    void handleCopy(message.content);
+                  }}
+                  className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors text-xs"
+                >
+                  <CopyIcon size={14} />
+                  <span>Copy</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

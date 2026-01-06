@@ -226,3 +226,24 @@ export const ExploreIcon = ({
     />
   </svg>
 );
+
+export const CopyIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M5.5 2C4.67157 2 4 2.67157 4 3.5V10.5C4 11.3284 4.67157 12 5.5 12H6V13.5C6 14.3284 6.67157 15 7.5 15H12.5C13.3284 15 14 14.3284 14 13.5V6.5C14 5.67157 13.3284 5 12.5 5H11V3.5C11 2.67157 10.3284 2 9.5 2H5.5ZM9.5 3.5H5.5V10.5H7.5V6.5C7.5 5.67157 8.17157 5 9 5H11V3.5H9.5ZM9 6.5H12.5V13.5H7.5V6.5H9Z"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
