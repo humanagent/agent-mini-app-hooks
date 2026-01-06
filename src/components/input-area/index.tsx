@@ -7,11 +7,7 @@ import {
   CommandList,
 } from "@ui/command";
 import { ArrowUpIcon, PaperclipIcon, PlusIcon, XIcon } from "@ui/icons";
-import {
-  Popover,
-  PopoverAnchor,
-  PopoverContent,
-} from "@ui/popover";
+import { Popover, PopoverAnchor, PopoverContent } from "@ui/popover";
 import { AgentSelector } from "./agent-selector";
 import { Textarea } from "@ui/textarea";
 import { AnimatePresence, motion } from "framer-motion";
@@ -116,10 +112,7 @@ const PromptInputToolbar = ({
 
 type PromptInputToolsProps = HTMLAttributes<HTMLDivElement>;
 
-const PromptInputTools = ({
-  className,
-  ...props
-}: PromptInputToolsProps) => (
+const PromptInputTools = ({ className, ...props }: PromptInputToolsProps) => (
   <div
     className={cn(
       "flex items-center gap-1",
@@ -145,7 +138,8 @@ const PromptInputSubmit = ({
       size={size}
       type="submit"
       variant={variant}
-      {...props}>
+      {...props}
+    >
       {children}
     </Button>
   );
@@ -167,7 +161,9 @@ export function InputArea({
   const [input, setInput] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
-  const [conversationAgents, setConversationAgents] = useState<AgentConfig[]>([]);
+  const [conversationAgents, setConversationAgents] = useState<AgentConfig[]>(
+    [],
+  );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isSubmittingRef = useRef(false);
   const lastEnterPressRef = useRef<number>(0);
@@ -215,15 +211,11 @@ export function InputArea({
       try {
         const members = await conversation.members();
         const memberAddresses = new Set(
-          members
-            .flatMap((member) =>
-              member.accountIdentifiers
-                .filter(
-                  (id) =>
-                    id.identifierKind === 0 || id.identifierKind === "Ethereum",
-                )
-                .map((id) => id.identifier.toLowerCase()),
-            ),
+          members.flatMap((member) =>
+            member.accountIdentifiers
+              .filter((id) => id.identifierKind === "Ethereum")
+              .map((id) => id.identifier.toLowerCase()),
+          ),
         );
 
         const agents = AI_AGENTS.filter((agent) =>
@@ -231,8 +223,7 @@ export function InputArea({
         );
 
         setConversationAgents(agents);
-      } catch (error) {
-        console.error("[InputArea] Error loading conversation agents:", error);
+      } catch {
         setConversationAgents([]);
       }
     };
@@ -294,7 +285,6 @@ export function InputArea({
     }
   };
 
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -318,8 +308,8 @@ export function InputArea({
     try {
       sendMessage(messageContent);
       setInput("");
-    } catch (error) {
-      console.error("[InputArea] Error in sendMessage:", error);
+    } catch {
+      // Error handling - sendMessage callback handles errors
     } finally {
       setTimeout(() => {
         isSubmittingRef.current = false;
@@ -335,7 +325,8 @@ export function InputArea({
 
   return (
     <div
-      className={`relative flex w-full flex-col ${isMultiAgentMode ? "gap-2" : "gap-4"}`}>
+      className={`relative flex w-full flex-col ${isMultiAgentMode ? "gap-2" : "gap-4"}`}
+    >
       {suggestedActions.length > 0 && !input.trim() && !conversation && (
         <div className="grid w-full gap-2 sm:grid-cols-2">
           {suggestedActions.map((suggestedAction, index) => (
@@ -344,27 +335,34 @@ export function InputArea({
               exit={{ opacity: 0, y: 20 }}
               initial={{ opacity: 0, y: 20 }}
               key={suggestedAction}
-              transition={{ delay: 0.05 * index }}>
+              transition={{ delay: 0.05 * index }}
+            >
               <Button
                 className="h-auto w-full whitespace-normal p-3 text-left"
                 onClick={() => {
                   handleSuggestionClick(suggestedAction);
                 }}
                 type="button"
-                variant="outline">
+                variant="outline"
+              >
                 {suggestedAction}
               </Button>
             </motion.div>
           ))}
         </div>
       )}
-      <Popover open={openPopover && isMultiAgentMode} onOpenChange={setOpenPopover}>
+      <Popover
+        open={openPopover && isMultiAgentMode}
+        onOpenChange={setOpenPopover}
+      >
         <PromptInput
           className={`rounded-md border border-border bg-background transition-all duration-150 focus-within:border-border hover:border-muted-foreground/50 ${isMultiAgentMode ? "p-2" : "p-3"}`}
-          onSubmit={handleSubmit}>
+          onSubmit={handleSubmit}
+        >
           <PopoverAnchor asChild>
             <div
-              className={`flex flex-row ${isMultiAgentMode ? "items-center" : "items-start"} gap-1 sm:gap-2`}>
+              className={`flex flex-row ${isMultiAgentMode ? "items-center" : "items-start"} gap-1 sm:gap-2`}
+            >
               {isMultiAgentMode ? (
                 <>
                   <AgentSelector
@@ -381,7 +379,8 @@ export function InputArea({
                     variant="ghost"
                     onClick={() => {
                       setOpenDialog(true);
-                    }}>
+                    }}
+                  >
                     <PlusIcon size={14} />
                   </Button>
                 </>
@@ -389,7 +388,8 @@ export function InputArea({
                 <Button
                   className="h-8 p-1 md:h-fit md:p-2"
                   type="button"
-                  variant="ghost">
+                  variant="ghost"
+                >
                   <PaperclipIcon size={16} />
                 </Button>
               )}
@@ -420,7 +420,8 @@ export function InputArea({
                         animate={{ opacity: 1, width: "auto" }}
                         exit={{ opacity: 0, width: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="flex items-center gap-1.5 overflow-hidden">
+                        className="flex items-center gap-1.5 overflow-hidden"
+                      >
                         {currentSelectedAgents.map((agent) => (
                           <motion.div
                             key={agent.address}
@@ -428,7 +429,8 @@ export function InputArea({
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.8 }}
                             transition={{ duration: 0.15 }}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground h-6">
+                            className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground h-6"
+                          >
                             {agent.image ? (
                               <img
                                 alt={agent.name}
@@ -444,7 +446,8 @@ export function InputArea({
                               onClick={() => {
                                 handleRemoveAgent(agent.address);
                               }}
-                              className="rounded-full hover:bg-secondary-foreground/20 p-0.5 transition-colors">
+                              className="rounded-full hover:bg-secondary-foreground/20 p-0.5 transition-colors"
+                            >
                               <XIcon size={12} />
                             </button>
                           </motion.div>
@@ -468,7 +471,8 @@ export function InputArea({
                     variant="ghost"
                     onClick={() => {
                       setOpenDialog(true);
-                    }}>
+                    }}
+                  >
                     {singleAgent?.image ? (
                       <img
                         alt={singleAgent.name}
@@ -491,7 +495,8 @@ export function InputArea({
               disabled={
                 !input.trim() ||
                 (isMultiAgentMode && currentSelectedAgents.length === 0)
-              }>
+              }
+            >
               <ArrowUpIcon size={isMultiAgentMode ? 12 : 14} />
             </PromptInputSubmit>
           </PromptInputToolbar>
@@ -502,7 +507,8 @@ export function InputArea({
             onOpenAutoFocus={(e) => e.preventDefault()}
             side="top"
             align="start"
-            sideOffset={8}>
+            sideOffset={8}
+          >
             <Command>
               <CommandList>
                 <CommandGroup heading="Agents in conversation">
@@ -520,7 +526,11 @@ export function InputArea({
                             handleAddAgent(agent);
                           }
                         }}
-                        className={cn("flex items-center gap-2", isSelected && "opacity-50")}>
+                        className={cn(
+                          "flex items-center gap-2",
+                          isSelected && "opacity-50",
+                        )}
+                      >
                         {agent.image ? (
                           <img
                             alt={agent.name}

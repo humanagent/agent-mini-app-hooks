@@ -22,9 +22,7 @@ function AppContent() {
 }
 
 export default function App() {
-  const { client, isLoading, error } = useXMTPClient();
-
-  console.log("[App] XMTP client state - isLoading:", isLoading, "hasClient:", !!client, "hasError:", !!error);
+  const { client } = useXMTPClient();
 
   return (
     <ConversationsProvider client={client}>

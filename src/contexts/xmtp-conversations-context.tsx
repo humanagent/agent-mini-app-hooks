@@ -1,6 +1,7 @@
 import type { Client } from "@xmtp/browser-sdk";
 import { createContext, useContext, type ReactNode } from "react";
 import { useXMTPConversations } from "@hooks/use-xmtp-conversations";
+import type { ContentTypes } from "@/lib/xmtp/client";
 
 type ConversationsContextType = ReturnType<typeof useXMTPConversations>;
 
@@ -12,10 +13,9 @@ export function ConversationsProvider({
   client,
   children,
 }: {
-  client: Client | null;
+  client: Client<ContentTypes> | null;
   children: ReactNode;
 }) {
-  console.log("[ConversationsProvider] Rendering with client:", !!client);
   const value = useXMTPConversations(client);
   return (
     <ConversationsContext.Provider value={value}>

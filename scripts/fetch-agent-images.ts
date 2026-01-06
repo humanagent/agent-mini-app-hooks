@@ -13,7 +13,8 @@ const PUBLIC_RESOLVER_ABI = [
 ] as const;
 
 const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e";
-const MAINNET_RPC = process.env.ETH_RPC_URL || "https://ethereum.publicnode.com";
+const MAINNET_RPC =
+  process.env.ETH_RPC_URL || "https://ethereum.publicnode.com";
 const WEB3_BIO_API_KEY = process.env.WEB3_BIO_API_KEY;
 
 type Web3BioProfile = {
@@ -26,7 +27,10 @@ type Web3BioProfile = {
   location?: string;
   header?: string;
   contenthash?: string;
-  links?: Record<string, { link?: string; handle?: string; sources?: string[] }>;
+  links?: Record<
+    string,
+    { link?: string; handle?: string; sources?: string[] }
+  >;
   social?: {
     uid?: number | string | null;
     follower?: number;
@@ -53,7 +57,11 @@ async function getEnsName(
   provider: ethers.JsonRpcProvider,
 ): Promise<string | null> {
   try {
-    const registry = new ethers.Contract(ENS_REGISTRY, ENS_RESOLVER_ABI, provider);
+    const registry = new ethers.Contract(
+      ENS_REGISTRY,
+      ENS_RESOLVER_ABI,
+      provider,
+    );
     const namehash = ethers.namehash(`${address.slice(2)}.addr.reverse`);
     const resolverAddress = await registry.resolver(namehash);
 
@@ -61,7 +69,11 @@ async function getEnsName(
       return null;
     }
 
-    const resolver = new ethers.Contract(resolverAddress, ENS_RESOLVER_ABI, provider);
+    const resolver = new ethers.Contract(
+      resolverAddress,
+      ENS_RESOLVER_ABI,
+      provider,
+    );
     const name = await resolver.name(namehash);
     return name || null;
   } catch (error) {
@@ -86,7 +98,11 @@ async function getEnsAvatar(
   if (!name) return null;
 
   try {
-    const registry = new ethers.Contract(ENS_REGISTRY, ENS_RESOLVER_ABI, provider);
+    const registry = new ethers.Contract(
+      ENS_REGISTRY,
+      ENS_RESOLVER_ABI,
+      provider,
+    );
     const namehash = ethers.namehash(name);
     const resolverAddress = await registry.resolver(namehash);
 
@@ -94,7 +110,11 @@ async function getEnsAvatar(
       return null;
     }
 
-    const resolver = new ethers.Contract(resolverAddress, PUBLIC_RESOLVER_ABI, provider);
+    const resolver = new ethers.Contract(
+      resolverAddress,
+      PUBLIC_RESOLVER_ABI,
+      provider,
+    );
     const avatar = await resolver.text(namehash, "avatar");
 
     if (!avatar || avatar === "") {
@@ -146,7 +166,9 @@ async function getWeb3BioProfiles(address: string): Promise<Web3BioProfile[]> {
 
 function parseAgents(content: string): AgentInfo[] {
   const agents: AgentInfo[] = [];
-  const arrayStart = content.indexOf("export const AI_AGENTS: AgentConfig[] = [");
+  const arrayStart = content.indexOf(
+    "export const AI_AGENTS: AgentConfig[] = [",
+  );
   if (arrayStart === -1) {
     throw new Error("Could not find AI_AGENTS array");
   }
@@ -240,19 +262,23 @@ async function fetchAgentImages() {
     if (web3BioProfiles.length > 0) {
       const preferredPlatforms = ["ens", "farcaster", "lens", "basenames"];
       const sortedProfiles = web3BioProfiles.sort((a, b) => {
-        const aIndex = preferredPlatforms.indexOf(a.platform) !== -1
-          ? preferredPlatforms.indexOf(a.platform)
-          : 999;
-        const bIndex = preferredPlatforms.indexOf(b.platform) !== -1
-          ? preferredPlatforms.indexOf(b.platform)
-          : 999;
+        const aIndex =
+          preferredPlatforms.indexOf(a.platform) !== -1
+            ? preferredPlatforms.indexOf(a.platform)
+            : 999;
+        const bIndex =
+          preferredPlatforms.indexOf(b.platform) !== -1
+            ? preferredPlatforms.indexOf(b.platform)
+            : 999;
         return aIndex - bIndex;
       });
 
       for (const profile of sortedProfiles) {
         if (profile.identity && !domain) {
           domain = profile.identity;
-          console.log(`  ✓ Found web3.bio identity (${profile.platform}): ${domain}`);
+          console.log(
+            `  ✓ Found web3.bio identity (${profile.platform}): ${domain}`,
+          );
           break;
         }
       }
@@ -260,7 +286,9 @@ async function fetchAgentImages() {
       for (const profile of sortedProfiles) {
         if (profile.avatar && !image) {
           image = profile.avatar;
-          console.log(`  ✓ Found web3.bio avatar (${profile.platform}): ${image}`);
+          console.log(
+            `  ✓ Found web3.bio avatar (${profile.platform}): ${image}`,
+          );
           break;
         }
       }

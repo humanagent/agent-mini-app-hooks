@@ -2,6 +2,7 @@ import { ChatHeader, Greeting } from "@components/chat-area/index";
 import { InputArea } from "@components/input-area";
 import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { useCallback, useEffect, useState } from "react";
+import type { DecodedMessage } from "@xmtp/browser-sdk";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 
 type Message = {
@@ -16,16 +17,19 @@ export function MessageList({ messages }: { messages: Message[] }) {
       {messages.map((message) => (
         <div
           key={message.id}
-          className="fade-in w-full animate-in duration-150">
+          className="fade-in w-full animate-in duration-150"
+        >
           <div
-            className={`flex w-full items-start gap-2 md:gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+            className={`flex w-full items-start gap-2 md:gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+          >
             <div className="flex flex-col gap-2 md:gap-4 max-w-[calc(100%-2.5rem)] sm:max-w-[min(fit-content,80%)]">
               <div
                 className={`flex flex-col gap-2 overflow-hidden text-sm w-fit break-words rounded-md px-3 py-2 ${
                   message.role === "user"
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-foreground"
-                }`}>
+                }`}
+              >
                 <div className="space-y-4 whitespace-normal size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_code]:whitespace-pre-wrap [&_code]:break-words [&_pre]:max-w-full [&_pre]:overflow-x-auto">
                   <p>{message.content}</p>
                 </div>
@@ -56,19 +60,25 @@ export function ConversationView() {
         const existingMessages = await selectedConversation.messages();
 
         const chatMessages: Message[] = existingMessages
-          .filter((msg: any) => typeof msg.content === "string")
-          .map((msg: any) => ({
-            id: msg.id,
-            role: msg.senderInboxId === client.inboxId ? "user" : "assistant",
-            content: msg.content as string,
-          }));
+          .filter(
+            (msg: DecodedMessage<unknown>): msg is DecodedMessage<string> =>
+              typeof msg.content === "string",
+          )
+          .map((msg) => {
+            const content = typeof msg.content === "string" ? msg.content : "";
+            return {
+              id: msg.id,
+              role: msg.senderInboxId === client.inboxId ? "user" : "assistant",
+              content,
+            };
+          });
 
         if (mounted) {
           setMessages(chatMessages);
         }
 
         const stream = await selectedConversation.stream({
-          onValue: (message: any) => {
+          onValue: (message: DecodedMessage<unknown>) => {
             if (!mounted || typeof message.content !== "string") {
               return;
             }
@@ -77,7 +87,7 @@ export function ConversationView() {
               id: message.id,
               role:
                 message.senderInboxId === client.inboxId ? "user" : "assistant",
-              content: message.content as string,
+              content: message.content,
             };
 
             setMessages((prev) => {
@@ -90,10 +100,10 @@ export function ConversationView() {
         });
 
         return () => {
-          stream.end().catch(console.error);
+          void stream.end();
         };
-      } catch (error) {
-        console.error("[ConversationView] Error setting up messages:", error);
+      } catch {
+        // Error handling - messages will remain empty if setup fails
       }
     };
 
@@ -121,8 +131,7 @@ export function ConversationView() {
       try {
         await selectedConversation.send(content);
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
-      } catch (error) {
-        console.error("[ConversationView] Error sending message:", error);
+      } catch {
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
       }
     },

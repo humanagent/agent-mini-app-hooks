@@ -35,10 +35,7 @@ export function AgentSelector({
       <DialogContent className="p-0">
         <DialogTitle className="sr-only">{title}</DialogTitle>
         <Command className="**:data-[slot=command-input-wrapper]:h-auto">
-          <CommandInput
-            className="h-auto py-3.5"
-            placeholder={placeholder}
-          />
+          <CommandInput className="h-auto py-3.5" placeholder={placeholder} />
           <CommandList>
             <CommandGroup heading="AI Agents">
               {agents.map((agent) => {
@@ -58,7 +55,11 @@ export function AgentSelector({
                     onSelect={() => {
                       onSelectAgent(agent);
                     }}
-                    className={cn("flex items-center gap-2", isSelected && "opacity-50")}>
+                    className={cn(
+                      "flex items-center gap-2",
+                      isSelected && "opacity-50",
+                    )}
+                  >
                     {agent.image ? (
                       <img
                         alt={agent.name}
@@ -71,9 +72,7 @@ export function AgentSelector({
                     <span className="flex-1 truncate text-left">
                       {agent.name}
                     </span>
-                    {isSelected && (
-                      <Check className="ml-2 h-4 w-4 shrink-0" />
-                    )}
+                    {isSelected && <Check className="ml-2 h-4 w-4 shrink-0" />}
                   </CommandItem>
                 );
               })}

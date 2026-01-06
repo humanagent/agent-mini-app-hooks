@@ -3,6 +3,7 @@ import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { Loader2Icon } from "@ui/icons";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
+import type { DecodedMessage } from "@xmtp/browser-sdk";
 import { type AgentConfig } from "@/lib/agents";
 import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
 import { SidebarToggle } from "@/src/components/sidebar/sidebar-toggle";
@@ -28,13 +29,15 @@ export const Greeting = () => {
   return (
     <div
       className="mx-auto mt-4 flex size-full max-w-3xl flex-col justify-center px-4 md:mt-16 md:px-8"
-      key="overview">
+      key="overview"
+    >
       <motion.div
         animate={{ opacity: 1, y: 0 }}
         className="font-semibold text-xl md:text-2xl"
         exit={{ opacity: 0, y: 10 }}
         initial={{ opacity: 0, y: 10 }}
-        transition={{ delay: 0.5, duration: 0.15 }}>
+        transition={{ delay: 0.5, duration: 0.15 }}
+      >
         Hello there
       </motion.div>
       <motion.div
@@ -42,7 +45,8 @@ export const Greeting = () => {
         className="text-xl text-muted-foreground md:text-2xl"
         exit={{ opacity: 0, y: 10 }}
         initial={{ opacity: 0, y: 10 }}
-        transition={{ delay: 0.6, duration: 0.15 }}>
+        transition={{ delay: 0.6, duration: 0.15 }}
+      >
         This chat is secured by XMTP. Each conversation its a new identity,
         untraceable to the previous one
       </motion.div>
@@ -74,19 +78,25 @@ export function ChatArea() {
         const existingMessages = await selectedConversation.messages();
 
         const chatMessages: Message[] = existingMessages
-          .filter((msg: any) => typeof msg.content === "string")
-          .map((msg: any) => ({
-            id: msg.id,
-            role: msg.senderInboxId === client.inboxId ? "user" : "assistant",
-            content: msg.content as string,
-          }));
+          .filter(
+            (msg: DecodedMessage<unknown>): msg is DecodedMessage<string> =>
+              typeof msg.content === "string",
+          )
+          .map((msg) => {
+            const content = typeof msg.content === "string" ? msg.content : "";
+            return {
+              id: msg.id,
+              role: msg.senderInboxId === client.inboxId ? "user" : "assistant",
+              content,
+            };
+          });
 
         if (mounted) {
           setMessages(chatMessages);
         }
 
         const stream = await selectedConversation.stream({
-          onValue: (message: any) => {
+          onValue: (message: DecodedMessage<unknown>) => {
             if (!mounted || typeof message.content !== "string") {
               return;
             }
@@ -95,7 +105,7 @@ export function ChatArea() {
               id: message.id,
               role:
                 message.senderInboxId === client.inboxId ? "user" : "assistant",
-              content: message.content as string,
+              content: message.content,
             };
 
             setMessages((prev) => {
@@ -108,10 +118,10 @@ export function ChatArea() {
         });
 
         return () => {
-          stream.end().catch(console.error);
+          void stream.end();
         };
-      } catch (error) {
-        console.error("[ChatArea] Error setting up messages:", error);
+      } catch {
+        // Error handling - messages will remain empty if setup fails
       }
     };
 
@@ -124,24 +134,11 @@ export function ChatArea() {
 
   const handleSendMessage = useCallback(
     async (content: string) => {
-      console.log("[ChatArea] handleSendMessage called", {
-        content,
-        hasClient: !!client,
-        selectedAgentsCount: selectedAgents.length,
-        selectedAgents: selectedAgents.map((a) => ({
-          name: a.name,
-          address: a.address,
-        })),
-        hasSelectedConversation: !!selectedConversation,
-      });
-
       if (!client) {
-        console.log("[ChatArea] Early return - no client");
         return;
       }
 
       if (selectedAgents.length === 0) {
-        console.log("[ChatArea] Early return - no selected agents");
         return;
       }
 
@@ -149,26 +146,15 @@ export function ChatArea() {
 
       if (!conversation) {
         try {
-          console.log("[ChatArea] No existing conversation, creating group...");
           setIsCreatingConversation(true);
           const agentAddresses = selectedAgents.map((agent) => agent.address);
-          console.log(
-            "[ChatArea] Creating group with addresses:",
-            agentAddresses,
-          );
           conversation = await createGroupWithAgentAddresses(
             client,
             agentAddresses,
           );
-          console.log("[ChatArea] Group created successfully", {
-            conversationId: conversation.id,
-            conversationType: conversation.constructor.name,
-          });
           setSelectedConversation(conversation);
-          refreshConversations().catch(console.error);
-          console.log("[ChatArea] Refreshing conversations list in background");
-        } catch (error) {
-          console.error("[ChatArea] Error creating conversation:", error);
+          void refreshConversations();
+        } catch {
           setIsCreatingConversation(false);
           return;
         } finally {
@@ -177,16 +163,8 @@ export function ChatArea() {
       }
 
       if (!conversation) {
-        console.log(
-          "[ChatArea] Early return - no conversation after creation attempt",
-        );
         return;
       }
-
-      console.log("[ChatArea] Sending message to conversation", {
-        conversationId: conversation.id,
-        content,
-      });
 
       const tempMessage: Message = {
         id: `temp-${Date.now()}`,
@@ -198,14 +176,18 @@ export function ChatArea() {
 
       try {
         await conversation.send(content);
-        console.log("[ChatArea] Message sent successfully");
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
-      } catch (error) {
-        console.error("[ChatArea] Error sending message:", error);
+      } catch {
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
       }
     },
-    [client, selectedConversation, selectedAgents, setSelectedConversation, refreshConversations],
+    [
+      client,
+      selectedConversation,
+      selectedAgents,
+      setSelectedConversation,
+      refreshConversations,
+    ],
   );
 
   return (
@@ -219,16 +201,19 @@ export function ChatArea() {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className="fade-in w-full animate-in duration-150">
+                className="fade-in w-full animate-in duration-150"
+              >
                 <div
-                  className={`flex w-full items-start gap-2 md:gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                  className={`flex w-full items-start gap-2 md:gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                >
                   <div className="flex flex-col gap-2 md:gap-4 max-w-[calc(100%-2.5rem)] sm:max-w-[min(fit-content,80%)]">
                     <div
                       className={`flex flex-col gap-2 overflow-hidden text-sm w-fit break-words rounded-md px-3 py-2 ${
                         message.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-secondary text-foreground"
-                      }`}>
+                      }`}
+                    >
                       <div className="space-y-4 whitespace-normal size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_code]:whitespace-pre-wrap [&_code]:break-words [&_pre]:max-w-full [&_pre]:overflow-x-auto">
                         <p>{message.content}</p>
                       </div>

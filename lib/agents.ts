@@ -27,7 +27,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@elsa Write a poem about technology",
     ],
     domain: "elsa.base.eth",
-    image: "https://ipfs.io/ipfs/bafkreibjqv4kxzjx62hq5scjskkaocegji4rnyjf6avbxnz6u442szo2im",
+    image:
+      "https://ipfs.io/ipfs/bafkreibjqv4kxzjx62hq5scjskkaocegji4rnyjf6avbxnz6u442szo2im",
   },
   {
     name: "flaunchy",
@@ -51,7 +52,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@mamo Review my code",
     ],
     domain: "mamo.base.eth",
-    image: "https://ipfs.io/ipfs/bafybeicgjmetc4iyla4k5ndm65xuvo6yutptloy3vdkydrat5u6tewijdu",
+    image:
+      "https://ipfs.io/ipfs/bafybeicgjmetc4iyla4k5ndm65xuvo6yutptloy3vdkydrat5u6tewijdu",
   },
   {
     name: "alphie.base.eth",
@@ -64,7 +66,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@alphie.base.eth Guide me through DeFi",
     ],
     domain: "alphie.base.eth",
-    image: "https://ipfs.io/ipfs/bafkreibaa5gfjhisegdugksqb63bwkwstmbeitxc3hkpnq3ughtmpyioq4",
+    image:
+      "https://ipfs.io/ipfs/bafkreibaa5gfjhisegdugksqb63bwkwstmbeitxc3hkpnq3ughtmpyioq4",
   },
   {
     name: "arma",
@@ -77,7 +80,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@arma Explain statistical concepts",
     ],
     domain: "armaxyz",
-    image: "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/1bf441eb-cc59-47d9-8fcc-f337c43fa600/original",
+    image:
+      "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/1bf441eb-cc59-47d9-8fcc-f337c43fa600/original",
   },
   {
     name: "jesse",
@@ -90,7 +94,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@jesse Review my implementation",
     ],
     domain: "jessexbt.base.eth",
-    image: "https://ipfs.io/ipfs/bafkreigqyohpla5hihjqrprmynmoroce6pf7a4hniv6t77ad6yy3em7nyq",
+    image:
+      "https://ipfs.io/ipfs/bafkreigqyohpla5hihjqrprmynmoroce6pf7a4hniv6t77ad6yy3em7nyq",
   },
   {
     name: "freysa",
@@ -103,7 +108,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@freysa Suggest design improvements",
     ],
     domain: "hifreysa.base.eth",
-    image: "https://ipfs.io/ipfs/bafkreihzf4frxkt3j42peowhm2w3ryihbbumfq6od5ace2xx2puwcyxwby",
+    image:
+      "https://ipfs.io/ipfs/bafkreihzf4frxkt3j42peowhm2w3ryihbbumfq6od5ace2xx2puwcyxwby",
   },
   {
     name: "neurobro",
@@ -138,7 +144,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@bankr Explain investment strategies",
     ],
     domain: "bankr.base.eth",
-    image: "https://ipfs.io/ipfs/bafkreig3hwrxfm2zkzgvlja6kgctu6qcnwztbppxrkbikvhmspfj7bpnqu",
+    image:
+      "https://ipfs.io/ipfs/bafkreig3hwrxfm2zkzgvlja6kgctu6qcnwztbppxrkbikvhmspfj7bpnqu",
   },
   {
     name: "basemate",
@@ -146,7 +153,8 @@ export const AI_AGENTS: AgentConfig[] = [
     networks: ["production"],
     live: true,
     domain: "askbasemate.base.eth",
-    image: "https://ipfs.io/ipfs/bafkreib6sck2doq64pwx7zqq3mvgjf5odrtdenzp6kc36enfzjl7s6zs64",
+    image:
+      "https://ipfs.io/ipfs/bafkreib6sck2doq64pwx7zqq3mvgjf5odrtdenzp6kc36enfzjl7s6zs64",
     suggestions: [
       "@basemate Help with Base network",
       "@basemate Explain Layer 2 scaling",
@@ -164,7 +172,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@echo Debug an issue",
     ],
     domain: "hi.xmtp.eth",
-    image: "https://ipfs.io/ipfs/QmaSZuaXfNUwhF7khaRxCwbhohBhRosVX1ZcGzmtcWnqav",
+    image:
+      "https://ipfs.io/ipfs/QmaSZuaXfNUwhF7khaRxCwbhohBhRosVX1ZcGzmtcWnqav",
   },
   {
     name: "gm",
@@ -177,7 +186,8 @@ export const AI_AGENTS: AgentConfig[] = [
       "@gm Get started with XMTP",
     ],
     domain: "hi.xmtp.eth",
-    image: "https://ipfs.io/ipfs/QmaSZuaXfNUwhF7khaRxCwbhohBhRosVX1ZcGzmtcWnqav",
+    image:
+      "https://ipfs.io/ipfs/QmaSZuaXfNUwhF7khaRxCwbhohBhRosVX1ZcGzmtcWnqav",
   },
   {
     name: "key-check",
@@ -209,6 +219,6 @@ export function getAgentByAddress(address: string): AgentConfig | undefined {
   return AI_AGENTS.find((agent) => agent.address === address);
 }
 
-export function getAgentById(id: string): AIAgent | undefined {
-  return AI_AGENTS.find((agent) => (agent as AIAgent).id === id);
+export function getAgentById(id: string): AgentConfig | undefined {
+  return AI_AGENTS.find((agent) => agent.name === id || agent.domain === id);
 }

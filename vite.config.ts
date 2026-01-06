@@ -101,5 +101,10 @@ export default defineConfig({
       },
     },
   },
-  logLevel: "error",
+  server: {
+    watch: {
+      usePolling: false,
+    },
+  },
+  logLevel: "info",
 });

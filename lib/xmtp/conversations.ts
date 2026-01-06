@@ -1,7 +1,8 @@
 import type { Client, Group } from "@xmtp/browser-sdk";
+import type { ContentTypes } from "./client";
 
 export async function createGroupWithAgentAddresses(
-  client: Client,
+  client: Client<ContentTypes>,
   addresses: string[],
 ): Promise<Group> {
   if (!addresses || addresses.length === 0) {
@@ -13,20 +14,12 @@ export async function createGroupWithAgentAddresses(
     identifierKind: "Ethereum" as const,
   }));
 
-  try {
-    const group = await client.conversations.newGroupWithIdentifiers(
-      identifiers,
-      {
-        name: "Agent Group",
-      },
-    );
+  const group = await client.conversations.newGroupWithIdentifiers(
+    identifiers,
+    {
+      name: "Agent Group",
+    },
+  );
 
-    return group;
-  } catch (error) {
-    console.error(
-      "[createGroupWithAgentAddresses] Error creating group",
-      error,
-    );
-    throw error;
-  }
+  return group;
 }
