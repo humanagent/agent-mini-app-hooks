@@ -24,6 +24,12 @@ import type { Conversation } from "@xmtp/browser-sdk";
 import { AI_AGENTS, type AgentConfig } from "@/lib/agents";
 import { cn } from "@/lib/utils";
 
+export type Message = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+};
+
 type PromptInputProps = HTMLAttributes<HTMLFormElement>;
 
 const PromptInput = ({ className, ...props }: PromptInputProps) => (
@@ -155,7 +161,7 @@ export function InputArea({
   selectedAgents?: AgentConfig[];
   setSelectedAgents?: (agents: AgentConfig[]) => void;
   sendMessage?: (content: string) => void;
-  messages?: unknown[];
+  messages?: Message[];
   conversation?: Conversation | null;
 }) {
   const [input, setInput] = useState("");
@@ -168,10 +174,16 @@ export function InputArea({
   const isSubmittingRef = useRef(false);
   const lastEnterPressRef = useRef<number>(0);
 
-  // Multi-agent mode: use props
-  // Single-agent mode: use internal state
-  const isMultiAgentMode =
+  // Determine context mode:
+  // Chat Area Mode: selectedAgents provided AND conversation is null/undefined (conversation not started)
+  // Message List Mode: conversation provided AND selectedAgents not provided (conversation ongoing)
+  const isChatAreaMode =
     selectedAgents !== undefined && setSelectedAgents !== undefined;
+  const isMessageListMode = conversation !== undefined && selectedAgents === undefined;
+
+  // Multi-agent mode: use props (for chat area)
+  // Single-agent mode: use internal state (for message list)
+  const isMultiAgentMode = isChatAreaMode;
 
   const shuffleArray = <T,>(array: T[]): T[] => {
     const shuffled = [...array];
@@ -327,7 +339,7 @@ export function InputArea({
     <div
       className={`relative flex w-full flex-col ${isMultiAgentMode ? "gap-2" : "gap-4"}`}
     >
-      {suggestedActions.length > 0 && !input.trim() && !conversation && (
+      {suggestedActions.length > 0 && !input.trim() && isChatAreaMode && !conversation && (
         <div className="grid w-full gap-2 sm:grid-cols-2">
           {suggestedActions.map((suggestedAction, index) => (
             <motion.div

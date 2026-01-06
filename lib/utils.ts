@@ -13,6 +13,24 @@ export function shortAddress(address: string): string {
   return address.slice(0, 6) + "..." + address.slice(-4);
 }
 
+function checkMiniKitInstalled(): boolean {
+  const originalError = console.error;
+  const originalWarn = console.warn;
+
+  try {
+    console.error = () => {};
+    console.warn = () => {};
+
+    const result = MiniKit.isInstalled();
+    return result;
+  } catch {
+    return false;
+  } finally {
+    console.error = originalError;
+    console.warn = originalWarn;
+  }
+}
+
 export function isWorldApp(): boolean {
-  return MiniKit.isInstalled();
+  return checkMiniKitInstalled();
 }

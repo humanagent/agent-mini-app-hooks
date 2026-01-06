@@ -3,13 +3,13 @@ import { ShareIcon } from "@ui/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { MiniKit } from "@worldcoin/minikit-js";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, isWorldApp } from "@/lib/utils";
 
 export function ShareButton({ className }: { className?: string }) {
   const [isSharing, setIsSharing] = useState(false);
 
   const handleShare = async () => {
-    if (!MiniKit.isInstalled()) {
+    if (!isWorldApp()) {
       return;
     }
 
@@ -25,7 +25,7 @@ export function ShareButton({ className }: { className?: string }) {
     }
   };
 
-  if (!MiniKit.isInstalled()) {
+  if (!isWorldApp()) {
     return null;
   }
 

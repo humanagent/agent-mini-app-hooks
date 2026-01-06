@@ -33,15 +33,22 @@ export function useXMTPConversations(client: Client<ContentTypes> | null) {
 
     const init = async () => {
       try {
+        console.log("[XMTP] Initializing conversations...");
         setIsLoading(true);
         setError(null);
 
+        console.log("[XMTP] Syncing conversations...");
         await client.conversations.sync();
+        console.log("[XMTP] Conversations sync complete");
+
+        console.log("[XMTP] Listing conversations...");
         const allConversations = await client.conversations.list();
+        console.log("[XMTP] Found conversations:", allConversations.length);
 
         if (mounted) {
           setConversations(allConversations);
           setIsLoading(false);
+          console.log("[XMTP] Conversations state updated");
         }
 
         const stream = await client.conversations.stream({

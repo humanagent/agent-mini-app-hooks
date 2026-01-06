@@ -18,22 +18,31 @@ export function useXMTPClient() {
 
     const init = async () => {
       try {
+        console.log("[XMTP] Initializing XMTP client...");
         setIsLoading(true);
         setError(null);
 
         await new Promise((resolve) => setTimeout(resolve, 100));
 
+        console.log("[XMTP] Getting or creating ephemeral account key...");
         const accountKey = getOrCreateEphemeralAccountKey();
+        console.log("[XMTP] Account key created:", accountKey.slice(0, 10) + "...");
+
+        console.log("[XMTP] Creating XMTP client...");
         const xmtpClient = await createXMTPClient(accountKey);
         clientRef = xmtpClient;
+        console.log("[XMTP] XMTP client initialization complete");
 
         if (mounted) {
           setClient(xmtpClient);
           setIsLoading(false);
+          console.log("[XMTP] Client state updated, ready to use");
         } else {
+          console.log("[XMTP] Component unmounted, closing client");
           xmtpClient.close();
         }
       } catch (err) {
+        console.error("[XMTP] Error initializing client:", err);
         if (mounted) {
           setError(err instanceof Error ? err : new Error(String(err)));
           setIsLoading(false);

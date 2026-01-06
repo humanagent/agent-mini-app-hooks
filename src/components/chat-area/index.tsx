@@ -1,4 +1,4 @@
-import { InputArea } from "@components/input-area";
+import { InputArea, type Message } from "@components/input-area";
 import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { Loader2Icon } from "@ui/icons";
 import { motion } from "framer-motion";
@@ -9,12 +9,6 @@ import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
 import { SidebarToggle } from "@/src/components/sidebar/sidebar-toggle";
 import { ShareButton } from "@/src/components/sidebar/share-button";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
-
-type Message = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-};
 
 export const ChatHeader = () => {
   return (
@@ -231,6 +225,7 @@ export function ChatArea() {
           selectedAgents={selectedAgents}
           setSelectedAgents={setSelectedAgents}
           sendMessage={handleSendMessage}
+          conversation={selectedConversation ?? null}
         />
       </div>
       {isCreatingConversation && (

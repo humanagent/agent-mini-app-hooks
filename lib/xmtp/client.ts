@@ -38,12 +38,21 @@ export async function createXMTPClient(
     new MarkdownCodec(),
   ];
 
+  console.log("[XMTP] Creating client...");
+  console.log("[XMTP] Signer address:", signer.getIdentifier().identifier);
+  console.log("[XMTP] Environment: production");
+  console.log("[XMTP] Codecs:", codecs.map((c) => c.contentType.definition));
+
   const client = await Client.create(signer, {
     env: "production",
-    loggingLevel: "warn",
+    loggingLevel: "debug",
     appVersion: "xmtp-agents/0",
     codecs,
   });
+
+  console.log("[XMTP] Client created successfully");
+  console.log("[XMTP] Client inbox ID:", client.inboxId);
+  console.log("[XMTP] Client installation ID:", client.installationId);
 
   return client;
 }

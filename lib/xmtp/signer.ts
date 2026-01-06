@@ -5,20 +5,26 @@ import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 export type PrivateKey = Hex;
 
 export const createEphemeralSigner = (privateKey: Hex): Signer => {
+  console.log("[XMTP] Creating ephemeral signer...");
   const account = privateKeyToAccount(privateKey);
+  console.log("[XMTP] Signer account address:", account.address);
   const signer = {
     type: "EOA" as const,
     getIdentifier: () => {
-      return {
+      const identifier = {
         identifier: account.address.toLowerCase(),
         identifierKind: "Ethereum" as const,
       };
+      console.log("[XMTP] Signer getIdentifier called:", identifier);
+      return identifier;
     },
     signMessage: async (message: string) => {
+      console.log("[XMTP] Signing message...");
       const signature = await account.signMessage({
         message,
       });
       const signatureBytes = toBytes(signature);
+      console.log("[XMTP] Message signed, signature length:", signatureBytes.length);
       return signatureBytes;
     },
   };
