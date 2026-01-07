@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.22] - 2025-01-07
+
+### Changed
+
+- Removed base and world icons from agent cards
+- Removed deeplinks functionality from agent cards
+- Removed live indicator from agent cards
+
 ## [0.1.21] - 2025-01-07
 
 ### Fixed
