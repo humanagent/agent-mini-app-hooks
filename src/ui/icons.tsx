@@ -500,3 +500,24 @@ export const WorldIcon = ({
     />
   </svg>
 );
+
+export const SearchIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M6.5 1C3.46243 1 1 3.46243 1 6.5C1 9.53757 3.46243 12 6.5 12C7.83879 12 9.06586 11.5217 10.0227 10.7305L13.6464 14.3536L14.3536 13.6464L10.7305 10.0227C11.5217 9.06586 12 7.83879 12 6.5C12 3.46243 9.53757 1 6.5 1ZM2.5 6.5C2.5 4.29086 4.29086 2.5 6.5 2.5C8.70914 2.5 10.5 4.29086 10.5 6.5C10.5 8.70914 8.70914 10.5 6.5 10.5C4.29086 10.5 2.5 8.70914 2.5 6.5Z"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);

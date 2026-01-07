@@ -25,45 +25,39 @@ const SheetOverlay = React.forwardRef<
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   }, []);
 
-  const handleTouchEnd = React.useCallback(
-    (e: React.TouchEvent) => {
-      if (!touchStartRef.current) return;
+  const handleTouchEnd = React.useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
 
-      const touch = e.changedTouches[0];
-      const deltaX = touch.clientX - touchStartRef.current.x;
-      const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
-      const absDeltaX = Math.abs(deltaX);
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const absDeltaX = Math.abs(deltaX);
 
-      // Swipe right to close (for left sidebars) or swipe left (for right sidebars)
-      if (absDeltaX > 50 && deltaY < 100) {
-        const overlay = e.currentTarget as HTMLElement;
-        const sheetContent = overlay.parentElement?.querySelector(
-          '[role="dialog"]',
-        ) as HTMLElement | null;
+    // Swipe right to close (for left sidebars) or swipe left (for right sidebars)
+    if (absDeltaX > 50 && deltaY < 100) {
+      const overlay = e.currentTarget as HTMLElement;
+      const sheetContent = overlay.parentElement?.querySelector(
+        '[role="dialog"]',
+      ) as HTMLElement | null;
 
-        if (sheetContent) {
-          // Check which side the sheet is on
-          const isLeftSide = sheetContent.classList.contains("left-0");
-          const isRightSide = sheetContent.classList.contains("right-0");
+      if (sheetContent) {
+        // Check which side the sheet is on
+        const isLeftSide = sheetContent.classList.contains("left-0");
+        const isRightSide = sheetContent.classList.contains("right-0");
 
-          if (
-            (isLeftSide && deltaX > 0) ||
-            (isRightSide && deltaX < 0)
-          ) {
-            // Close the sheet by clicking the overlay
-            const clickEvent = new MouseEvent("click", {
-              bubbles: true,
-              cancelable: true,
-            });
-            overlay.dispatchEvent(clickEvent);
-          }
+        if ((isLeftSide && deltaX > 0) || (isRightSide && deltaX < 0)) {
+          // Close the sheet by clicking the overlay
+          const clickEvent = new MouseEvent("click", {
+            bubbles: true,
+            cancelable: true,
+          });
+          overlay.dispatchEvent(clickEvent);
         }
       }
+    }
 
-      touchStartRef.current = null;
-    },
-    [],
-  );
+    touchStartRef.current = null;
+  }, []);
 
   return (
     <DialogPrimitive.Overlay
@@ -115,23 +109,26 @@ const SheetContent = React.forwardRef<
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   }, []);
 
-  const handleTouchMove = React.useCallback((e: React.TouchEvent) => {
-    if (!touchStartRef.current) return;
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - touchStartRef.current.x;
-    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
-    const absDeltaX = Math.abs(deltaX);
+  const handleTouchMove = React.useCallback(
+    (e: React.TouchEvent) => {
+      if (!touchStartRef.current) return;
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - touchStartRef.current.x;
+      const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+      const absDeltaX = Math.abs(deltaX);
 
-    // Allow horizontal drag with visual feedback
-    if (absDeltaX > 10 && deltaY < 50) {
-      const content = e.currentTarget as HTMLElement;
-      if (side === "left") {
-        content.style.transform = `translateX(${Math.max(-absDeltaX, -content.offsetWidth)}px)`;
-      } else {
-        content.style.transform = `translateX(${Math.min(absDeltaX, content.offsetWidth)}px)`;
+      // Allow horizontal drag with visual feedback
+      if (absDeltaX > 10 && deltaY < 50) {
+        const content = e.currentTarget as HTMLElement;
+        if (side === "left") {
+          content.style.transform = `translateX(${Math.max(-absDeltaX, -content.offsetWidth)}px)`;
+        } else {
+          content.style.transform = `translateX(${Math.min(absDeltaX, content.offsetWidth)}px)`;
+        }
       }
-    }
-  }, [side]);
+    },
+    [side],
+  );
 
   const handleTouchEnd = React.useCallback(
     (e: React.TouchEvent) => {
@@ -153,7 +150,7 @@ const SheetContent = React.forwardRef<
           (side === "right" && deltaX > 0)
         ) {
           const closeButton = content.querySelector(
-            '[data-state]',
+            "[data-state]",
           ) as HTMLElement;
           if (closeButton) {
             closeButton.click();
@@ -179,7 +176,7 @@ const SheetContent = React.forwardRef<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <DialogPrimitive.Close className="absolute right-3 top-3 rounded opacity-70 ring-offset-0 transition-all duration-200 hover:opacity-100 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0 disabled:pointer-events-none data-[state=open]:bg-zinc-800">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
@@ -223,7 +220,7 @@ const SheetTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold text-foreground", className)}
+    className={cn("text-sm font-semibold text-foreground", className)}
     {...props}
   />
 ));
@@ -235,7 +232,7 @@ const SheetDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-xs text-muted-foreground", className)}
     {...props}
   />
 ));

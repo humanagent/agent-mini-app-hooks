@@ -20,6 +20,29 @@ import {
 import { generateConversationMetadata } from "@/lib/generate-conversation-name";
 import { AI_AGENTS } from "@/agent-registry/agents";
 
+function formatTimeAgo(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHour / 24);
+
+  if (diffSec < 60) return "just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffHour < 24) return `${diffHour}h ago`;
+  if (diffDay < 7) return `${diffDay}d ago`;
+  return date.toLocaleDateString();
+}
+
+function getMessageSentAt(msg: DecodedMessage<unknown>): Date | undefined {
+  // Handle both sentAt (Date) and sentAtNs (bigint nanoseconds)
+  const msgAny = msg as { sentAt?: Date; sentAtNs?: bigint };
+  if (msgAny.sentAt) return msgAny.sentAt;
+  if (msgAny.sentAtNs) return new Date(Number(msgAny.sentAtNs) / 1_000_000);
+  return undefined;
+}
+
 export function MessageList({ messages }: { messages: Message[] }) {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
@@ -45,15 +68,15 @@ export function MessageList({ messages }: { messages: Message[] }) {
             className="fade-in w-full animate-in duration-150"
           >
             <div
-              className={`group flex w-full items-start ${message.role === "user" ? "justify-end" : "justify-start"} mb-6`}
+              className={`group flex w-full items-start ${message.role === "user" ? "justify-end" : "justify-start"} mb-4`}
             >
               <div
                 className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%] sm:max-w-[80%] md:max-w-[70%]`}
               >
                 <div
-                  className={`flex flex-col overflow-hidden text-sm w-fit break-words rounded-lg px-4 py-3 ${
+                  className={`flex flex-col overflow-hidden text-xs w-fit break-words rounded px-4 py-3 ${
                     message.role === "user"
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-[var(--message-user)] text-[var(--message-user-foreground)]"
                       : "text-foreground"
                   }`}
                 >
@@ -61,23 +84,28 @@ export function MessageList({ messages }: { messages: Message[] }) {
                     <p className="leading-relaxed">{message.content}</p>
                   </div>
                 </div>
-                {message.role === "assistant" && (
-                  <div className="flex items-center gap-0.5 mt-1">
+                <div className={`flex items-center gap-1.5 mt-1 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                  {message.sentAt && (
+                    <span className="text-[10px] text-muted-foreground/60">
+                      {formatTimeAgo(message.sentAt)}
+                    </span>
+                  )}
+                  {message.role === "assistant" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon-sm"
-                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                          className="h-6 w-6 text-muted-foreground hover:text-foreground"
                           onClick={() => {
                             void handleCopy(message.content, message.id);
                           }}
                         >
                           {isCopied ? (
-                            <CheckIcon size={14} />
+                            <CheckIcon size={12} />
                           ) : (
-                            <CopyIcon size={14} />
+                            <CopyIcon size={12} />
                           )}
                         </Button>
                       </TooltipTrigger>
@@ -85,8 +113,8 @@ export function MessageList({ messages }: { messages: Message[] }) {
                         <p>{isCopied ? "Copied" : "Copy"}</p>
                       </TooltipContent>
                     </Tooltip>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -110,6 +138,7 @@ export function ConversationView() {
   const waitingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const streamCleanupRef = useRef<(() => Promise<void>) | null>(null);
   const tempMessageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const { client } = useXMTPClient();
   const {
     selectedConversation,
@@ -121,6 +150,13 @@ export function ConversationView() {
   } = useConversationsContext();
   const { conversationId } = useParams();
   const navigate = useNavigate();
+
+  const scrollToBottom = useCallback(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef.current.scrollHeight;
+    }
+  }, []);
 
   // Handle pending conversation creation (optimistic loading)
   useEffect(() => {
@@ -241,12 +277,7 @@ export function ConversationView() {
     }
 
     prevSelectedAgentsRef.current = selectedAgents;
-  }, [
-    selectedAgents,
-    selectedConversation,
-    setSelectedConversation,
-    navigate,
-  ]);
+  }, [selectedAgents, selectedConversation, setSelectedConversation, navigate]);
 
   // Sync selected conversation with URL params
   useEffect(() => {
@@ -355,6 +386,7 @@ export function ConversationView() {
                 role:
                   msg.senderInboxId === client.inboxId ? "user" : "assistant",
                 content,
+                sentAt: getMessageSentAt(msg),
               };
             });
 
@@ -365,6 +397,24 @@ export function ConversationView() {
             );
             setMessages(chatMessages);
             setIsLoadingMessages(false);
+            // Clear waiting state if last message is from assistant
+            if (
+              chatMessages.length > 0 &&
+              chatMessages[chatMessages.length - 1]?.role === "assistant"
+            ) {
+              console.log(
+                "[ConversationView] Last message is from assistant, clearing waiting state",
+              );
+              setIsWaitingForAgent(false);
+              if (waitingTimeoutRef.current) {
+                clearTimeout(waitingTimeoutRef.current);
+                waitingTimeoutRef.current = null;
+              }
+            }
+            // Scroll to bottom when messages are loaded
+            setTimeout(() => {
+              scrollToBottom();
+            }, 100);
           }
 
           if (
@@ -434,6 +484,7 @@ export function ConversationView() {
                     ? "user"
                     : "assistant",
                 content: message.content,
+                sentAt: getMessageSentAt(message),
               };
 
               setMessages((prev) => {
@@ -458,7 +509,16 @@ export function ConversationView() {
                 return [...prev, newMessage];
               });
 
+              // Scroll to bottom when new message arrives
+              setTimeout(() => {
+                scrollToBottom();
+              }, 100);
+
               if (newMessage.role === "assistant" && mounted) {
+                console.log(
+                  "[ConversationView] Assistant message received, clearing waiting state",
+                  newMessage.id,
+                );
                 setIsWaitingForAgent(false);
                 if (waitingTimeoutRef.current) {
                   clearTimeout(waitingTimeoutRef.current);
@@ -507,7 +567,7 @@ export function ConversationView() {
         streamCleanupRef.current = null;
       }
     };
-  }, [client, selectedConversation]);
+  }, [client, selectedConversation, scrollToBottom]);
 
   useEffect(() => {
     return () => {
@@ -566,9 +626,15 @@ export function ConversationView() {
         id: `temp-${Date.now()}`,
         role: "user",
         content,
+        sentAt: new Date(),
       };
 
       setMessages((prev) => [...prev, tempMessage]);
+
+      // Scroll to bottom when message is sent
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
 
       if (tempMessageTimeoutRef.current) {
         clearTimeout(tempMessageTimeoutRef.current);
@@ -648,15 +714,19 @@ export function ConversationView() {
       selectedAgents,
       setSelectedConversation,
       refreshConversations,
+      scrollToBottom,
     ],
   );
 
   return (
-    <div className="overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background">
+    <div className="overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-black">
       <ChatHeader conversation={selectedConversation} />
 
       <div className="relative flex-1">
-        <div className="absolute inset-0 touch-pan-y overflow-y-auto">
+        <div
+          ref={scrollContainerRef}
+          className="absolute inset-0 touch-pan-y overflow-y-auto"
+        >
           <div className="mx-auto flex min-w-0 max-w-4xl flex-col px-3 py-4 md:px-6 md:py-6">
             {createError && (
               <ThinkingIndicator
@@ -707,14 +777,16 @@ export function ConversationView() {
             {isWaitingForAgent &&
               !isCreatingConversation &&
               !isSyncingConversation &&
-              !isLoadingMessages && (
+              !isLoadingMessages &&
+              (messages.length === 0 ||
+                messages[messages.length - 1]?.role !== "assistant") && (
                 <ThinkingIndicator message="Waiting for agent response..." />
               )}
           </div>
         </div>
       </div>
 
-      <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
+      <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-black px-2 pb-3 md:px-4 md:pb-4">
         <InputArea
           {...(selectedConversation
             ? {}

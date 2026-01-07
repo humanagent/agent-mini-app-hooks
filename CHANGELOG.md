@@ -1,5 +1,124 @@
 # Changelog
 
+## [0.1.20] - 2025-01-07
+
+### Added
+
+- Added message timestamps with "time ago" format (just now, 5m ago, 2h ago, etc.)
+- Added animated typing dots (3 bouncing dots) to thinking indicator
+- Added unread indicator dot to conversation items in sidebar
+- Added last message preview (40 chars) below conversation names
+- Added animated waving hand emoji to greeting message
+- Added live/online pulse indicator badge on agent cards
+- Added copy address button to user nav dropdown with visual feedback
+- Added gradient avatar generation based on user address
+- Added search/filter input on explore page for agent discovery
+- Added agent count badges to category tabs
+- Added keyboard shortcut (⌘K / Ctrl+K) to open agent selector with tooltip hint
+- Added subtle hover glow effect to send button
+
+### Changed
+
+- Improved message list with timestamp display below each message
+- Enhanced conversation items with last message preview for better context
+- Improved thinking indicator with animated dots instead of spinner
+- Enhanced agent cards with live status indicators
+- Improved user navigation with gradient avatars and copy functionality
+- Enhanced explore page with search and category filtering
+
+## [0.1.19] - 2025-01-07
+
+### Changed
+
+- Changed user messages to blue bubbles with white text (ChatGPT-style)
+- Removed accent background from active sidebar items (now uses subtle grey)
+- Updated design system to use tokenized message bubble colors
+
+### Added
+
+- Added message bubble design tokens (`--message-user`, `--message-user-foreground`)
+- Updated design system guidelines to document message bubble and sidebar active state patterns
+
+## [0.1.18] - 2025-01-07
+
+### Added
+
+- Added mobile-specific design tokens for responsive typography and spacing
+- Added mobile breakpoint variable (768px) matching useIsMobile hook
+- Added comprehensive mobile/responsive documentation to design rules
+
+## [0.1.17] - 2025-01-07
+
+### Changed
+
+- Consolidated design system into `src/index.css` (removed separate `src/design/` folder)
+- Simplified design rule documentation to concise cursor rule
+- Updated accent color from lime green to orange-red (#CF1C0F)
+- Applied consistent styling across all UI components (minimal radius, compact spacing)
+- Updated all button heights to h-7/h-8 for dense UI
+- Standardized text sizes to text-xs (14px) base
+- Updated all transitions to 200ms with consistent easing
+- Applied dark text on accent backgrounds for accessibility
+
+### Fixed
+
+- Fixed CSS import order issues for Tailwind compatibility
+- Removed @apply directives for Tailwind v4 compatibility
+- **CRITICAL:** Removed circular CSS variable references that prevented accent color from displaying
+- Increased base typography scale for better readability (12px → 14px base)
+- Fixed empty chat header showing when no conversation selected
+- Added left padding to sidebar content for better spacing
+
+## [0.1.16] - 2025-01-07
+
+### Added
+
+- Created centralized design system in `src/design/` folder
+- Added comprehensive design documentation (README.md, QUICK_REFERENCE.md)
+- Added design system changelog and version tracking
+- Added TypeScript exports for design tokens
+- Added design utilities and animation patterns
+
+### Changed
+
+- Centralized all design tokens in `src/design/tokens.css`
+- Updated accent color from lime green to orange-red (#CF1C0F)
+- Simplified `src/index.css` to import from design system
+- Applied consistent styling across all UI components (minimal radius, compact spacing)
+- Updated all button heights to h-7/h-8 for dense UI
+- Standardized text sizes to text-xs base
+- Updated all transitions to 200ms with consistent easing
+- Applied dark text on accent backgrounds for accessibility
+
+### Fixed
+
+- Fixed CSS import order issues for Tailwind compatibility
+- Removed @apply directives for Tailwind v4 compatibility
+- Fixed skeleton loading styles
+- **CRITICAL:** Removed circular CSS variable references that prevented accent color from displaying
+- Increased base typography scale for better readability (12px → 14px base)
+
+## [0.1.15] - 2025-01-07
+
+### Added
+
+- Added toast notification system for user feedback
+- Added delete confirmation dialog for conversations
+- Added auto-scroll functionality to message list
+- Added agent mention appending to messages for better context
+- Added comprehensive design system documentation
+
+### Changed
+
+- Improved message scrolling behavior with scroll to bottom on new messages
+- Enhanced conversation deletion with toast notifications
+- Updated waiting indicator logic to clear properly when assistant responds
+
+### Fixed
+
+- Fixed waiting state not clearing when assistant messages arrive
+- Fixed conversation deletion error handling with proper user feedback
+
 ## [0.1.14] - 2025-01-06
 
 ### Changed

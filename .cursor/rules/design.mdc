@@ -2,30 +2,159 @@
 alwaysApply: true
 ---
 
-Monochrome base, single electric accent, hard-edged grid, terse UI chrome.
+# XMTP Agents Design System
 
-- Base palette: Near‑black (#0B0B0D to #111316), off‑white text (#F2F3F5), mid‑gray surfaces (#1A1D20, #22262A). Contrast is high; backgrounds stay dark, text stays crisp.
+**Pure black aesthetic, sharp edges, dense UI, single accent color.**
 
-- Accent color: One assertive hue used sparingly—electric blue (#2E7BFF or #1F6BFF). Apply only to links, primary CTAs, and interactive focus. No gradients; solid fills.
+## Core Principles
 
-- Secondary states: Muted teal or green for success (#18C29C), amber for warnings (#FFB020), desaturated red for errors (#E45151). Keep saturation restrained.
+- **Pure black** (#000000) backgrounds with **zinc-950** (#09090b) elevated surfaces
+- **Sharp edges**: `rounded` (2px) - minimal border radius everywhere
+- **Dense UI**: `text-xs` (14px) base, `h-7`/`h-8` buttons, compact spacing
+- **Single accent**: Orange-red `#CF1C0F` with dark text `#000000` for contrast
+- **Fast motion**: 200ms transitions, `cubic-bezier(0.2, 0.8, 0.2, 1)` easing
 
-- Typography: Bold, declarative sans for headings (e.g., Inter, Neue Haas Grotesk, or Söhne). Headline weight 700–800, tight tracking. Body set in geometric sans at 400–500 weight. Uppercase micro‑labels for system states.
+## Design Tokens (in `src/index.css`)
 
-- Spacing + grid: 12‑column grid, generous gutters. Slabbed, full‑bleed sections. Hierarchy from scale and whitespace; avoid borders—use contrast and spacing.
+**Colors:**
+- Background: `#000000` (pure black)
+- Surfaces: `#09090b` (zinc-950), `#27272a` (zinc-800)
+- Text: `#fafafa` (primary), `#a1a1aa` (muted)
+- Accent: `#CF1C0F` (orange-red) - **CHANGE THIS** to update brand color
+- Message bubbles: `#3b82f6` (blue-500) with white text for user messages (ChatGPT-style)
+- Borders: `#27272a` (zinc-800) - use `border-zinc-800` hardcoded
 
-- Buttons/links: High‑contrast pills: dark surface, white text; accent outline or fill on primary. Hover = subtle 4–6% lighten; focus = 2px accent ring, no shadow.
+**Typography:**
+- Base: `text-xs` (14px desktop, 12px mobile)
+- Headings: `text-sm` (16px desktop, 14px mobile)
+- Desktop scale: xs(14px) → sm(16px) → base(18px) → lg(20px) → xl(24px)
+- Mobile scale: xs(12px) → sm(14px) → base(16px) → lg(18px) → xl(20px)
 
-- Cards/sections: Flat layers with subtle separators: 1px hairline in #2A2E33 or soft inner padding. No drop shadows; rely on stacking order and spacing.
+**Spacing:**
+- Buttons: `h-7` (28px) or `h-8` (32px) desktop, `h-10` (40px) mobile for touch
+- Inputs: `h-7` (28px) desktop, `h-8` (32px) mobile
+- Radius: `rounded` (2px) - minimal everywhere
 
-- Iconography: Thin‑line system icons, 1.5–2px strokes, monochrome by default; switch to accent on active/selected.
+**Motion:**
+- Duration: 200ms default, 150ms fast
+- Easing: `cubic-bezier(0.2, 0.8, 0.2, 1)`
+- Active scale: `active:scale-[0.97]`
 
-- Imagery: Blurred, subdued hero backgrounds; abstract “world/network” mark. Keep photos low‑saturation, cool temperature.
+## Component Patterns
 
-- Motion: Crisp fades, 120–180ms; slide distances short (8–12px). No parallax; exits match entries. Easing: standard or cubic-bezier(0.2, 0.8, 0.2, 1).
+**Headers/Panels:**
+```tsx
+<header className="bg-zinc-950 border-b border-zinc-800 px-4 py-3">
+```
 
-- Dividers + rules: Hairlines only; avoid heavy borders. Use negative space to separate blocks.
+**Buttons:**
+```tsx
+// Accent (primary)
+<Button className="bg-accent text-accent-foreground">Button</Button>
 
-- Forms: Dark fields (#13161A), white text, placeholder mid‑gray (#6A7179). Focus = accent ring; error = desat red underline; success = muted green tick.
+// Ghost
+<Button variant="ghost" className="text-foreground hover:bg-zinc-800">
+```
 
-This styling communicates authority through restraint: black/white discipline, one energetic accent, grid‑tight layout, and minimal motion.
+**Selected State:**
+```tsx
+// Sidebar active items - subtle grey, not accent
+className={selected ? 'bg-zinc-800 text-foreground' : 'hover:bg-zinc-800'}
+
+// Other selected states (if accent needed)
+className={selected ? 'bg-accent text-accent-foreground' : 'hover:bg-zinc-800'}
+```
+
+**Message Bubbles:**
+```tsx
+// User messages - blue bubble with white text (ChatGPT-style)
+className="bg-[var(--message-user)] text-[var(--message-user-foreground)]"
+
+// Assistant messages - no background, foreground text
+className="text-foreground"
+```
+
+**Hover States:**
+- Zinc surfaces: `hover:bg-zinc-800`
+- Accent buttons: `hover:bg-accent/90`
+- Always: `transition-colors duration-200`
+
+## Responsive & Mobile
+
+**Breakpoint:** 768px (matches `useIsMobile` hook in `src/hooks/use-mobile.ts`)
+
+**Mobile-First Approach:**
+- Default styles are mobile-optimized
+- Use `md:` prefix for desktop styles
+- Mobile tokens available for programmatic use
+
+**Touch Targets:**
+- Minimum: 40px (2.5rem) for interactive elements
+- Recommended: 44px for better accessibility
+- Buttons: Use `h-10 md:h-8` (40px mobile, 32px desktop)
+
+**Responsive Typography:**
+```tsx
+// Mobile-first responsive text
+className="text-xs md:text-sm"  // 12px mobile, 14px desktop
+
+// Using tokens (optional)
+style={{ fontSize: 'var(--text-xs-mobile)' }}  // 12px
+// Desktop: var(--text-xs) = 14px
+```
+
+**Responsive Spacing:**
+```tsx
+// Touch-friendly buttons (larger on mobile)
+className="h-10 md:h-8"  // 40px mobile, 32px desktop
+
+// Responsive padding
+className="px-3 py-2 md:px-4 md:py-3"
+```
+
+**Mobile Tokens (in `src/index.css`):**
+- Typography: `--text-xs-mobile` (12px) through `--text-xl-mobile` (20px)
+- Spacing: `--button-height-sm-mobile` (32px), `--button-height-default-mobile` (40px)
+- Breakpoint: `--breakpoint-mobile: 768px`
+
+**Touch Utilities:**
+- `touch-manipulation` - Prevents double-tap zoom on buttons
+- `touch-pan-y` - Enables vertical scrolling only
+- `-webkit-overflow-scrolling-touch` - Smooth iOS scrolling
+- `tap-highlight-transparent` - Removes tap highlight
+
+**Mobile Patterns:**
+```tsx
+// Sidebar becomes drawer on mobile
+<Sidebar /> // Automatically uses Sheet component on mobile
+
+// Responsive message widths
+className="max-w-[85%] sm:max-w-[80%] md:max-w-[70%]"
+
+// Mobile grid layouts
+className="grid grid-cols-1 md:grid-cols-2"
+```
+
+**Swipe Gestures:**
+- Sidebar opens on swipe from left edge (20px threshold)
+- Implemented via `useSwipeGesture` hook
+- Mobile-only behavior
+
+## Critical Rules
+
+1. **Hardcoded colors**: Use `bg-black`, `bg-zinc-950`, `border-zinc-800` (not CSS vars)
+2. **Text on accent**: Always `text-accent-foreground` (#000000) on accent backgrounds
+3. **Text on zinc**: Always `text-foreground` or `text-muted-foreground` (light) on zinc
+4. **Sidebar active state**: Use `bg-zinc-800 text-foreground` (subtle grey), NOT accent color
+5. **User messages**: Use `bg-[var(--message-user)] text-[var(--message-user-foreground)]` (blue bubble, white text)
+6. **No rounded-full**: Use `rounded` (2px) everywhere
+7. **Consistent transitions**: `duration-200` with `cubic-bezier(0.2, 0.8, 0.2, 1)`
+
+## Quick Changes
+
+**Change accent color:** Edit `--accent: #CF1C0F;` in `src/index.css` (line ~20)
+**Change message bubble color:** Edit `--message-user: #3b82f6;` in `src/index.css` (line ~26)
+**Change font sizes:** Edit `--text-xs`, `--text-sm` etc. in `src/index.css`
+**Change spacing:** Edit `--button-height-*` in `src/index.css`
+
+All tokens are in `src/index.css` - no separate design folder.

@@ -7,6 +7,8 @@ import { useConversationsContext } from "@/src/contexts/xmtp-conversations-conte
 import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
 import { SidebarToggle } from "@/src/components/sidebar/sidebar-toggle";
 import { ShareButton } from "./share-button";
+import { Input } from "@ui/input";
+import { SearchIcon } from "@ui/icons";
 
 export function ExplorePage() {
   const categories = useMemo(() => {
@@ -19,20 +21,41 @@ export function ExplorePage() {
   }, []);
 
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { client } = useXMTPClient();
-  const {
-    setSelectedConversation,
-    refreshConversations,
-    setPendingConversation,
-  } = useConversationsContext();
+  const { setSelectedConversation, setPendingConversation } =
+    useConversationsContext();
+
+  const categoryAgentCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: AI_AGENTS.length };
+    for (const agent of AI_AGENTS) {
+      if (agent.category) {
+        counts[agent.category] = (counts[agent.category] || 0) + 1;
+      }
+    }
+    return counts;
+  }, []);
 
   const filteredAgents = useMemo(() => {
-    if (selectedCategory === "All") {
-      return AI_AGENTS;
+    let agents = AI_AGENTS;
+    
+    if (selectedCategory !== "All") {
+      agents = agents.filter((agent) => agent.category === selectedCategory);
     }
-    return AI_AGENTS.filter((agent) => agent.category === selectedCategory);
-  }, [selectedCategory]);
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      agents = agents.filter(
+        (agent) =>
+          agent.name.toLowerCase().includes(query) ||
+          agent.category?.toLowerCase().includes(query) ||
+          agent.suggestions?.some((s) => s.toLowerCase().includes(query))
+      );
+    }
+    
+    return agents;
+  }, [selectedCategory, searchQuery]);
 
   const featuredAgent = useMemo(() => {
     const withImages = filteredAgents.filter((a) => a.image);
@@ -99,8 +122,8 @@ export function ExplorePage() {
   };
 
   return (
-    <div className="flex h-dvh min-w-0 flex-col bg-background">
-      <header className="sticky top-0 flex items-center gap-2 bg-background px-2 py-1.5 md:px-2">
+    <div className="flex h-dvh min-w-0 flex-col bg-black">
+      <header className="sticky top-0 flex items-center gap-2 bg-zinc-950 border-b border-zinc-800 px-2 py-1.5 md:px-2">
         <SidebarToggle />
         <ShareButton />
       </header>
@@ -108,25 +131,43 @@ export function ExplorePage() {
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-6xl px-4 py-8 md:px-8">
           <div className="mb-8">
-            <h1 className="mb-2 font-semibold text-3xl">XMTP Agents</h1>
-            <p className="text-muted-foreground">
+            <h1 className="mb-2 font-semibold text-xl">XMTP Agents</h1>
+            <p className="text-xs text-muted-foreground">
               Chat with your favorite XMTP agents
             </p>
           </div>
 
-          <div className="mb-6 flex gap-2 border-b border-border">
+          <div className="relative mb-6">
+            <SearchIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search agents..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-9 bg-zinc-950 border-zinc-800 focus:border-zinc-700"
+            />
+          </div>
+
+          <div className="mb-6 flex gap-2 border-b border-zinc-800 overflow-x-auto">
             {categories.map((category) => (
               <button
                 key={category}
-                className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                className={`border-b-2 px-4 py-2 text-xs font-medium transition-colors duration-200 whitespace-nowrap flex items-center gap-1.5 ${
                   selectedCategory === category
-                    ? "border-primary text-primary"
+                    ? "border-accent text-accent"
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
                 onClick={() => setSelectedCategory(category)}
                 type="button"
               >
                 {category}
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                  selectedCategory === category
+                    ? "bg-accent/20 text-accent"
+                    : "bg-zinc-800 text-muted-foreground"
+                }`}>
+                  {categoryAgentCounts[category] || 0}
+                </span>
               </button>
             ))}
           </div>
@@ -153,8 +194,10 @@ export function ExplorePage() {
 
           {filteredAgents.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <p className="text-muted-foreground">
-                No agents found in this category.
+              <p className="text-xs text-muted-foreground">
+                {searchQuery.trim()
+                  ? `No agents found matching "${searchQuery}"`
+                  : "No agents found in this category."}
               </p>
             </div>
           )}

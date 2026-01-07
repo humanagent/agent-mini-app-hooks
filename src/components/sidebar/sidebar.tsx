@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
   Sidebar as SidebarUI,
 } from "@ui/sidebar";
+import { useToast } from "@ui/toast";
 import { SidebarToggle } from "@/src/components/sidebar/sidebar-toggle";
 import { SidebarUserNav } from "@/src/components/sidebar/user-nav";
 import { ConversationItem } from "@/src/components/sidebar/conversation-item";
@@ -18,14 +19,17 @@ import { Group, Dm, ConsentState, ConsentEntityType } from "@xmtp/browser-sdk";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { getGroupConsentState } from "@/lib/xmtp/consent";
-import { sortConversationsByLastMessage } from "@/src/components/sidebar/utils";
+import { sortConversationsByLastMessage, type ConversationWithMeta } from "@/src/components/sidebar/utils";
 import { cn } from "@/lib/utils";
 
 const SidebarLogo = ({ className }: { className?: string }) => (
   <img
     src="/icon.svg"
     alt="XMTP Agents"
-    className={cn("size-8 rounded-md p-2 hover:bg-sidebar-accent", className)}
+    className={cn(
+      "size-10 rounded p-2 hover:bg-zinc-800 transition-colors duration-200",
+      className,
+    )}
   />
 );
 
@@ -38,10 +42,11 @@ export function Sidebar() {
     refreshConversations,
     setPendingConversation,
   } = useConversationsContext();
+  const { showToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
   const [sortedConversations, setSortedConversations] = useState<
-    Conversation[]
+    ConversationWithMeta[]
   >([]);
 
   useEffect(() => {
@@ -67,6 +72,10 @@ export function Sidebar() {
     async (conversation: Conversation, event: React.MouseEvent) => {
       event.stopPropagation();
       if (!client) {
+        showToast(
+          "Unable to delete conversation. Client not available.",
+          "error",
+        );
         return;
       }
 
@@ -99,8 +108,10 @@ export function Sidebar() {
         }
 
         await refreshConversations();
-      } catch {
-        // Silently fail - conversation state unchanged
+        showToast("Conversation deleted successfully", "success");
+      } catch (error) {
+        console.error("Error deleting conversation:", error);
+        showToast("Failed to delete conversation. Please try again.", "error");
       }
     },
     [
@@ -108,6 +119,7 @@ export function Sidebar() {
       selectedConversation,
       setSelectedConversation,
       refreshConversations,
+      showToast,
     ],
   );
 
@@ -160,15 +172,16 @@ export function Sidebar() {
         </SidebarMenu>
         <SidebarMenu className="group-data-[collapsible=icon]:hidden">
           {!sortedConversations || sortedConversations.length === 0 ? (
-            <div className="flex w-full flex-row items-center justify-center gap-2 px-2 py-2 text-sm text-muted-foreground">
+            <div className="flex w-full flex-row items-center justify-center gap-2 px-2 py-2 text-xs text-muted-foreground">
               Your conversations will appear here once you start chatting!
             </div>
           ) : (
-            sortedConversations.map((conversation) => (
+            sortedConversations.map(({ conversation, lastMessagePreview }) => (
               <ConversationItem
                 key={conversation.id}
                 conversation={conversation}
                 isActive={selectedConversation?.id === conversation.id}
+                lastMessagePreview={lastMessagePreview}
                 onClick={() => {
                   handleConversationClick(conversation);
                 }}

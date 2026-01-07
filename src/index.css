@@ -1,89 +1,103 @@
 @import "tailwindcss";
 
+/* ========================================
+   DESIGN TOKENS - Black Theme
+   Pure black aesthetic, sharp edges, dense UI, single accent
+   ======================================== */
+
+:root,
+.dark {
+  /* Colors */
+  --background: #000000;
+  --foreground: #fafafa;
+  --surface-elevated: #09090b;
+  --surface-card: #27272a;
+  --surface-muted: #3f3f46;
+  --text-primary: #fafafa;
+  --text-muted: #a1a1aa;
+  --accent: #cf1c0f;
+  --accent-foreground: #000000;
+  --success: #4caf50;
+  --success-foreground: #fafafa;
+  --warning: #f59e0b;
+  --warning-foreground: #000000;
+  --destructive: #f48771;
+  --destructive-foreground: #fafafa;
+  --message-user: #3b82f6; /* blue-500 - ChatGPT-style user messages */
+  --message-user-foreground: #ffffff;
+  --border: #27272a;
+  --input-bg: #09090b;
+  --ring: #cf1c0f;
+
+  /* Mappings */
+  --card: var(--surface-card);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-card);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-foreground);
+  --secondary: var(--surface-card);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-muted);
+  --muted-foreground: var(--text-muted);
+  --input: var(--input-bg);
+  --sidebar-background: var(--surface-elevated);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: #cf1c0f;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: var(--surface-card);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: #27272a;
+  --sidebar-ring: #cf1c0f;
+  --sidebar: var(--surface-elevated);
+  --chart-1: #cf1c0f;
+  --chart-2: #4caf50;
+  --chart-3: #f59e0b;
+  --chart-4: #f48771;
+  --chart-5: #a1a1aa;
+
+  /* Spacing - Desktop */
+  --radius: 0.125rem;
+  --button-height-sm: 1.75rem; /* 28px */
+  --button-height-default: 2rem; /* 32px */
+  --input-height: 1.75rem; /* 28px */
+
+  /* Spacing - Mobile (larger for touch targets) */
+  --button-height-sm-mobile: 2rem; /* 32px - larger for touch */
+  --button-height-default-mobile: 2.5rem; /* 40px - larger for touch */
+  --input-height-mobile: 2rem; /* 32px - larger for touch */
+
+  /* Typography - Desktop (default) */
+  --text-xs: 0.875rem; /* 14px */
+  --text-sm: 1rem; /* 16px */
+  --text-base: 1.125rem; /* 18px */
+  --text-lg: 1.25rem; /* 20px */
+  --text-xl: 1.5rem; /* 24px */
+
+  /* Typography - Mobile (smaller for dense mobile UI) */
+  --text-xs-mobile: 0.75rem; /* 12px */
+  --text-sm-mobile: 0.875rem; /* 14px */
+  --text-base-mobile: 1rem; /* 16px */
+  --text-lg-mobile: 1.125rem; /* 18px */
+  --text-xl-mobile: 1.25rem; /* 20px */
+
+  /* Motion */
+  --duration-fast: 150ms;
+  --duration-default: 200ms;
+  --ease-default: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --slide-sm: 8px;
+  --scale-active: 0.97;
+
+  /* Breakpoints */
+  --breakpoint-mobile: 768px; /* Mobile breakpoint (matches useIsMobile hook) */
+}
+
 /* custom variant for setting dark mode programmatically */
 @custom-variant dark (&:is(.dark, .dark *));
 
 /* include plugins */
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";
-
-/* XMTP Branding Design Tokens */
-/* Base palette: Near-black (#0B0B0D to #111316), off-white text (#F2F3F5), mid-gray surfaces (#1A1D20, #22262A) */
-/* Accent: Electric blue (#2E7BFF or #1F6BFF) */
-/* Success: Muted teal/green (#18C29C) */
-/* Warning: Amber (#FFB020) */
-/* Error: Desaturated red (#E45151) */
-
-/* define design tokens (dark mode - XMTP branding) */
-:root,
-.dark {
-  /* Base colors */
-  --background: #0b0b0d;
-  --foreground: #f2f3f5;
-
-  /* Card and surfaces */
-  --card: #1a1d20;
-  --card-foreground: #f2f3f5;
-  --popover: #1a1d20;
-  --popover-foreground: #f2f3f5;
-
-  /* Primary (accent blue) */
-  --primary: #2e7bff;
-  --primary-foreground: #f2f3f5;
-  --primary-hover: #3d8aff; /* ~5% lighten */
-
-  /* Secondary (mid-gray) */
-  --secondary: #22262a;
-  --secondary-foreground: #f2f3f5;
-  --secondary-hover: #2a2e33; /* ~5% lighten */
-
-  /* Muted */
-  --muted: #1a1d20;
-  --muted-foreground: #6a7179;
-
-  /* Accent */
-  --accent: #2e7bff;
-  --accent-foreground: #f2f3f5;
-
-  /* Destructive (error red) */
-  --destructive: #e45151;
-  --destructive-foreground: #f2f3f5;
-  --destructive-hover: #f06666; /* ~5% lighten */
-
-  /* Success */
-  --success: #18c29c;
-  --success-foreground: #f2f3f5;
-
-  /* Warning */
-  --warning: #ffb020;
-  --warning-foreground: #0b0b0d;
-
-  /* Borders and separators (hairline) */
-  --border: #2a2e33;
-  --input: #13161a;
-  --ring: #2e7bff;
-
-  /* Sidebar */
-  --sidebar-background: #111316;
-  --sidebar-foreground: #f2f3f5;
-  --sidebar-primary: #2e7bff;
-  --sidebar-primary-foreground: #f2f3f5;
-  --sidebar-accent: #22262a;
-  --sidebar-accent-foreground: #f2f3f5;
-  --sidebar-border: #2a2e33;
-  --sidebar-ring: #2e7bff;
-  --sidebar: #111316;
-
-  /* Chart colors */
-  --chart-1: #2e7bff;
-  --chart-2: #18c29c;
-  --chart-3: #ffb020;
-  --chart-4: #e45151;
-  --chart-5: #6a7179;
-
-  /* Border radius - minimal for hard-edged design */
-  --radius: 0.25rem;
-}
 
 /* define theme */
 @theme {
@@ -116,6 +130,9 @@
 
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+
+  --color-message-user: var(--message-user);
+  --color-message-user-foreground: var(--message-user-foreground);
 
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
@@ -158,44 +175,123 @@
   }
 }
 
+/* ========================================
+   UTILITIES & ANIMATIONS
+   ======================================== */
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in var(--duration-fast) var(--ease-default);
+  }
+  .animate-slide-up {
+    animation: slide-up var(--duration-fast) var(--ease-default);
+  }
+  .animate-slide-down {
+    animation: slide-down var(--duration-fast) var(--ease-default);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--slide-sm));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--slide-sm) * -1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @utility text-balance {
   text-wrap: balance;
 }
-
 @utility -webkit-overflow-scrolling-touch {
   -webkit-overflow-scrolling: touch;
 }
-
 @utility touch-pan-y {
   touch-action: pan-y;
 }
-
 @utility touch-manipulation {
   touch-action: manipulation;
 }
-
 @utility touch-pan-x {
   touch-action: pan-x;
 }
-
 @utility overscroll-behavior-contain {
   overscroll-behavior: contain;
 }
 
-@layer utilities {
-  :root {
-    --foreground-rgb: 0, 0, 0;
-    --background-start-rgb: 214, 219, 220;
-    --background-end-rgb: 255, 255, 255;
-  }
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+  transition: background var(--duration-default) var(--ease-default);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --foreground-rgb: 255, 255, 255;
-      --background-start-rgb: 0, 0, 0;
-      --background-end-rgb: 0, 0, 0;
-    }
-  }
+/* Skeleton */
+.skeleton {
+  pointer-events: none;
+}
+.skeleton * {
+  pointer-events: none !important;
+}
+.skeleton *[class^="text-"] {
+  color: transparent;
+  border-radius: var(--radius);
+  background-color: rgba(250, 250, 250, 0.2);
+  user-select: none;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.skeleton .skeleton-bg {
+  background-color: rgba(250, 250, 250, 0.1);
+}
+.skeleton .skeleton-div {
+  background-color: rgba(250, 250, 250, 0.2);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.tap-highlight-transparent {
+  -webkit-tap-highlight-color: transparent;
+}
+.smooth-scroll {
+  scroll-behavior: smooth;
 }
 
 @layer base {
@@ -240,25 +336,6 @@
   }
 }
 
-.skeleton {
-  * {
-    pointer-events: none !important;
-  }
-
-  *[class^="text-"] {
-    color: transparent;
-    @apply rounded-md bg-foreground/20 select-none animate-pulse;
-  }
-
-  .skeleton-bg {
-    @apply bg-foreground/10;
-  }
-
-  .skeleton-div {
-    @apply bg-foreground/20 animate-pulse;
-  }
-}
-
 .ProseMirror {
   outline: none;
 }
@@ -299,36 +376,6 @@
   @apply bg-blue-200 hover:bg-blue-300 dark:hover:bg-blue-400/50 dark:text-blue-50 dark:bg-blue-500/40;
 }
 
-/* minimal scrollbar styling - XMTP branding */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-  transition: background 0.15s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--muted-foreground);
-}
-
-::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-/* firefox scrollbar styling */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-
 @theme inline {
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -349,23 +396,24 @@
     @apply bg-background text-foreground;
   }
 
-  /* XMTP motion - crisp fades, 120-180ms */
+  /* Motion - crisp fades, 150-200ms */
   * {
-    transition-duration: 150ms;
+    transition-duration: 200ms;
     transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  /* Buttons - high contrast pills */
+  /* Buttons - sharp edges, consistent transitions */
   button {
     transition:
-      background-color 150ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      color 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      background-color 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      color 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   /* Focus rings - 2px accent ring, no shadow */
   *:focus-visible {
     outline: 2px solid var(--ring);
-    outline-offset: 2px;
+    outline-offset: 0;
     box-shadow: none;
   }
 }

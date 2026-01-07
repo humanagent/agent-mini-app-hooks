@@ -71,11 +71,11 @@ export function AgentSelector({
                     {agent.image ? (
                       <img
                         alt={agent.name}
-                        className="h-6 w-6 shrink-0 rounded-full object-cover"
+                        className="h-6 w-6 shrink-0 rounded object-cover"
                         src={agent.image}
                       />
                     ) : (
-                      <div className="h-6 w-6 shrink-0 rounded-full bg-muted" />
+                      <div className="h-6 w-6 shrink-0 rounded bg-muted" />
                     )}
                     <span className="flex-1 truncate text-left">
                       {agent.name}
