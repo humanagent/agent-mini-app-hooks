@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.25] - 2025-01-07
+
+### Added
+
+- Added floating mobile navigation button with glassmorphism styling (top-left corner)
+- Added swipe-left gesture support from anywhere on the view to open sidebar on mobile
+- Added instant sidebar animations (0ms duration) for immediate response
+
+### Changed
+
+- Optimized sidebar animation performance with GPU acceleration
+- Removed edge threshold restriction for swipe gestures (now works from anywhere)
+
 ## [0.1.24] - 2025-01-07
 
 ### Fixed
