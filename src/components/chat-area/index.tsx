@@ -2,12 +2,18 @@ import { motion } from "framer-motion";
 import type { Conversation } from "@xmtp/browser-sdk";
 
 export const ChatHeader = ({
-  conversation: _conversation,
+  conversation,
 }: {
   conversation: Conversation | null;
 }) => {
+  // Don't render empty header
+  if (!conversation) {
+    return null;
+  }
+
   return (
     <header className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-zinc-950 border-b border-zinc-800 px-3 py-2 md:px-4">
+      {/* Future: Add conversation info here */}
     </header>
   );
 };
