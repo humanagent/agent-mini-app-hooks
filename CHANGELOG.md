@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.19] - 2025-01-07
+
+### Changed
+
+- Changed user messages to blue bubbles with white text (ChatGPT-style)
+- Removed accent background from active sidebar items (now uses subtle grey)
+- Updated design system to use tokenized message bubble colors
+
+### Added
+
+- Added message bubble design tokens (`--message-user`, `--message-user-foreground`)
+- Updated design system guidelines to document message bubble and sidebar active state patterns
+
 ## [0.1.18] - 2025-01-07
 
 ### Added
