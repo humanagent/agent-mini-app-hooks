@@ -6,7 +6,12 @@ import {
   CommandItem,
   CommandList,
 } from "@ui/command";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@ui/dialog";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type AgentConfig } from "@/agent-registry/agents";
@@ -53,10 +58,12 @@ export function AgentSelector({
                       if (e.key === "Enter") {
                         e.preventDefault();
                         onSelectAgent(agent);
+                        onOpenChange(false);
                       }
                     }}
                     onSelect={() => {
                       onSelectAgent(agent);
+                      onOpenChange(false);
                     }}
                     className={cn(
                       "flex items-center gap-2",
@@ -66,11 +73,11 @@ export function AgentSelector({
                     {agent.image ? (
                       <img
                         alt={agent.name}
-                        className="h-6 w-6 shrink-0 rounded-full object-cover"
+                        className="h-6 w-6 shrink-0 rounded object-cover"
                         src={agent.image}
                       />
                     ) : (
-                      <div className="h-6 w-6 shrink-0 rounded-full bg-muted" />
+                      <div className="h-6 w-6 shrink-0 rounded bg-muted" />
                     )}
                     <span className="flex-1 truncate text-left">
                       {agent.name}

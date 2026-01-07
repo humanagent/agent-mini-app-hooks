@@ -21,6 +21,13 @@
     "strict": true,
     "target": "ESNext"
   },
-  "include": ["src", "lib", "agent-registry", "scripts", "vite.config.ts", "postcss.config.cjs"],
+  "include": [
+    "src",
+    "lib",
+    "agent-registry",
+    "scripts",
+    "vite.config.ts",
+    "postcss.config.cjs"
+  ],
   "exclude": ["dist", "node_modules"]
 }

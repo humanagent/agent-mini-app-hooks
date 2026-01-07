@@ -1,9 +1,27 @@
 import type { Client } from "@xmtp/browser-sdk";
-import { createContext, useContext, type ReactNode } from "react";
-import { useXMTPConversations } from "@hooks/use-xmtp-conversations";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { useXMTPConversations } from "@/src/components/sidebar/use-xmtp-conversations";
 import type { ContentTypes } from "@/lib/xmtp/client";
+import type { AgentConfig } from "@/agent-registry/agents";
 
-type ConversationsContextType = ReturnType<typeof useXMTPConversations>;
+type PendingConversationStatus = "creating" | "sending";
+
+type ConversationsContextType = ReturnType<typeof useXMTPConversations> & {
+  pendingConversation: {
+    agentAddresses: string[];
+    agentConfigs: AgentConfig[];
+    autoMessage?: string;
+    status?: PendingConversationStatus;
+  } | null;
+  setPendingConversation: (
+    pending: {
+      agentAddresses: string[];
+      agentConfigs: AgentConfig[];
+      autoMessage?: string;
+      status?: PendingConversationStatus;
+    } | null,
+  ) => void;
+};
 
 const ConversationsContext = createContext<ConversationsContextType | null>(
   null,
@@ -16,9 +34,34 @@ export function ConversationsProvider({
   client: Client<ContentTypes> | null;
   children: ReactNode;
 }) {
-  console.log("[XMTP] ConversationsProvider - client:", client ? "exists" : "null");
-  const value = useXMTPConversations(client);
-  console.log("[XMTP] ConversationsProvider - conversations:", value.conversations.length, "isLoading:", value.isLoading, "error:", value.error?.message);
+  console.log(
+    "[XMTP] ConversationsProvider - client:",
+    client ? "exists" : "null",
+  );
+  const conversationsData = useXMTPConversations(client);
+  const [pendingConversation, setPendingConversation] = useState<{
+    agentAddresses: string[];
+    agentConfigs: AgentConfig[];
+    autoMessage?: string;
+    status?: PendingConversationStatus;
+  } | null>(null);
+
+  const value: ConversationsContextType = {
+    ...conversationsData,
+    pendingConversation,
+    setPendingConversation,
+  };
+
+  console.log(
+    "[XMTP] ConversationsProvider - conversations:",
+    value.conversations.length,
+    "isLoading:",
+    value.isLoading,
+    "error:",
+    value.error?.message,
+    "pendingConversation:",
+    pendingConversation ? pendingConversation.agentAddresses.length : null,
+  );
   return (
     <ConversationsContext.Provider value={value}>
       {children}

@@ -54,24 +54,24 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               key={toast.id}
               animate={{ opacity: 1, y: 0 }}
               className={cn(
-                "mb-2 flex items-center gap-3 rounded-md border px-4 py-3 text-sm shadow-lg bg-card text-foreground",
+                "mb-2 flex items-center gap-2 rounded border px-3 py-2 text-xs shadow-lg bg-zinc-950 text-foreground",
                 {
                   "border-destructive": toast.type === "error",
                   "border-success": toast.type === "success",
                   "border-warning": toast.type === "warning",
                 },
               )}
-              exit={{ opacity: 0, y: 10 }}
-              initial={{ opacity: 0, y: 10 }}
+              exit={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 8 }}
               transition={{ duration: 0.15 }}
             >
               <p className="flex-1">{toast.message}</p>
               <button
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground transition-colors duration-200 active:scale-[0.97]"
                 onClick={() => removeToast(toast.id)}
                 type="button"
               >
-                <XIcon size={16} />
+                <XIcon size={14} />
               </button>
             </motion.div>
           ))}

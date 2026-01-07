@@ -30,11 +30,15 @@ export async function createXMTPClient(
   }
 
   if (isCreatingClient) {
-    throw new Error("XMTP client creation already in progress. Only one client can be created at a time due to OPFS limitations.");
+    throw new Error(
+      "XMTP client creation already in progress. Only one client can be created at a time due to OPFS limitations.",
+    );
   }
 
   isCreatingClient = true;
-  console.log("[XMTP] [createXMTPClient] Starting client creation (isCreatingClient set to true)");
+  console.log(
+    "[XMTP] [createXMTPClient] Starting client creation (isCreatingClient set to true)",
+  );
 
   try {
     const signer = createEphemeralSigner(privateKey);
@@ -50,15 +54,25 @@ export async function createXMTPClient(
 
     console.log("[XMTP] Creating client...");
     const identifier = signer.getIdentifier();
-    const identifierValue = identifier instanceof Promise ? await identifier : identifier;
+    const identifierValue =
+      identifier instanceof Promise ? await identifier : identifier;
     console.log("[XMTP] Signer address:", identifierValue.identifier);
     console.log("[XMTP] Environment: production");
     console.log("[XMTP] Codecs count:", codecs.length);
-    console.log("[XMTP] Codec types:", codecs.map((c) => c.constructor.name));
+    console.log(
+      "[XMTP] Codec types:",
+      codecs.map((c) => c.constructor.name),
+    );
 
     console.log("[XMTP] Starting Client.create() call...");
-    console.log("[XMTP] Browser environment check:", typeof window !== "undefined");
-    console.log("[XMTP] IndexedDB available:", typeof indexedDB !== "undefined");
+    console.log(
+      "[XMTP] Browser environment check:",
+      typeof window !== "undefined",
+    );
+    console.log(
+      "[XMTP] IndexedDB available:",
+      typeof indexedDB !== "undefined",
+    );
 
     const startTime = Date.now();
     console.log("[XMTP] Calling Client.create()...");
@@ -94,7 +108,10 @@ export async function createXMTPClient(
       }
     }
     try {
-      console.error("[XMTP] Full error object:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      console.error(
+        "[XMTP] Full error object:",
+        JSON.stringify(error, Object.getOwnPropertyNames(error)),
+      );
     } catch {
       console.error("[XMTP] Could not stringify error object");
     }

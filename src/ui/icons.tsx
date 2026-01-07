@@ -395,6 +395,27 @@ export const MenuIcon = ({
   </svg>
 );
 
+export const MetadataIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM8 1.5C11.5899 1.5 14.5 4.41015 14.5 8C14.5 11.5899 11.5899 14.5 8 14.5C4.41015 14.5 1.5 11.5899 1.5 8C1.5 4.41015 4.41015 1.5 8 1.5ZM8 4.5C7.58579 4.5 7.25 4.83579 7.25 5.25V8.75C7.25 9.16421 7.58579 9.5 8 9.5C8.41421 9.5 8.75 9.16421 8.75 8.75V5.25C8.75 4.83579 8.41421 4.5 8 4.5ZM8 11C8.55228 11 9 10.5523 9 10C9 9.44772 8.55228 9 8 9C7.44772 9 7 9.44772 7 10C7 10.5523 7.44772 11 8 11Z"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
+
 export const ChevronDownIcon = ({
   size = 16,
   ...props
@@ -410,6 +431,91 @@ export const ChevronDownIcon = ({
     <path
       clipRule="evenodd"
       d="M4.29289 5.29289C4.68342 4.90237 5.31658 4.90237 5.70711 5.29289L8 2.99999L10.2929 5.29289C10.6834 5.68342 11.3166 5.68342 11.7071 5.29289C12.0976 4.90237 12.0976 4.2692 11.7071 3.87868L8.70711 0.87868C8.31658 0.488155 7.68342 0.488155 7.29289 0.87868L4.29289 3.87868C3.90237 4.2692 3.90237 4.90237 4.29289 5.29289Z"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
+
+export const ChevronUpIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M7.29289 4.29289C7.68342 3.90237 8.31658 3.90237 8.70711 4.29289L13.7071 9.29289C14.0976 9.68342 14.0976 10.3166 13.7071 10.7071C13.3166 11.0976 12.6834 11.0976 12.2929 10.7071L8 6.41421L3.70711 10.7071C3.31658 11.0976 2.68342 11.0976 2.29289 10.7071C1.90237 10.3166 1.90237 9.68342 2.29289 9.29289L7.29289 4.29289Z"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
+
+export const BaseIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM11.5 5.5C11.7761 5.5 12 5.72386 12 6V10C12 10.2761 11.7761 10.5 11.5 10.5H4.5C4.22386 10.5 4 10.2761 4 10V6C4 5.72386 4.22386 5.5 4.5 5.5H11.5ZM10.5 7H5.5V9.5H10.5V7Z"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
+
+export const WorldIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM8 1.5C11.5899 1.5 14.5 4.41015 14.5 8C14.5 11.5899 11.5899 14.5 8 14.5C4.41015 14.5 1.5 11.5899 1.5 8C1.5 4.41015 4.41015 1.5 8 1.5ZM2.5 6.5H13.5M2.5 9.5H13.5M8 1.5V14.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+  </svg>
+);
+
+export const SearchIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M6.5 1C3.46243 1 1 3.46243 1 6.5C1 9.53757 3.46243 12 6.5 12C7.83879 12 9.06586 11.5217 10.0227 10.7305L13.6464 14.3536L14.3536 13.6464L10.7305 10.0227C11.5217 9.06586 12 7.83879 12 6.5C12 3.46243 9.53757 1 6.5 1ZM2.5 6.5C2.5 4.29086 4.29086 2.5 6.5 2.5C8.70914 2.5 10.5 4.29086 10.5 6.5C10.5 8.70914 8.70914 10.5 6.5 10.5C4.29086 10.5 2.5 8.70914 2.5 6.5Z"
       fill="currentColor"
       fillRule="evenodd"
     />

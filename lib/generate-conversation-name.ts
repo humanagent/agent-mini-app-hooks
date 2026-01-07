@@ -9,7 +9,7 @@ export async function generateConversationMetadata(
   firstMessage: string,
   agentAddresses: string[],
 ): Promise<ConversationMetadata> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
   if (!apiKey) {
     console.log(
       "[generateConversationMetadata] VITE_OPENAI_API_KEY not set, using fallback",

@@ -24,7 +24,10 @@ export const createEphemeralSigner = (privateKey: Hex): Signer => {
         message,
       });
       const signatureBytes = toBytes(signature);
-      console.log("[XMTP] Message signed, signature length:", signatureBytes.length);
+      console.log(
+        "[XMTP] Message signed, signature length:",
+        signatureBytes.length,
+      );
       return signatureBytes;
     },
   };
@@ -84,7 +87,7 @@ export function getOrCreateEphemeralAccountKey(): PrivateKey {
 
   const STORAGE_KEY = "xmtp-ephemeral-account-key";
   const stored = localStorage.getItem(STORAGE_KEY);
-  
+
   if (stored) {
     console.log("[XMTP] Using stored ephemeral account key");
     accountKeyCache = stored as PrivateKey;
