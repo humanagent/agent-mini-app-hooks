@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.1.17] - 2025-01-07
+
+### Changed
+
+- Consolidated design system into `src/index.css` (removed separate `src/design/` folder)
+- Simplified design rule documentation to concise cursor rule
+- Updated accent color from lime green to orange-red (#CF1C0F)
+- Applied consistent styling across all UI components (minimal radius, compact spacing)
+- Updated all button heights to h-7/h-8 for dense UI
+- Standardized text sizes to text-xs (14px) base
+- Updated all transitions to 200ms with consistent easing
+- Applied dark text on accent backgrounds for accessibility
+
+### Fixed
+
+- Fixed CSS import order issues for Tailwind compatibility
+- Removed @apply directives for Tailwind v4 compatibility
+- **CRITICAL:** Removed circular CSS variable references that prevented accent color from displaying
+- Increased base typography scale for better readability (12px → 14px base)
+- Fixed empty chat header showing when no conversation selected
+- Added left padding to sidebar content for better spacing
+
 ## [0.1.16] - 2025-01-07
 
 ### Added
