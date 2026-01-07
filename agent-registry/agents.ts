@@ -174,24 +174,9 @@ export const AI_AGENTS: AgentConfig[] = [
     ],
   },
   {
-    name: "echo",
-    address: "0x194c31cae1418d5256e8c58e0d08aee1046c6ed0",
-    networks: ["dev"],
-    live: false,
-    category: "Games",
-    suggestions: [
-      "@echo Help me test my code",
-      "@echo Review my implementation",
-      "@echo Debug an issue",
-    ],
-    domain: "hi.xmtp.eth",
-    image:
-      "https://ipfs.io/ipfs/QmaSZuaXfNUwhF7khaRxCwbhohBhRosVX1ZcGzmtcWnqav",
-  },
-  {
     name: "gm",
     address: "0x194c31cae1418d5256e8c58e0d08aee1046c6ed0",
-    networks: ["dev", "production"],
+    networks: ["production"],
     live: true,
     category: "Business",
     suggestions: [
@@ -206,8 +191,8 @@ export const AI_AGENTS: AgentConfig[] = [
   {
     name: "key-check",
     address: "0x235017975ed5F55e23a71979697Cd67DcAE614Fa",
-    networks: ["dev", "production"],
-    live: false,
+    networks: ["production"],
+    live: true,
     category: "Business",
     suggestions: [
       "@key-check Check my API keys",
@@ -221,7 +206,7 @@ export const AI_AGENTS: AgentConfig[] = [
     name: "xmtp-docs",
     address: "0x212906fdbdb70771461e6cb3376a740132e56b14",
     networks: ["production"],
-    live: false,
+    live: true,
     category: "Finance",
     suggestions: [
       "@xmtp-docs How do I send a message?",

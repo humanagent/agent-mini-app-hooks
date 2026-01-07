@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.14] - 2025-01-06
+
+### Changed
+
+- Removed echo agent from registry
+- Updated gm agent to production network only
+- Enabled key-check and xmtp-docs agents (set live to true)
+
 ## [0.1.13] - 2025-01-06
 
 ### Changed
