@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.1.20] - 2025-01-07
+
+### Added
+
+- Added message timestamps with "time ago" format (just now, 5m ago, 2h ago, etc.)
+- Added animated typing dots (3 bouncing dots) to thinking indicator
+- Added unread indicator dot to conversation items in sidebar
+- Added last message preview (40 chars) below conversation names
+- Added animated waving hand emoji to greeting message
+- Added live/online pulse indicator badge on agent cards
+- Added copy address button to user nav dropdown with visual feedback
+- Added gradient avatar generation based on user address
+- Added search/filter input on explore page for agent discovery
+- Added agent count badges to category tabs
+- Added keyboard shortcut (⌘K / Ctrl+K) to open agent selector with tooltip hint
+- Added subtle hover glow effect to send button
+
+### Changed
+
+- Improved message list with timestamp display below each message
+- Enhanced conversation items with last message preview for better context
+- Improved thinking indicator with animated dots instead of spinner
+- Enhanced agent cards with live status indicators
+- Improved user navigation with gradient avatars and copy functionality
+- Enhanced explore page with search and category filtering
+
 ## [0.1.19] - 2025-01-07
 
 ### Changed
