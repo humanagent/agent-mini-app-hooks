@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.18] - 2025-01-07
+
+### Added
+
+- Added mobile-specific design tokens for responsive typography and spacing
+- Added mobile breakpoint variable (768px) matching useIsMobile hook
+- Added comprehensive mobile/responsive documentation to design rules
+
 ## [0.1.17] - 2025-01-07
 
 ### Changed

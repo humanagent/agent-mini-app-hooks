@@ -54,18 +54,30 @@
   --chart-4: #F48771;
   --chart-5: #a1a1aa;
 
-  /* Spacing */
+  /* Spacing - Desktop */
   --radius: 0.125rem;
-  --button-height-sm: 1.75rem;
-  --button-height-default: 2rem;
-  --input-height: 1.75rem;
+  --button-height-sm: 1.75rem;      /* 28px */
+  --button-height-default: 2rem;    /* 32px */
+  --input-height: 1.75rem;          /* 28px */
 
-  /* Typography */
-  --text-xs: 0.875rem;
-  --text-sm: 1rem;
-  --text-base: 1.125rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.5rem;
+  /* Spacing - Mobile (larger for touch targets) */
+  --button-height-sm-mobile: 2rem;      /* 32px - larger for touch */
+  --button-height-default-mobile: 2.5rem; /* 40px - larger for touch */
+  --input-height-mobile: 2rem;          /* 32px - larger for touch */
+
+  /* Typography - Desktop (default) */
+  --text-xs: 0.875rem;      /* 14px */
+  --text-sm: 1rem;          /* 16px */
+  --text-base: 1.125rem;    /* 18px */
+  --text-lg: 1.25rem;       /* 20px */
+  --text-xl: 1.5rem;        /* 24px */
+
+  /* Typography - Mobile (smaller for dense mobile UI) */
+  --text-xs-mobile: 0.75rem;    /* 12px */
+  --text-sm-mobile: 0.875rem;   /* 14px */
+  --text-base-mobile: 1rem;     /* 16px */
+  --text-lg-mobile: 1.125rem;   /* 18px */
+  --text-xl-mobile: 1.25rem;    /* 20px */
 
   /* Motion */
   --duration-fast: 150ms;
@@ -73,6 +85,9 @@
   --ease-default: cubic-bezier(0.2, 0.8, 0.2, 1);
   --slide-sm: 8px;
   --scale-active: 0.97;
+
+  /* Breakpoints */
+  --breakpoint-mobile: 768px;      /* Mobile breakpoint (matches useIsMobile hook) */
 }
 
 /* custom variant for setting dark mode programmatically */

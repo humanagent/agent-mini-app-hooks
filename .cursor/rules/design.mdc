@@ -24,13 +24,14 @@ alwaysApply: true
 - Borders: `#27272a` (zinc-800) - use `border-zinc-800` hardcoded
 
 **Typography:**
-- Base: `text-xs` (14px)
-- Headings: `text-sm` (16px)
-- Scale: xs(14px) → sm(16px) → base(18px) → lg(20px) → xl(24px)
+- Base: `text-xs` (14px desktop, 12px mobile)
+- Headings: `text-sm` (16px desktop, 14px mobile)
+- Desktop scale: xs(14px) → sm(16px) → base(18px) → lg(20px) → xl(24px)
+- Mobile scale: xs(12px) → sm(14px) → base(16px) → lg(18px) → xl(20px)
 
 **Spacing:**
-- Buttons: `h-7` (28px) or `h-8` (32px)
-- Inputs: `h-7` (28px)
+- Buttons: `h-7` (28px) or `h-8` (32px) desktop, `h-10` (40px) mobile for touch
+- Inputs: `h-7` (28px) desktop, `h-8` (32px) mobile
 - Radius: `rounded` (2px) - minimal everywhere
 
 **Motion:**
@@ -63,6 +64,67 @@ className={selected ? 'bg-accent text-accent-foreground' : 'hover:bg-zinc-800'}
 - Zinc surfaces: `hover:bg-zinc-800`
 - Accent buttons: `hover:bg-accent/90`
 - Always: `transition-colors duration-200`
+
+## Responsive & Mobile
+
+**Breakpoint:** 768px (matches `useIsMobile` hook in `src/hooks/use-mobile.ts`)
+
+**Mobile-First Approach:**
+- Default styles are mobile-optimized
+- Use `md:` prefix for desktop styles
+- Mobile tokens available for programmatic use
+
+**Touch Targets:**
+- Minimum: 40px (2.5rem) for interactive elements
+- Recommended: 44px for better accessibility
+- Buttons: Use `h-10 md:h-8` (40px mobile, 32px desktop)
+
+**Responsive Typography:**
+```tsx
+// Mobile-first responsive text
+className="text-xs md:text-sm"  // 12px mobile, 14px desktop
+
+// Using tokens (optional)
+style={{ fontSize: 'var(--text-xs-mobile)' }}  // 12px
+// Desktop: var(--text-xs) = 14px
+```
+
+**Responsive Spacing:**
+```tsx
+// Touch-friendly buttons (larger on mobile)
+className="h-10 md:h-8"  // 40px mobile, 32px desktop
+
+// Responsive padding
+className="px-3 py-2 md:px-4 md:py-3"
+```
+
+**Mobile Tokens (in `src/index.css`):**
+- Typography: `--text-xs-mobile` (12px) through `--text-xl-mobile` (20px)
+- Spacing: `--button-height-sm-mobile` (32px), `--button-height-default-mobile` (40px)
+- Breakpoint: `--breakpoint-mobile: 768px`
+
+**Touch Utilities:**
+- `touch-manipulation` - Prevents double-tap zoom on buttons
+- `touch-pan-y` - Enables vertical scrolling only
+- `-webkit-overflow-scrolling-touch` - Smooth iOS scrolling
+- `tap-highlight-transparent` - Removes tap highlight
+
+**Mobile Patterns:**
+```tsx
+// Sidebar becomes drawer on mobile
+<Sidebar /> // Automatically uses Sheet component on mobile
+
+// Responsive message widths
+className="max-w-[85%] sm:max-w-[80%] md:max-w-[70%]"
+
+// Mobile grid layouts
+className="grid grid-cols-1 md:grid-cols-2"
+```
+
+**Swipe Gestures:**
+- Sidebar opens on swipe from left edge (20px threshold)
+- Implemented via `useSwipeGesture` hook
+- Mobile-only behavior
 
 ## Critical Rules
 
