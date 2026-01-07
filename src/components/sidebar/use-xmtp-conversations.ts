@@ -107,6 +107,7 @@ export function useXMTPConversations(client: Client<ContentTypes> | null) {
               return;
             }
 
+            // Add conversation to list and re-filter to ensure blocked ones are removed
             setConversations((prev: Conversation[]) => {
               const dedupedMap = new Map<string, Conversation>(
                 prev.map((c) => [c.id, c]),
@@ -114,7 +115,19 @@ export function useXMTPConversations(client: Client<ContentTypes> | null) {
 
               dedupedMap.set(conversation.id, conversation);
 
-              return Array.from(dedupedMap.values());
+              const updatedList = Array.from(dedupedMap.values());
+              
+              // Re-filter all conversations asynchronously to remove blocked ones
+              void filterAllowedConversations(updatedList, client).then(
+                (filtered) => {
+                  if (mounted) {
+                    setConversations(filtered);
+                  }
+                },
+              );
+
+              // Return updated list immediately (filtering happens async)
+              return updatedList;
             });
           },
         });
