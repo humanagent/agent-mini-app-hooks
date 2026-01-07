@@ -19,6 +19,8 @@ interface ConversationItemProps {
   isActive: boolean;
   onClick: () => void;
   onDelete: (event: React.MouseEvent) => void;
+  lastMessagePreview?: string;
+  hasUnread?: boolean;
 }
 
 export function ConversationItem({
@@ -26,6 +28,8 @@ export function ConversationItem({
   isActive,
   onClick,
   onDelete,
+  lastMessagePreview,
+  hasUnread = false,
 }: ConversationItemProps) {
   const isGroup = conversation instanceof Group;
   const groupName = isGroup ? conversation.name : null;
@@ -83,6 +87,7 @@ export function ConversationItem({
             ${isPressed ? "scale-[0.97] bg-zinc-800" : ""}
             active:scale-[0.97] active:bg-zinc-800
             transition-all duration-200
+            h-auto py-2
           `}
           onClick={onClick}
           onTouchStart={handleTouchStart}
@@ -90,18 +95,30 @@ export function ConversationItem({
           onTouchCancel={handleTouchCancel}
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={displayText}
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 4 }}
-              transition={{ duration: 0.15 }}
-              className={`truncate text-xs group-data-[collapsible=icon]:hidden ${isNamed ? "font-medium" : "font-mono"}`}
-            >
-              {displayText}
-            </motion.span>
-          </AnimatePresence>
+          <div className="flex flex-col items-start gap-0.5 min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+            <div className="flex items-center gap-1.5 w-full">
+              {hasUnread && (
+                <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
+              )}
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={displayText}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.15 }}
+                  className={`truncate text-xs ${isNamed ? "font-medium" : "font-mono"} ${hasUnread ? "text-foreground" : ""}`}
+                >
+                  {displayText}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+            {lastMessagePreview && (
+              <span className="truncate text-[10px] text-muted-foreground/70 w-full">
+                {lastMessagePreview}
+              </span>
+            )}
+          </div>
         </SidebarMenuButton>
         <Button
           type="button"

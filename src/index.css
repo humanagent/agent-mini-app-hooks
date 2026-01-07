@@ -23,6 +23,8 @@
   --warning-foreground: #000000;
   --destructive: #f48771;
   --destructive-foreground: #fafafa;
+  --message-user: #3b82f6; /* blue-500 - ChatGPT-style user messages */
+  --message-user-foreground: #ffffff;
   --border: #27272a;
   --input-bg: #09090b;
   --ring: #cf1c0f;
@@ -128,6 +130,9 @@
 
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+
+  --color-message-user: var(--message-user);
+  --color-message-user-foreground: var(--message-user-foreground);
 
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);

@@ -21,6 +21,7 @@ alwaysApply: true
 - Surfaces: `#09090b` (zinc-950), `#27272a` (zinc-800)
 - Text: `#fafafa` (primary), `#a1a1aa` (muted)
 - Accent: `#CF1C0F` (orange-red) - **CHANGE THIS** to update brand color
+- Message bubbles: `#3b82f6` (blue-500) with white text for user messages (ChatGPT-style)
 - Borders: `#27272a` (zinc-800) - use `border-zinc-800` hardcoded
 
 **Typography:**
@@ -57,7 +58,20 @@ alwaysApply: true
 
 **Selected State:**
 ```tsx
+// Sidebar active items - subtle grey, not accent
+className={selected ? 'bg-zinc-800 text-foreground' : 'hover:bg-zinc-800'}
+
+// Other selected states (if accent needed)
 className={selected ? 'bg-accent text-accent-foreground' : 'hover:bg-zinc-800'}
+```
+
+**Message Bubbles:**
+```tsx
+// User messages - blue bubble with white text (ChatGPT-style)
+className="bg-[var(--message-user)] text-[var(--message-user-foreground)]"
+
+// Assistant messages - no background, foreground text
+className="text-foreground"
 ```
 
 **Hover States:**
@@ -131,12 +145,15 @@ className="grid grid-cols-1 md:grid-cols-2"
 1. **Hardcoded colors**: Use `bg-black`, `bg-zinc-950`, `border-zinc-800` (not CSS vars)
 2. **Text on accent**: Always `text-accent-foreground` (#000000) on accent backgrounds
 3. **Text on zinc**: Always `text-foreground` or `text-muted-foreground` (light) on zinc
-4. **No rounded-full**: Use `rounded` (2px) everywhere
-5. **Consistent transitions**: `duration-200` with `cubic-bezier(0.2, 0.8, 0.2, 1)`
+4. **Sidebar active state**: Use `bg-zinc-800 text-foreground` (subtle grey), NOT accent color
+5. **User messages**: Use `bg-[var(--message-user)] text-[var(--message-user-foreground)]` (blue bubble, white text)
+6. **No rounded-full**: Use `rounded` (2px) everywhere
+7. **Consistent transitions**: `duration-200` with `cubic-bezier(0.2, 0.8, 0.2, 1)`
 
 ## Quick Changes
 
 **Change accent color:** Edit `--accent: #CF1C0F;` in `src/index.css` (line ~20)
+**Change message bubble color:** Edit `--message-user: #3b82f6;` in `src/index.css` (line ~26)
 **Change font sizes:** Edit `--text-xs`, `--text-sm` etc. in `src/index.css`
 **Change spacing:** Edit `--button-height-*` in `src/index.css`
 

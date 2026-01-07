@@ -19,7 +19,7 @@ import { Group, Dm, ConsentState, ConsentEntityType } from "@xmtp/browser-sdk";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { getGroupConsentState } from "@/lib/xmtp/consent";
-import { sortConversationsByLastMessage } from "@/src/components/sidebar/utils";
+import { sortConversationsByLastMessage, type ConversationWithMeta } from "@/src/components/sidebar/utils";
 import { cn } from "@/lib/utils";
 
 const SidebarLogo = ({ className }: { className?: string }) => (
@@ -46,7 +46,7 @@ export function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sortedConversations, setSortedConversations] = useState<
-    Conversation[]
+    ConversationWithMeta[]
   >([]);
 
   useEffect(() => {
@@ -176,11 +176,12 @@ export function Sidebar() {
               Your conversations will appear here once you start chatting!
             </div>
           ) : (
-            sortedConversations.map((conversation) => (
+            sortedConversations.map(({ conversation, lastMessagePreview }) => (
               <ConversationItem
                 key={conversation.id}
                 conversation={conversation}
                 isActive={selectedConversation?.id === conversation.id}
+                lastMessagePreview={lastMessagePreview}
                 onClick={() => {
                   handleConversationClick(conversation);
                 }}

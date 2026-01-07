@@ -2,6 +2,18 @@ import type { AgentConfig } from "@/agent-registry/agents";
 import { ArrowUpIcon, BaseIcon, WorldIcon } from "@ui/icons";
 import { motion } from "framer-motion";
 
+function LiveIndicator() {
+  return (
+    <div className="relative flex items-center gap-1">
+      <span className="relative flex h-2 w-2">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+      </span>
+      <span className="text-[9px] font-medium text-green-500 uppercase tracking-wide">Live</span>
+    </div>
+  );
+}
+
 type AgentCardProps = {
   agent: AgentConfig;
   onClick: () => void;
@@ -37,20 +49,25 @@ export function AgentCard({
       >
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            {agent.image ? (
-              <img
-                alt={agent.name}
-                className="size-12 rounded object-cover"
-                src={agent.image}
-              />
-            ) : (
-              <div className="flex size-12 items-center justify-center rounded bg-muted text-lg font-semibold text-foreground">
-                {agent.name.charAt(0).toUpperCase()}
+            <div className="relative">
+              {agent.image ? (
+                <img
+                  alt={agent.name}
+                  className="size-12 rounded object-cover"
+                  src={agent.image}
+                />
+              ) : (
+                <div className="flex size-12 items-center justify-center rounded bg-muted text-lg font-semibold text-foreground">
+                  {agent.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-xs">{agent.name}</h3>
+                {agent.live && <LiveIndicator />}
               </div>
-            )}
-            <div className="flex-1">
-              <h3 className="font-semibold text-xs">{agent.name}</h3>
-              <p className="text-[10px] text-muted-foreground">{description}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{description}</p>
             </div>
             <div className="flex items-center gap-1">
               <button
@@ -93,7 +110,10 @@ export function AgentCard({
         </div>
       )}
       <div className="min-w-0 flex-1">
-        <h3 className="truncate font-semibold text-xs">{agent.name}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="truncate font-semibold text-xs">{agent.name}</h3>
+          {agent.live && <LiveIndicator />}
+        </div>
         <p className="truncate text-[10px] text-muted-foreground">
           {description}
         </p>

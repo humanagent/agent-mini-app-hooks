@@ -18,12 +18,24 @@ export const Greeting = ({ onOpenAgents }: { onOpenAgents?: () => void }) => {
     >
       <motion.div
         animate={{ opacity: 1, y: 0 }}
-        className="font-semibold text-lg"
+        className="font-semibold text-lg flex items-center gap-2"
         exit={{ opacity: 0, y: 8 }}
         initial={{ opacity: 0, y: 8 }}
         transition={{ delay: 0.1, duration: 0.15 }}
       >
-        Hello there
+        <span>Hello there</span>
+        <motion.span
+          animate={{ rotate: [0, 14, -8, 14, -4, 10, 0] }}
+          transition={{
+            duration: 1.5,
+            delay: 0.3,
+            repeat: 2,
+            repeatDelay: 3,
+          }}
+          style={{ display: "inline-block", transformOrigin: "70% 70%" }}
+        >
+          👋
+        </motion.span>
       </motion.div>
       <motion.div
         animate={{ opacity: 1, y: 0 }}

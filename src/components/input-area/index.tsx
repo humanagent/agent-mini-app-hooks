@@ -388,6 +388,18 @@ export function InputArea({
   const lastEnterPressRef = useRef<number>(0);
   const isGroup = conversation instanceof Group;
 
+  // Keyboard shortcut: CMD/CTRL + K to open agent selector
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setOpenDialog(true);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [setOpenDialog]);
+
   // Determine context mode:
   // Chat Area Mode: selectedAgents provided AND conversation is null/undefined (conversation not started)
   // Message List Mode: conversation provided AND selectedAgents not provided (conversation ongoing)
@@ -691,16 +703,29 @@ export function InputArea({
                     onSelectAgent={handleAgentSelect}
                     title="Add Agent"
                   />
-                  <Button
-                    className="h-7 w-7 p-0 shrink-0"
-                    type="button"
-                    variant="ghost"
-                    onClick={() => {
-                      setOpenDialog(true);
-                    }}
-                  >
-                    <PlusIcon size={14} />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        className="h-7 w-7 p-0 shrink-0"
+                        type="button"
+                        variant="ghost"
+                        onClick={() => {
+                          setOpenDialog(true);
+                        }}
+                      >
+                        <PlusIcon size={14} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="top"
+                      className="flex items-center gap-1.5"
+                    >
+                      <span>Add agent</span>
+                      <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border border-zinc-700 bg-zinc-800 px-1.5 font-mono text-[10px] font-medium inline-flex">
+                        <span className="text-xs">⌘</span>K
+                      </kbd>
+                    </TooltipContent>
+                  </Tooltip>
                 </>
               ) : (
                 <Button
@@ -854,7 +879,7 @@ export function InputArea({
                 </>
               )}
               <PromptInputSubmit
-                className={`rounded bg-accent text-accent-foreground transition-all duration-200 hover:bg-accent/90 active:scale-[0.97] disabled:bg-muted disabled:text-muted-foreground ${isMultiAgentMode ? "size-7" : "size-8"}`}
+                className={`rounded bg-accent text-accent-foreground transition-all duration-200 hover:bg-accent/90 hover:shadow-[0_0_12px_rgba(207,28,15,0.4)] active:scale-[0.97] disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none ${isMultiAgentMode ? "size-7" : "size-8"}`}
                 disabled={
                   !input.trim() ||
                   (isMultiAgentMode && currentSelectedAgents.length === 0)
