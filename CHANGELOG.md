@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.24] - 2025-01-07
+
+### Fixed
+
+- Fixed conversation filtering to ensure blocked conversations are removed properly
+
 ## [0.1.23] - 2025-01-07
 
 ### Changed
