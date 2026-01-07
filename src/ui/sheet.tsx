@@ -25,45 +25,39 @@ const SheetOverlay = React.forwardRef<
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   }, []);
 
-  const handleTouchEnd = React.useCallback(
-    (e: React.TouchEvent) => {
-      if (!touchStartRef.current) return;
+  const handleTouchEnd = React.useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
 
-      const touch = e.changedTouches[0];
-      const deltaX = touch.clientX - touchStartRef.current.x;
-      const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
-      const absDeltaX = Math.abs(deltaX);
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const absDeltaX = Math.abs(deltaX);
 
-      // Swipe right to close (for left sidebars) or swipe left (for right sidebars)
-      if (absDeltaX > 50 && deltaY < 100) {
-        const overlay = e.currentTarget as HTMLElement;
-        const sheetContent = overlay.parentElement?.querySelector(
-          '[role="dialog"]',
-        ) as HTMLElement | null;
+    // Swipe right to close (for left sidebars) or swipe left (for right sidebars)
+    if (absDeltaX > 50 && deltaY < 100) {
+      const overlay = e.currentTarget as HTMLElement;
+      const sheetContent = overlay.parentElement?.querySelector(
+        '[role="dialog"]',
+      ) as HTMLElement | null;
 
-        if (sheetContent) {
-          // Check which side the sheet is on
-          const isLeftSide = sheetContent.classList.contains("left-0");
-          const isRightSide = sheetContent.classList.contains("right-0");
+      if (sheetContent) {
+        // Check which side the sheet is on
+        const isLeftSide = sheetContent.classList.contains("left-0");
+        const isRightSide = sheetContent.classList.contains("right-0");
 
-          if (
-            (isLeftSide && deltaX > 0) ||
-            (isRightSide && deltaX < 0)
-          ) {
-            // Close the sheet by clicking the overlay
-            const clickEvent = new MouseEvent("click", {
-              bubbles: true,
-              cancelable: true,
-            });
-            overlay.dispatchEvent(clickEvent);
-          }
+        if ((isLeftSide && deltaX > 0) || (isRightSide && deltaX < 0)) {
+          // Close the sheet by clicking the overlay
+          const clickEvent = new MouseEvent("click", {
+            bubbles: true,
+            cancelable: true,
+          });
+          overlay.dispatchEvent(clickEvent);
         }
       }
+    }
 
-      touchStartRef.current = null;
-    },
-    [],
-  );
+    touchStartRef.current = null;
+  }, []);
 
   return (
     <DialogPrimitive.Overlay
@@ -115,23 +109,26 @@ const SheetContent = React.forwardRef<
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   }, []);
 
-  const handleTouchMove = React.useCallback((e: React.TouchEvent) => {
-    if (!touchStartRef.current) return;
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - touchStartRef.current.x;
-    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
-    const absDeltaX = Math.abs(deltaX);
+  const handleTouchMove = React.useCallback(
+    (e: React.TouchEvent) => {
+      if (!touchStartRef.current) return;
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - touchStartRef.current.x;
+      const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+      const absDeltaX = Math.abs(deltaX);
 
-    // Allow horizontal drag with visual feedback
-    if (absDeltaX > 10 && deltaY < 50) {
-      const content = e.currentTarget as HTMLElement;
-      if (side === "left") {
-        content.style.transform = `translateX(${Math.max(-absDeltaX, -content.offsetWidth)}px)`;
-      } else {
-        content.style.transform = `translateX(${Math.min(absDeltaX, content.offsetWidth)}px)`;
+      // Allow horizontal drag with visual feedback
+      if (absDeltaX > 10 && deltaY < 50) {
+        const content = e.currentTarget as HTMLElement;
+        if (side === "left") {
+          content.style.transform = `translateX(${Math.max(-absDeltaX, -content.offsetWidth)}px)`;
+        } else {
+          content.style.transform = `translateX(${Math.min(absDeltaX, content.offsetWidth)}px)`;
+        }
       }
-    }
-  }, [side]);
+    },
+    [side],
+  );
 
   const handleTouchEnd = React.useCallback(
     (e: React.TouchEvent) => {
@@ -153,7 +150,7 @@ const SheetContent = React.forwardRef<
           (side === "right" && deltaX > 0)
         ) {
           const closeButton = content.querySelector(
-            '[data-state]',
+            "[data-state]",
           ) as HTMLElement;
           if (closeButton) {
             closeButton.click();

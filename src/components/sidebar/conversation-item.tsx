@@ -1,10 +1,7 @@
 import type { Conversation } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
 import { Button } from "@ui/button";
-import {
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@ui/sidebar";
+import { SidebarMenuButton, SidebarMenuItem } from "@ui/sidebar";
 import {
   Dialog,
   DialogContent,
@@ -37,9 +34,7 @@ export function ConversationItem({
       ? `${conversation.id.slice(0, 10)}...${conversation.id.slice(-6)}`
       : conversation.id;
   const displayText =
-    isGroup && groupName && groupName !== "Agent Group"
-      ? groupName
-      : displayId;
+    isGroup && groupName && groupName !== "Agent Group" ? groupName : displayId;
   const isNamed = isGroup && groupName && groupName !== "Agent Group";
 
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);

@@ -15,17 +15,17 @@
   --surface-muted: #3f3f46;
   --text-primary: #fafafa;
   --text-muted: #a1a1aa;
-  --accent: #CF1C0F;
+  --accent: #cf1c0f;
   --accent-foreground: #000000;
-  --success: #4CAF50;
+  --success: #4caf50;
   --success-foreground: #fafafa;
-  --warning: #F59E0B;
+  --warning: #f59e0b;
   --warning-foreground: #000000;
-  --destructive: #F48771;
+  --destructive: #f48771;
   --destructive-foreground: #fafafa;
   --border: #27272a;
   --input-bg: #09090b;
-  --ring: #CF1C0F;
+  --ring: #cf1c0f;
 
   /* Mappings */
   --card: var(--surface-card);
@@ -41,43 +41,43 @@
   --input: var(--input-bg);
   --sidebar-background: var(--surface-elevated);
   --sidebar-foreground: var(--text-primary);
-  --sidebar-primary: #CF1C0F;
+  --sidebar-primary: #cf1c0f;
   --sidebar-primary-foreground: #000000;
   --sidebar-accent: var(--surface-card);
   --sidebar-accent-foreground: var(--text-primary);
   --sidebar-border: #27272a;
-  --sidebar-ring: #CF1C0F;
+  --sidebar-ring: #cf1c0f;
   --sidebar: var(--surface-elevated);
-  --chart-1: #CF1C0F;
-  --chart-2: #4CAF50;
-  --chart-3: #F59E0B;
-  --chart-4: #F48771;
+  --chart-1: #cf1c0f;
+  --chart-2: #4caf50;
+  --chart-3: #f59e0b;
+  --chart-4: #f48771;
   --chart-5: #a1a1aa;
 
   /* Spacing - Desktop */
   --radius: 0.125rem;
-  --button-height-sm: 1.75rem;      /* 28px */
-  --button-height-default: 2rem;    /* 32px */
-  --input-height: 1.75rem;          /* 28px */
+  --button-height-sm: 1.75rem; /* 28px */
+  --button-height-default: 2rem; /* 32px */
+  --input-height: 1.75rem; /* 28px */
 
   /* Spacing - Mobile (larger for touch targets) */
-  --button-height-sm-mobile: 2rem;      /* 32px - larger for touch */
+  --button-height-sm-mobile: 2rem; /* 32px - larger for touch */
   --button-height-default-mobile: 2.5rem; /* 40px - larger for touch */
-  --input-height-mobile: 2rem;          /* 32px - larger for touch */
+  --input-height-mobile: 2rem; /* 32px - larger for touch */
 
   /* Typography - Desktop (default) */
-  --text-xs: 0.875rem;      /* 14px */
-  --text-sm: 1rem;          /* 16px */
-  --text-base: 1.125rem;    /* 18px */
-  --text-lg: 1.25rem;       /* 20px */
-  --text-xl: 1.5rem;        /* 24px */
+  --text-xs: 0.875rem; /* 14px */
+  --text-sm: 1rem; /* 16px */
+  --text-base: 1.125rem; /* 18px */
+  --text-lg: 1.25rem; /* 20px */
+  --text-xl: 1.5rem; /* 24px */
 
   /* Typography - Mobile (smaller for dense mobile UI) */
-  --text-xs-mobile: 0.75rem;    /* 12px */
-  --text-sm-mobile: 0.875rem;   /* 14px */
-  --text-base-mobile: 1rem;     /* 16px */
-  --text-lg-mobile: 1.125rem;   /* 18px */
-  --text-xl-mobile: 1.25rem;    /* 20px */
+  --text-xs-mobile: 0.75rem; /* 12px */
+  --text-sm-mobile: 0.875rem; /* 14px */
+  --text-base-mobile: 1rem; /* 16px */
+  --text-lg-mobile: 1.125rem; /* 18px */
+  --text-xl-mobile: 1.25rem; /* 20px */
 
   /* Motion */
   --duration-fast: 150ms;
@@ -87,7 +87,7 @@
   --scale-active: 0.97;
 
   /* Breakpoints */
-  --breakpoint-mobile: 768px;      /* Mobile breakpoint (matches useIsMobile hook) */
+  --breakpoint-mobile: 768px; /* Mobile breakpoint (matches useIsMobile hook) */
 }
 
 /* custom variant for setting dark mode programmatically */
@@ -187,40 +187,74 @@
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(var(--slide-sm)); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(var(--slide-sm));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slide-down {
-  from { opacity: 0; transform: translateY(calc(var(--slide-sm) * -1)); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--slide-sm) * -1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@utility text-balance { text-wrap: balance; }
-@utility -webkit-overflow-scrolling-touch { -webkit-overflow-scrolling: touch; }
-@utility touch-pan-y { touch-action: pan-y; }
-@utility touch-manipulation { touch-action: manipulation; }
-@utility touch-pan-x { touch-action: pan-x; }
-@utility overscroll-behavior-contain { overscroll-behavior: contain; }
+@utility text-balance {
+  text-wrap: balance;
+}
+@utility -webkit-overflow-scrolling-touch {
+  -webkit-overflow-scrolling: touch;
+}
+@utility touch-pan-y {
+  touch-action: pan-y;
+}
+@utility touch-manipulation {
+  touch-action: manipulation;
+}
+@utility touch-pan-x {
+  touch-action: pan-x;
+}
+@utility overscroll-behavior-contain {
+  overscroll-behavior: contain;
+}
 
 /* Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 3px;
   transition: background var(--duration-default) var(--ease-default);
 }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
@@ -297,7 +331,6 @@
   }
 }
 
-
 .ProseMirror {
   outline: none;
 }
@@ -337,7 +370,6 @@
 .suggestion-highlight {
   @apply bg-blue-200 hover:bg-blue-300 dark:hover:bg-blue-400/50 dark:text-blue-50 dark:bg-blue-500/40;
 }
-
 
 @theme inline {
   --color-sidebar: var(--sidebar);
@@ -380,4 +412,3 @@
     box-shadow: none;
   }
 }
-

@@ -16,7 +16,8 @@ const buttonVariants = cva(
           "border border-zinc-800 bg-transparent text-foreground hover:bg-zinc-800 hover:border-zinc-700 transition-all duration-200",
         secondary:
           "bg-zinc-800 text-foreground hover:bg-zinc-800/80 transition-colors duration-200",
-        ghost: "text-foreground hover:bg-zinc-800 transition-colors duration-200",
+        ghost:
+          "text-foreground hover:bg-zinc-800 transition-colors duration-200",
         link: "text-primary hover:text-primary/80 underline-offset-4 hover:underline transition-colors duration-200",
       },
       size: {

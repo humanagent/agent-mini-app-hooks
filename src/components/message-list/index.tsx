@@ -249,12 +249,7 @@ export function ConversationView() {
     }
 
     prevSelectedAgentsRef.current = selectedAgents;
-  }, [
-    selectedAgents,
-    selectedConversation,
-    setSelectedConversation,
-    navigate,
-  ]);
+  }, [selectedAgents, selectedConversation, setSelectedConversation, navigate]);
 
   // Sync selected conversation with URL params
   useEffect(() => {

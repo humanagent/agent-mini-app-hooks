@@ -94,7 +94,9 @@ export function AgentCard({
       )}
       <div className="min-w-0 flex-1">
         <h3 className="truncate font-semibold text-xs">{agent.name}</h3>
-        <p className="truncate text-[10px] text-muted-foreground">{description}</p>
+        <p className="truncate text-[10px] text-muted-foreground">
+          {description}
+        </p>
       </div>
       <div className="flex items-center gap-1">
         <button

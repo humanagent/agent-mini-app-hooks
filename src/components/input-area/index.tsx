@@ -15,7 +15,15 @@ import {
   DialogTitle,
 } from "@ui/dialog";
 import { Input } from "@ui/input";
-import { ArrowUpIcon, PaperclipIcon, PlusIcon, XIcon, AddPeopleIcon, MetadataIcon, ShareIcon } from "@ui/icons";
+import {
+  ArrowUpIcon,
+  PaperclipIcon,
+  PlusIcon,
+  XIcon,
+  AddPeopleIcon,
+  MetadataIcon,
+  ShareIcon,
+} from "@ui/icons";
 import { Popover, PopoverAnchor, PopoverContent } from "@ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { AgentSelector } from "./agent-selector";
@@ -40,6 +48,7 @@ export type Message = {
   id: string;
   role: "user" | "assistant";
   content: string;
+  sentAt?: Date;
 };
 
 type PromptInputProps = HTMLAttributes<HTMLFormElement>;
@@ -331,7 +340,9 @@ function MetadataDialog({
             </div>
           ) : (
             <pre className="flex-1 min-h-0 overflow-auto rounded border border-zinc-800 bg-zinc-950 p-4 text-[10px]">
-              <code className="block whitespace-pre-wrap break-words">{metadata || "No data available"}</code>
+              <code className="block whitespace-pre-wrap break-words">
+                {metadata || "No data available"}
+              </code>
             </pre>
           )}
         </div>
@@ -564,10 +575,11 @@ export function InputArea({
 
   const appendAgentMentions = (message: string): string => {
     // Use conversationAgents if available (existing conversation), otherwise use selected agents
-    const agentsToMention = conversationAgents.length > 0 
-      ? conversationAgents 
-      : currentSelectedAgents;
-    
+    const agentsToMention =
+      conversationAgents.length > 0
+        ? conversationAgents
+        : currentSelectedAgents;
+
     if (agentsToMention.length === 0) {
       return message;
     }
@@ -615,7 +627,10 @@ export function InputArea({
   const handleSuggestionClick = (suggestion: string) => {
     if (sendMessage) {
       const messageToSend = appendAgentMentions(suggestion);
-      console.log("[InputArea] Sending suggestion with mentions:", messageToSend);
+      console.log(
+        "[InputArea] Sending suggestion with mentions:",
+        messageToSend,
+      );
       sendMessage(
         messageToSend,
         isMultiAgentMode ? currentSelectedAgents : undefined,

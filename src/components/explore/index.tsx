@@ -21,11 +21,8 @@ export function ExplorePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const navigate = useNavigate();
   const { client } = useXMTPClient();
-  const {
-    setSelectedConversation,
-    refreshConversations,
-    setPendingConversation,
-  } = useConversationsContext();
+  const { setSelectedConversation, setPendingConversation } =
+    useConversationsContext();
 
   const filteredAgents = useMemo(() => {
     if (selectedCategory === "All") {

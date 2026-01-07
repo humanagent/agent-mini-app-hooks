@@ -24,18 +24,15 @@ export function useSwipeGesture(options: SwipeGestureOptions) {
   );
   const touchEnd = useRef<{ x: number; y: number; time: number } | null>(null);
 
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      const touch = e.touches[0];
-      touchStart.current = {
-        x: touch.clientX,
-        y: touch.clientY,
-        time: Date.now(),
-      };
-      touchEnd.current = null;
-    },
-    [],
-  );
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStart.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now(),
+    };
+    touchEnd.current = null;
+  }, []);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];

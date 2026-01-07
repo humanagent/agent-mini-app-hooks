@@ -6,11 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@ui/dropdown-menu";
 import { ChevronUpIcon } from "@ui/icons";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@ui/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@ui/sidebar";
 import { shortAddress } from "@/lib/utils";
 
 export function SidebarUserNav() {

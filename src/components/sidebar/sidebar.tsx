@@ -26,7 +26,10 @@ const SidebarLogo = ({ className }: { className?: string }) => (
   <img
     src="/icon.svg"
     alt="XMTP Agents"
-    className={cn("size-10 rounded p-2 hover:bg-zinc-800 transition-colors duration-200", className)}
+    className={cn(
+      "size-10 rounded p-2 hover:bg-zinc-800 transition-colors duration-200",
+      className,
+    )}
   />
 );
 
@@ -69,7 +72,10 @@ export function Sidebar() {
     async (conversation: Conversation, event: React.MouseEvent) => {
       event.stopPropagation();
       if (!client) {
-        showToast("Unable to delete conversation. Client not available.", "error");
+        showToast(
+          "Unable to delete conversation. Client not available.",
+          "error",
+        );
         return;
       }
 
