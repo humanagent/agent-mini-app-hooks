@@ -6,7 +6,7 @@ import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
 import { SidebarToggle } from "@/src/components/sidebar/sidebar-toggle";
-import { ShareButton } from "@/src/components/sidebar/share-button";
+import { ShareButton } from "./share-button";
 
 export function ExplorePage() {
   const categories = useMemo(() => {
@@ -21,8 +21,11 @@ export function ExplorePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const navigate = useNavigate();
   const { client } = useXMTPClient();
-  const { setSelectedConversation, refreshConversations } =
-    useConversationsContext();
+  const {
+    setSelectedConversation,
+    refreshConversations,
+    setPendingConversation,
+  } = useConversationsContext();
 
   const filteredAgents = useMemo(() => {
     if (selectedCategory === "All") {
@@ -48,6 +51,19 @@ export function ExplorePage() {
       return;
     }
 
+    console.log(
+      "[Explore] Starting optimistic navigation for agent:",
+      agent.name,
+      agent.address,
+    );
+
+    setPendingConversation({
+      agentAddresses: [agent.address],
+      agentConfigs: [agent],
+    });
+
+    navigate("/", { replace: true });
+
     try {
       console.log(
         "[Explore] Creating conversation with agent:",
@@ -60,15 +76,15 @@ export function ExplorePage() {
       ]);
 
       console.log("[Explore] Conversation created:", conversation.id);
+      setPendingConversation(null);
       setSelectedConversation(conversation);
 
-      await refreshConversations();
-      console.log("[Explore] Conversations refreshed");
-
-      console.log("[Explore] Navigating to chat...");
-      navigate("/", { replace: true });
+      console.log(
+        "[Explore] Conversation will appear via stream, skipping refresh",
+      );
     } catch (error) {
       console.error("[Explore] Failed to create conversation:", error);
+      setPendingConversation(null);
       if (error instanceof Error) {
         console.error("[Explore] Error details:", {
           name: error.name,
@@ -92,7 +108,7 @@ export function ExplorePage() {
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-6xl px-4 py-8 md:px-8">
           <div className="mb-8">
-            <h1 className="mb-2 font-semibold text-3xl">Agents</h1>
+            <h1 className="mb-2 font-semibold text-3xl">XMTP Agents</h1>
             <p className="text-muted-foreground">
               Chat with your favorite XMTP agents
             </p>

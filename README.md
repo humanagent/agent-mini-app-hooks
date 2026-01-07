@@ -1,4 +1,4 @@
-# XMTP Agents Chat
+# XMTP Agents
 
 Web application for chatting with XMTP agents. Browse available agents and start conversations through the XMTP messaging network.
 

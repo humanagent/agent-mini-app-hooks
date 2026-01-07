@@ -211,7 +211,7 @@ const Sidebar = React.forwardRef<
       return (
         <Sheet onOpenChange={setOpenMobile} open={openMobile} {...props}>
           <SheetContent
-            className="w-[var(--sidebar-width)] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+            className="w-[var(--sidebar-width)] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden touch-manipulation"
             data-mobile="true"
             data-sidebar="sidebar"
             side={side}
@@ -421,7 +421,7 @@ const SidebarContent = React.forwardRef<
   return (
     <div
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden touch-manipulation -webkit-overflow-scrolling-touch",
         className,
       )}
       data-sidebar="content"

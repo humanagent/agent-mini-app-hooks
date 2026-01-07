@@ -1,0 +1,128 @@
+# Optimistic Loading Pattern
+
+This app uses optimistic loading to provide instant feedback when users initiate actions that require async operations, particularly when creating conversations.
+
+## Core Principle
+
+When a user triggers an action that will create a resource (e.g., clicking an agent to start a conversation), we:
+1. **Navigate immediately** to show the target UI
+2. **Show a loading state** indicating the operation is in progress
+3. **Perform the actual operation** in the background
+4. **Update the UI** once the operation completes
+
+This pattern prevents the user from waiting on a loading screen and provides immediate visual feedback.
+
+## Implementation
+
+### Context State
+
+The `ConversationsContext` includes a `pendingConversation` state that tracks conversations being created:
+
+```typescript
+pendingConversation: {
+  agentAddresses: string[];
+  agentConfigs: AgentConfig[];
+} | null
+```
+
+### Agent Click Flow
+
+When a user clicks an agent card in the explore page:
+
+1. **Immediate navigation**: Navigate to chat view (`/`) instantly
+2. **Set pending state**: Store the agent info in `pendingConversation`
+3. **Background creation**: Create the conversation asynchronously
+4. **State update**: Once created, clear pending state and set the actual conversation
+
+Example from `explore/index.tsx`:
+
+```typescript
+const handleAgentClick = async (agent: AgentConfig) => {
+  // 1. Set pending state
+  setPendingConversation({
+    agentAddresses: [agent.address],
+    agentConfigs: [agent],
+  });
+
+  // 2. Navigate immediately
+  navigate("/", { replace: true });
+
+  // 3. Create conversation in background
+  const conversation = await createGroupWithAgentAddresses(client, [agent.address]);
+  
+  // 4. Update state
+  setPendingConversation(null);
+  setSelectedConversation(conversation);
+  await refreshConversations();
+};
+```
+
+### ConversationView Handling
+
+The `ConversationView` component detects pending conversations and shows a loading state:
+
+1. **Effect watches** `pendingConversation` from context
+2. **Shows loading indicator** ("Creating conversation...")
+3. **Creates conversation** in the background
+4. **Updates state** once complete
+
+Example from `message-list/index.tsx`:
+
+```typescript
+useEffect(() => {
+  if (!pendingConversation || !client) return;
+
+  const createPendingConversation = async () => {
+    setIsCreatingConversation(true);
+    const conversation = await createGroupWithAgentAddresses(
+      client,
+      pendingConversation.agentAddresses,
+    );
+    setPendingConversation(null);
+    setSelectedConversation(conversation);
+    setIsCreatingConversation(false);
+    await refreshConversations();
+  };
+
+  void createPendingConversation();
+}, [pendingConversation, client, ...]);
+```
+
+### UI States
+
+The loading indicator appears when:
+- `isCreatingConversation` is `true`, OR
+- `pendingConversation` is not `null`
+
+```typescript
+{(isCreatingConversation || pendingConversation) && !createError && (
+  <ThinkingIndicator message="Creating conversation..." />
+)}
+```
+
+## Error Handling
+
+If the background operation fails:
+1. Clear the `pendingConversation` state
+2. Show an error message to the user
+3. Allow them to retry or navigate away
+
+## When to Use
+
+Use optimistic loading for:
+- ✅ Creating conversations (agent clicks)
+- ✅ Starting new chats
+- ✅ Any operation where immediate navigation improves UX
+
+Do NOT use for:
+- ❌ Operations that might fail frequently
+- ❌ Operations with long latency (use regular loading)
+- ❌ Operations where state must be confirmed before proceeding
+
+## Best Practices
+
+1. **Always clear pending state** on completion or error
+2. **Log operations** for debugging: use `console.log` with operation context
+3. **Handle cleanup** in useEffect return functions
+4. **Show clear loading messages** that indicate what's happening
+5. **Provide error recovery** options when operations fail

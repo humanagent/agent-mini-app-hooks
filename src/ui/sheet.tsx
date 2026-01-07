@@ -17,16 +17,67 @@ const SheetPortal = DialogPrimitive.Portal;
 const SheetOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay
-    className={cn(
-      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className,
-    )}
-    {...props}
-    ref={ref}
-  />
-));
+>(({ className, ...props }, ref) => {
+  const touchStartRef = React.useRef<{ x: number; y: number } | null>(null);
+
+  const handleTouchStart = React.useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  }, []);
+
+  const handleTouchEnd = React.useCallback(
+    (e: React.TouchEvent) => {
+      if (!touchStartRef.current) return;
+
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - touchStartRef.current.x;
+      const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+      const absDeltaX = Math.abs(deltaX);
+
+      // Swipe right to close (for left sidebars) or swipe left (for right sidebars)
+      if (absDeltaX > 50 && deltaY < 100) {
+        const overlay = e.currentTarget as HTMLElement;
+        const sheetContent = overlay.parentElement?.querySelector(
+          '[role="dialog"]',
+        ) as HTMLElement | null;
+
+        if (sheetContent) {
+          // Check which side the sheet is on
+          const isLeftSide = sheetContent.classList.contains("left-0");
+          const isRightSide = sheetContent.classList.contains("right-0");
+
+          if (
+            (isLeftSide && deltaX > 0) ||
+            (isRightSide && deltaX < 0)
+          ) {
+            // Close the sheet by clicking the overlay
+            const clickEvent = new MouseEvent("click", {
+              bubbles: true,
+              cancelable: true,
+            });
+            overlay.dispatchEvent(clickEvent);
+          }
+        }
+      }
+
+      touchStartRef.current = null;
+    },
+    [],
+  );
+
+  return (
+    <DialogPrimitive.Overlay
+      className={cn(
+        "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        className,
+      )}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      {...props}
+      ref={ref}
+    />
+  );
+});
 SheetOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
@@ -56,22 +107,86 @@ interface SheetContentProps
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   SheetContentProps
->(({ side = "right", className, children, ...props }, ref) => (
-  <SheetPortal>
-    <SheetOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(sheetVariants({ side }), className)}
-      {...props}
-    >
-      {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </SheetPortal>
-));
+>(({ side = "right", className, children, ...props }, ref) => {
+  const touchStartRef = React.useRef<{ x: number; y: number } | null>(null);
+
+  const handleTouchStart = React.useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  }, []);
+
+  const handleTouchMove = React.useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    const absDeltaX = Math.abs(deltaX);
+
+    // Allow horizontal drag with visual feedback
+    if (absDeltaX > 10 && deltaY < 50) {
+      const content = e.currentTarget as HTMLElement;
+      if (side === "left") {
+        content.style.transform = `translateX(${Math.max(-absDeltaX, -content.offsetWidth)}px)`;
+      } else {
+        content.style.transform = `translateX(${Math.min(absDeltaX, content.offsetWidth)}px)`;
+      }
+    }
+  }, [side]);
+
+  const handleTouchEnd = React.useCallback(
+    (e: React.TouchEvent) => {
+      if (!touchStartRef.current) return;
+
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - touchStartRef.current.x;
+      const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+      const absDeltaX = Math.abs(deltaX);
+      const content = e.currentTarget as HTMLElement;
+
+      // Reset transform
+      content.style.transform = "";
+
+      // Swipe to close if threshold met
+      if (absDeltaX > 100 && deltaY < 100) {
+        if (
+          (side === "left" && deltaX < 0) ||
+          (side === "right" && deltaX > 0)
+        ) {
+          const closeButton = content.querySelector(
+            '[data-state]',
+          ) as HTMLElement;
+          if (closeButton) {
+            closeButton.click();
+          }
+        }
+      }
+
+      touchStartRef.current = null;
+    },
+    [side],
+  );
+
+  return (
+    <SheetPortal>
+      <SheetOverlay />
+      <DialogPrimitive.Content
+        ref={ref}
+        className={cn(sheetVariants({ side }), className)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{ touchAction: "pan-y" }}
+        {...props}
+      >
+        {children}
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </SheetPortal>
+  );
+});
 SheetContent.displayName = DialogPrimitive.Content.displayName;
 
 const SheetHeader = ({

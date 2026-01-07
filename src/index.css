@@ -170,6 +170,14 @@
   touch-action: pan-y;
 }
 
+@utility touch-manipulation {
+  touch-action: manipulation;
+}
+
+@utility touch-pan-x {
+  touch-action: pan-x;
+}
+
 @utility overscroll-behavior-contain {
   overscroll-behavior: contain;
 }
