@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.13] - 2025-01-06
+
+### Changed
+
+- Cleaned up sidebar components: removed redundant code and console logs
+- Moved ChevronUpIcon to shared icons file for consistency
+- Extracted SidebarLogo component to reduce duplication
+- Relocated share-button to explore folder where it's used
+- Fixed type casting issues with proper consent API usage
+
 ## [0.1.12] - 2026-01-06
 
 ### Fixed
