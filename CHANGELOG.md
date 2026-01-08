@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.27] - 2025-01-07
+
+### Added
+
+- Added Analytics page with agent performance metrics
+- Added response time charts per agent (last 7 days)
+- Added average response time trend visualization
+- Added total agents count and average response time stats
+- Added Analytics navigation item to sidebar with chart icon
+
 ## [0.1.26] - 2025-01-07
 
 ### Changed
