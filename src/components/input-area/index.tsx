@@ -44,12 +44,7 @@ import { AI_AGENTS, type AgentConfig } from "@/agent-registry/agents";
 import { cn } from "@/lib/utils";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 import { useIsMobile } from "@hooks/use-mobile";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@ui/sheet";
 
 export type Message = {
   id: string;
@@ -388,7 +383,7 @@ function MobileOptionsSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="bg-zinc-950 border-t border-zinc-800 rounded-t p-0"
+        className="bg-zinc-950 border-t border-zinc-800 rounded-t p-0 md:max-w-[calc(56rem-2rem)] md:mx-auto"
       >
         <SheetHeader className="px-4 pt-4 pb-2">
           <SheetTitle className="text-left">Options</SheetTitle>
@@ -482,7 +477,6 @@ export function InputArea({
   );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isSubmittingRef = useRef(false);
-  const lastEnterPressRef = useRef<number>(0);
   const isGroup = conversation instanceof Group;
   const isMobile = useIsMobile();
 
@@ -631,7 +625,6 @@ export function InputArea({
 
   const handleAddAgent = (agent: AgentConfig) => {
     if (isMultiAgentMode) {
-      const agents = selectedAgents;
       const setAgents = setSelectedAgents as (agents: AgentConfig[]) => void;
       // Replace instead of add - single select
       setAgents([agent]);
@@ -792,60 +785,35 @@ export function InputArea({
             <div
               className={`flex flex-row ${isMultiAgentMode ? "items-center" : "items-start"} gap-1 sm:gap-2`}
             >
-              {isMobile ? (
-                <Button
-                  className="h-10 w-10 p-0 shrink-0 md:h-7 md:w-7"
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setMobileOptionsOpen(true);
-                  }}
-                >
-                  <PlusIcon size={16} />
-                </Button>
-              ) : isMultiAgentMode ? (
-                <>
-                  <AgentSelector
-                    open={openDialog}
-                    onOpenChange={setOpenDialog}
-                    agents={liveAgents}
-                    selectedAgents={currentSelectedAgents}
-                    onSelectAgent={handleAgentSelect}
-                    title="Add Agent"
-                  />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        className="h-7 w-7 p-0 shrink-0"
-                        type="button"
-                        variant="ghost"
-                        onClick={() => {
-                          setOpenDialog(true);
-                        }}
-                      >
-                        <PlusIcon size={14} />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="top"
-                      className="flex items-center gap-1.5"
-                    >
-                      <span>Add agent</span>
-                      <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border border-zinc-700 bg-zinc-800 px-1.5 font-mono text-[10px] font-medium inline-flex">
-                        <span className="text-xs">⌘</span>K
-                      </kbd>
-                    </TooltipContent>
-                  </Tooltip>
-                </>
-              ) : (
-                <Button
-                  className="h-8 p-1 md:h-fit md:p-2"
-                  type="button"
-                  variant="ghost"
-                >
-                  <PaperclipIcon size={16} />
-                </Button>
-              )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    className={isMobile ? "h-10 w-10 p-0 shrink-0 md:h-7 md:w-7" : "h-7 w-7 p-0 shrink-0"}
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      if (isMobile || !isMultiAgentMode) {
+                        setMobileOptionsOpen(true);
+                      } else {
+                        setOpenDialog(true);
+                      }
+                    }}
+                  >
+                    <PlusIcon size={isMobile ? 16 : 14} />
+                  </Button>
+                </TooltipTrigger>
+                {!isMobile && isMultiAgentMode && (
+                  <TooltipContent
+                    side="top"
+                    className="flex items-center gap-1.5"
+                  >
+                    <span>Add agent</span>
+                    <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border border-zinc-700 bg-zinc-800 px-1.5 font-mono text-[10px] font-medium inline-flex">
+                      <span className="text-xs">⌘</span>K
+                    </kbd>
+                  </TooltipContent>
+                )}
+              </Tooltip>
               <PromptInputTextarea
                 className={`grow resize-none border-0! border-none! bg-transparent text-xs outline-none ring-0 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden ${isMultiAgentMode ? "px-1 py-1 min-h-[24px] max-h-[120px]" : "p-2"}`}
                 placeholder="Send a message..."
@@ -865,50 +833,48 @@ export function InputArea({
           <PromptInputToolbar className="border-top-0! border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!">
             <PromptInputTools className="gap-0 sm:gap-0.5">
               {isMultiAgentMode ? (
-                <>
-                  <AnimatePresence mode="popLayout">
-                    {currentSelectedAgents.length > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, width: 0 }}
-                        animate={{ opacity: 1, width: "auto" }}
-                        exit={{ opacity: 0, width: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="flex items-center gap-1.5 overflow-hidden"
-                      >
-                        {currentSelectedAgents.map((agent) => (
-                          <motion.div
-                            key={agent.address}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            transition={{ duration: 0.15 }}
-                            className="inline-flex items-center gap-1 rounded bg-zinc-800 px-2 py-0.5 text-xs text-foreground h-6"
+                <AnimatePresence mode="popLayout">
+                  {currentSelectedAgents.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex items-center gap-1.5 overflow-hidden"
+                    >
+                      {currentSelectedAgents.map((agent) => (
+                        <motion.div
+                          key={agent.address}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.15 }}
+                          className="inline-flex items-center gap-1 rounded bg-zinc-800 px-2 py-0.5 text-xs text-foreground h-6"
+                        >
+                          {agent.image ? (
+                            <img
+                              alt={agent.name}
+                              className="h-4 w-4 shrink-0 rounded object-cover"
+                              src={agent.image}
+                            />
+                          ) : (
+                            <div className="h-4 w-4 shrink-0 rounded bg-muted" />
+                          )}
+                          <span>{agent.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleRemoveAgent(agent.address);
+                            }}
+                            className="rounded hover:bg-zinc-700 p-0.5 transition-colors duration-200 active:scale-[0.97]"
                           >
-                            {agent.image ? (
-                              <img
-                                alt={agent.name}
-                                className="h-4 w-4 shrink-0 rounded object-cover"
-                                src={agent.image}
-                              />
-                            ) : (
-                              <div className="h-4 w-4 shrink-0 rounded bg-muted" />
-                            )}
-                            <span>{agent.name}</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                handleRemoveAgent(agent.address);
-                              }}
-                              className="rounded hover:bg-zinc-700 p-0.5 transition-colors duration-200 active:scale-[0.97]"
-                            >
-                              <XIcon size={12} />
-                            </button>
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </>
+                            <XIcon size={12} />
+                          </button>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               ) : (
                 <>
                   <AgentSelector
@@ -950,7 +916,7 @@ export function InputArea({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
-                          className={`${isMultiAgentMode ? "h-7 w-7 p-0" : "h-8 w-8 p-0"}`}
+                          className={isMultiAgentMode ? "h-7 w-7 p-0" : "h-8 w-8 p-0"}
                           variant="ghost"
                           type="button"
                         >
@@ -965,7 +931,7 @@ export function InputArea({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
-                            className={`${isMultiAgentMode ? "h-7 w-7 p-0" : "h-8 w-8 p-0"}`}
+                            className={isMultiAgentMode ? "h-7 w-7 p-0" : "h-8 w-8 p-0"}
                             variant="ghost"
                             type="button"
                             onClick={() => setAddPeopleOpen(true)}
@@ -978,7 +944,7 @@ export function InputArea({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
-                            className={`${isMultiAgentMode ? "h-7 w-7 p-0" : "h-8 w-8 p-0"}`}
+                            className={isMultiAgentMode ? "h-7 w-7 p-0" : "h-8 w-8 p-0"}
                             variant="ghost"
                             type="button"
                             onClick={() => setMetadataOpen(true)}
@@ -1072,6 +1038,16 @@ export function InputArea({
             group={conversation}
           />
         </>
+      )}
+      {!isMobile && isMultiAgentMode && (
+        <AgentSelector
+          open={openDialog}
+          onOpenChange={setOpenDialog}
+          agents={liveAgents}
+          selectedAgents={currentSelectedAgents}
+          onSelectAgent={handleAgentSelect}
+          title="Add Agent"
+        />
       )}
       <MobileOptionsSheet
         open={mobileOptionsOpen}

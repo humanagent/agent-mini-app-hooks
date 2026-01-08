@@ -12,7 +12,8 @@ import {
 } from "@ui/dialog";
 import { TrashIcon } from "@ui/icons";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { useIsMobile } from "@hooks/use-mobile";
 
 interface ConversationItemProps {
   conversation: Conversation;
@@ -41,39 +42,58 @@ export function ConversationItem({
     isGroup && groupName && groupName !== "Agent Group" ? groupName : displayId;
   const isNamed = isGroup && groupName && groupName !== "Agent Group";
 
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isMobile = useIsMobile();
   const [isPressed, setIsPressed] = useState(false);
+  const [showDeleteButton, setShowDeleteButton] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsPressed(true);
-    longPressTimerRef.current = setTimeout(() => {
-      // Long press detected - trigger haptic feedback if available
+    if (isMobile) {
+      // On mobile, show delete button on tap
+      setShowDeleteButton(true);
       if (navigator.vibrate) {
-        navigator.vibrate(50);
+        navigator.vibrate(30);
       }
-      // Show delete button on long press
-      const deleteButton = e.currentTarget.querySelector("button");
-      if (deleteButton) {
-        deleteButton.style.opacity = "1";
-      }
-    }, 500);
+    }
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent) => {
     setIsPressed(false);
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
+    // On mobile, if user taps outside the delete button, hide it
+    if (isMobile && showDeleteButton) {
+      const target = e.target as HTMLElement;
+      const deleteButton = e.currentTarget.closest('.group/conversation')?.querySelector('button[type="button"]');
+      if (deleteButton && !deleteButton.contains(target)) {
+        // Small delay to allow delete button click to register
+        setTimeout(() => {
+          setShowDeleteButton(false);
+        }, 200);
+      }
     }
   };
 
   const handleTouchCancel = () => {
     setIsPressed(false);
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
+    if (isMobile) {
+      setTimeout(() => {
+        setShowDeleteButton(false);
+      }, 200);
     }
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isMobile && showDeleteButton) {
+      // On mobile, if delete button is shown, clicking the item should navigate
+      const target = e.target as HTMLElement;
+      const deleteButton = e.currentTarget.querySelector('button[type="button"]');
+      if (deleteButton && !deleteButton.contains(target)) {
+        setShowDeleteButton(false);
+        onClick();
+        return;
+      }
+    }
+    onClick();
   };
 
   return (
@@ -89,7 +109,7 @@ export function ConversationItem({
             transition-all duration-200
             h-auto py-2
           `}
-          onClick={onClick}
+          onClick={handleClick}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onTouchCancel={handleTouchCancel}
@@ -124,10 +144,19 @@ export function ConversationItem({
           type="button"
           variant="ghost"
           size="icon-sm"
-          className="absolute right-2 opacity-0 group-hover/conversation:opacity-100 md:opacity-0 md:group-hover/conversation:opacity-100 h-7 w-7 p-0 transition-all duration-200 group-data-[collapsible=icon]:hidden touch-manipulation active:scale-[0.97]"
+          className={`absolute right-2 h-7 w-7 p-0 transition-all duration-200 group-data-[collapsible=icon]:hidden touch-manipulation active:scale-[0.97] ${
+            isMobile
+              ? showDeleteButton
+                ? "opacity-100"
+                : "opacity-0"
+              : "opacity-0 group-hover/conversation:opacity-100 md:opacity-0 md:group-hover/conversation:opacity-100"
+          }`}
           onClick={(e) => {
             e.stopPropagation();
             setShowDeleteDialog(true);
+            if (isMobile) {
+              setShowDeleteButton(false);
+            }
           }}
           onTouchStart={(e) => {
             e.stopPropagation();

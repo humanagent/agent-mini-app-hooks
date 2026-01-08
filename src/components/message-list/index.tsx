@@ -815,7 +815,7 @@ export function ConversationView() {
           ref={scrollContainerRef}
           className="absolute inset-0 touch-pan-y overflow-y-auto"
         >
-          <div className="mx-auto flex min-w-0 max-w-4xl flex-col px-3 py-4 md:px-6 md:py-6">
+          <div className="mx-auto flex min-w-0 max-w-4xl flex-col pl-[60px] pr-3 py-4 md:px-6 md:py-6">
             {createError && !selectedConversation && (
               <ThinkingIndicator
                 error

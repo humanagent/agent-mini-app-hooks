@@ -9,6 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   Sidebar as SidebarUI,
+  useSidebar,
 } from "@ui/sidebar";
 import { useToast } from "@ui/toast";
 import { SidebarToggle } from "@/src/components/sidebar/sidebar-toggle";
@@ -48,6 +49,7 @@ export function Sidebar() {
   const { showToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
+  const { isMobile, setOpenMobile } = useSidebar();
   const [sortedConversations, setSortedConversations] = useState<
     ConversationWithMeta[]
   >([]);
@@ -129,6 +131,9 @@ export function Sidebar() {
   const handleConversationClick = (conversation: Conversation) => {
     setSelectedConversation(conversation);
     navigate(`/conversation/${conversation.id}`);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
   };
 
   return (
@@ -150,6 +155,9 @@ export function Sidebar() {
                 setSelectedConversation(null);
                 setPendingConversation(null);
                 navigate("/", { replace: true });
+                if (isMobile) {
+                  setOpenMobile(false);
+                }
               }}
             >
               <PlusIcon size={16} />
