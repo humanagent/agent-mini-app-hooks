@@ -8,6 +8,7 @@ import { ToastProvider } from "@ui/toast";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { ExplorePage } from "@components/explore/index";
 import { AnalyticsPage } from "@components/analytics/index";
+import { DevPortalPage } from "@components/dev-portal/index";
 import { useSwipeGesture } from "@hooks/use-swipe-gesture";
 
 function SidebarInsetWithSwipe() {
@@ -29,6 +30,7 @@ function SidebarInsetWithSwipe() {
       <Routes>
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/dev-portal" element={<DevPortalPage />} />
         <Route
           path="/conversation/:conversationId"
           element={<ConversationView />}

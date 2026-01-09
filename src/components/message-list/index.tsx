@@ -147,6 +147,7 @@ export function ConversationView() {
     refreshConversations,
     pendingConversation,
     setPendingConversation,
+    isLoading: isLoadingConversations,
   } = useConversationsContext();
   const { conversationId } = useParams();
   const navigate = useNavigate();
@@ -202,71 +203,69 @@ export function ConversationView() {
         navigate(`/conversation/${conversation.id}`);
         void refreshConversations();
 
-          // Update status to "sending" and send auto message if provided
-          if (pendingConversation.autoMessage) {
-            setPendingConversation({
-              ...pendingConversation,
-              status: "sending",
-            });
+        // Update status to "sending" and send auto message if provided
+        if (pendingConversation.autoMessage) {
+          setPendingConversation({
+            ...pendingConversation,
+            status: "sending",
+          });
+
+          console.log(
+            "[ConversationView] Sending auto message:",
+            pendingConversation.autoMessage,
+          );
+
+          // Add temporary user message for better UX
+          const tempMessage: Message = {
+            id: `temp-${Date.now()}`,
+            role: "user",
+            content: pendingConversation.autoMessage,
+            sentAt: new Date(),
+          };
+
+          setMessages((prev) => [...prev, tempMessage]);
+
+          // Scroll to bottom when message is added
+          setTimeout(() => {
+            scrollToBottom();
+          }, 100);
+
+          if (tempMessageTimeoutRef.current) {
+            clearTimeout(tempMessageTimeoutRef.current);
+          }
+          tempMessageTimeoutRef.current = setTimeout(() => {
+            setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
+            tempMessageTimeoutRef.current = null;
+          }, 5000);
+
+          try {
+            await conversation.send(pendingConversation.autoMessage);
 
             console.log(
-              "[ConversationView] Sending auto message:",
-              pendingConversation.autoMessage,
+              "[ConversationView] Auto message sent, waiting for response",
             );
 
-            // Add temporary user message for better UX
-            const tempMessage: Message = {
-              id: `temp-${Date.now()}`,
-              role: "user",
-              content: pendingConversation.autoMessage,
-              sentAt: new Date(),
-            };
-
-            setMessages((prev) => [...prev, tempMessage]);
-
-            // Scroll to bottom when message is added
-            setTimeout(() => {
-              scrollToBottom();
-            }, 100);
-
+            setIsWaitingForAgent(true);
+            if (waitingTimeoutRef.current) {
+              clearTimeout(waitingTimeoutRef.current);
+            }
+            waitingTimeoutRef.current = setTimeout(() => {
+              setIsWaitingForAgent(false);
+              waitingTimeoutRef.current = null;
+            }, 10000);
+          } catch (error) {
+            console.error(
+              "[ConversationView] Failed to send auto message:",
+              error,
+            );
+            // Remove temp message on error
+            setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
             if (tempMessageTimeoutRef.current) {
               clearTimeout(tempMessageTimeoutRef.current);
-            }
-            tempMessageTimeoutRef.current = setTimeout(() => {
-              setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
               tempMessageTimeoutRef.current = null;
-            }, 5000);
-
-            try {
-              await conversation.send(pendingConversation.autoMessage);
-
-              console.log(
-                "[ConversationView] Auto message sent, waiting for response",
-              );
-
-              setIsWaitingForAgent(true);
-              if (waitingTimeoutRef.current) {
-                clearTimeout(waitingTimeoutRef.current);
-              }
-              waitingTimeoutRef.current = setTimeout(() => {
-                setIsWaitingForAgent(false);
-                waitingTimeoutRef.current = null;
-              }, 10000);
-            } catch (error) {
-              console.error(
-                "[ConversationView] Failed to send auto message:",
-                error,
-              );
-              // Remove temp message on error
-              setMessages((prev) =>
-                prev.filter((m) => m.id !== tempMessage.id),
-              );
-              if (tempMessageTimeoutRef.current) {
-                clearTimeout(tempMessageTimeoutRef.current);
-                tempMessageTimeoutRef.current = null;
-              }
             }
           }
+        }
 
         setPendingConversation(null);
         setIsCreatingConversation(false);
@@ -503,7 +502,6 @@ export function ConversationView() {
             }, 100);
           }
 
-
           const stream = await selectedConversation.stream({
             onValue: (message: DecodedMessage<unknown>) => {
               if (!mounted || typeof message.content !== "string") {
@@ -688,7 +686,6 @@ export function ConversationView() {
           setIsWaitingForAgent(false);
           waitingTimeoutRef.current = null;
         }, 10000);
-
       } catch {
         setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
         setIsWaitingForAgent(false);
@@ -766,10 +763,18 @@ export function ConversationView() {
               selectedConversation && (
                 <ThinkingIndicator message="Loading messages..." />
               )}
+            {conversationId &&
+              !selectedConversation &&
+              !isCreatingConversation &&
+              !createError &&
+              (isLoadingConversations || conversations.length === 0) && (
+                <ThinkingIndicator message="Loading conversation..." />
+              )}
             {!selectedConversation &&
               !isCreatingConversation &&
               !createError &&
-              selectedAgents.length === 0 && (
+              selectedAgents.length === 0 &&
+              !conversationId && (
                 <Greeting
                   onOpenAgents={() => {
                     setOpenAgentsDialog(true);

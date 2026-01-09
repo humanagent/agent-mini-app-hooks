@@ -19,7 +19,9 @@ function generateMockData() {
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
-    dates.push(date.toLocaleDateString("en-US", { month: "short", day: "numeric" }));
+    dates.push(
+      date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    );
   }
 
   const agentData: Record<string, number[]> = {};
@@ -56,7 +58,10 @@ function generateMockData() {
 }
 
 export function AnalyticsPage() {
-  const { responseTimeData, averageData } = useMemo(() => generateMockData(), []);
+  const { responseTimeData, averageData } = useMemo(
+    () => generateMockData(),
+    [],
+  );
 
   const totalAgents = AI_AGENTS.length;
   const overallAverage = useMemo(() => {

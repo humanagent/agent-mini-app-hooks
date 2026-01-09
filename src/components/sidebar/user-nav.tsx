@@ -52,10 +52,10 @@ export function SidebarUserNav() {
 
   const handleResetIdentity = useCallback(async () => {
     console.log("[ResetIdentity] Starting identity reset...");
-    
+
     clearEphemeralAccountKey();
     console.log("[ResetIdentity] Cleared identity from storage");
-    
+
     if (client) {
       try {
         console.log("[ResetIdentity] Closing XMTP client...");
@@ -65,7 +65,7 @@ export function SidebarUserNav() {
         console.error("[ResetIdentity] Error closing client:", error);
       }
     }
-    
+
     console.log("[ResetIdentity] Refreshing page...");
     window.location.reload();
   }, [client]);
@@ -87,7 +87,10 @@ export function SidebarUserNav() {
                 {initial}
               </span>
             </div>
-            <span className="flex-1 truncate text-left" data-testid="user-email">
+            <span
+              className="flex-1 truncate text-left"
+              data-testid="user-email"
+            >
               {displayAddress}
             </span>
             <div className="ml-auto flex items-center gap-1 shrink-0">

@@ -14,6 +14,7 @@ export type AgentConfig = {
   image?: string;
   domain?: string;
   category?: string;
+  description?: string;
 };
 
 export const AI_AGENTS: AgentConfig[] = [
@@ -22,11 +23,12 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0xe15aa1ba585aea8a4639331ce5f9aec86f8c4541",
     networks: ["production"],
     live: true,
-    category: "Games",
+    category: "Finance",
+    description: "Financial assistance and guidance",
     suggestions: [
-      "@elsa Help me write a creative story",
-      "@elsa Generate ideas for a blog post",
-      "@elsa Write a poem about technology",
+      "@elsa Help me with financial planning",
+      "@elsa Explain investment strategies",
+      "@elsa Guide me through budgeting",
     ],
     domain: "elsa",
     image:
@@ -38,10 +40,11 @@ export const AI_AGENTS: AgentConfig[] = [
     networks: ["production"],
     live: true,
     category: "Business",
+    description: "Token launch and deployment assistance",
     suggestions: [
-      "@flaunchy Help me launch a new project",
-      "@flaunchy Create a marketing strategy",
-      "@flaunchy Generate launch ideas",
+      "@flaunchy Help me launch a token",
+      "@flaunchy Deploy my token contract",
+      "@flaunchy Guide me through token creation",
     ],
   },
   {
@@ -49,11 +52,12 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x99B10779557cc52c6E3a97C9A6C3446f021290cc",
     networks: ["production"],
     live: true,
-    category: "Business",
+    category: "Finance",
+    description: "Banking and financial services",
     suggestions: [
-      "@mamo Help me with my project",
-      "@mamo Explain a technical concept",
-      "@mamo Review my code",
+      "@mamo Help me with banking services",
+      "@mamo Explain payment processing",
+      "@mamo Guide me through account setup",
     ],
     domain: "mamo",
     image:
@@ -65,6 +69,7 @@ export const AI_AGENTS: AgentConfig[] = [
     networks: ["production"],
     live: true,
     category: "Games",
+    description: "Blockchain development and smart contracts",
     suggestions: [
       "@alphie Help with blockchain development",
       "@alphie Explain smart contracts",
@@ -79,11 +84,12 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x1456350CD79c51814567b0c1E767d3032dBD1647",
     networks: ["production"],
     live: true,
-    category: "Trading",
+    category: "Finance",
+    description: "Banking and financial services",
     suggestions: [
-      "@arma Help me analyze data",
-      "@arma Create a data visualization",
-      "@arma Explain statistical concepts",
+      "@arma Help me with banking services",
+      "@arma Explain financial transactions",
+      "@arma Guide me through account management",
     ],
     domain: "armaxyz",
     image:
@@ -95,6 +101,7 @@ export const AI_AGENTS: AgentConfig[] = [
     networks: ["production"],
     live: true,
     category: "Business",
+    description: "Technical development and debugging",
     suggestions: [
       "@jesse Help me debug my code",
       "@jesse Optimize my algorithm",
@@ -109,11 +116,12 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0xEb7DB3ED8609165Ec5d99966CfDdeaE587070cD8",
     networks: ["production"],
     live: true,
-    category: "Games",
+    category: "Finance",
+    description: "Banking and financial services",
     suggestions: [
-      "@freysa Help me design a UI",
-      "@freysa Create a color palette",
-      "@freysa Suggest design improvements",
+      "@freysa Help me with banking services",
+      "@freysa Explain financial products",
+      "@freysa Guide me through banking setup",
     ],
     domain: "hifreysa",
     image:
@@ -125,10 +133,11 @@ export const AI_AGENTS: AgentConfig[] = [
     networks: ["production"],
     live: true,
     category: "Trading",
+    description: "Trading and market analysis",
     suggestions: [
-      "@neurobro Explain machine learning concepts",
-      "@neurobro Help me train a model",
-      "@neurobro Review my neural network",
+      "@neurobro Analyze market trends",
+      "@neurobro Help me with trading strategies",
+      "@neurobro Explain trading indicators",
     ],
   },
   {
@@ -136,11 +145,12 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x62db4c5A8fdF004754b9EFe92dF39927aB68920d",
     networks: ["production"],
     live: true,
-    category: "Games",
+    category: "Trading",
+    description: "Sports betting and odds analysis",
     suggestions: [
-      "@bracky Help me build a website",
-      "@bracky Create a landing page",
-      "@bracky Design a user interface",
+      "@bracky Analyze sports betting odds",
+      "@bracky Help me with betting strategies",
+      "@bracky Explain sports betting markets",
     ],
   },
   {
@@ -148,7 +158,8 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x7f1c0d2955f873fc91f1728c19b2ed7be7a9684d",
     networks: ["production"],
     live: true,
-    category: "Finance",
+    category: "Trading",
+    description: "Trading and market analysis",
     suggestions: [
       "@bankr Help with financial planning",
       "@bankr Analyze market trends",
@@ -164,13 +175,14 @@ export const AI_AGENTS: AgentConfig[] = [
     networks: ["production"],
     live: true,
     category: "Business",
+    description: "Base network event management",
     domain: "askbasemate",
     image:
       "https://ipfs.io/ipfs/bafkreib6sck2doq64pwx7zqq3mvgjf5odrtdenzp6kc36enfzjl7s6zs64",
     suggestions: [
-      "@basemate Help with Base network",
-      "@basemate Explain Layer 2 scaling",
-      "@basemate Guide me through Base development",
+      "@basemate Help me manage events on Base",
+      "@basemate Create a new event",
+      "@basemate Find upcoming Base events",
     ],
   },
   {
@@ -179,6 +191,7 @@ export const AI_AGENTS: AgentConfig[] = [
     networks: ["production"],
     live: true,
     category: "Business",
+    description: "Friendly greeting and conversation starter",
     suggestions: [
       "@gm Good morning! How can I help?",
       "@gm Start a conversation",
@@ -194,6 +207,7 @@ export const AI_AGENTS: AgentConfig[] = [
     networks: ["production"],
     live: true,
     category: "Business",
+    description: "QA agent for testing and verification",
     suggestions: [
       "@key-check Check my API keys",
       "@key-check Verify my configuration",
@@ -207,7 +221,8 @@ export const AI_AGENTS: AgentConfig[] = [
     address: "0x212906fdbdb70771461e6cb3376a740132e56b14",
     networks: ["production"],
     live: true,
-    category: "Finance",
+    category: "Business",
+    description: "XMTP documentation and code examples",
     suggestions: [
       "@xmtp-docs How do I send a message?",
       "@xmtp-docs Explain XMTP concepts",

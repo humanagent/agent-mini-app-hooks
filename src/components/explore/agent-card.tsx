@@ -14,8 +14,9 @@ export function AgentCard({
   featured = false,
 }: AgentCardProps) {
   const description =
+    agent.description ||
     agent.suggestions?.[0]?.replace(`@${agent.name}`, "").trim() ||
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.";
+    "AI agent ready to assist you";
 
   if (featured) {
     return (

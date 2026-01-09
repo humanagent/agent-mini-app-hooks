@@ -116,7 +116,7 @@ export function useXMTPConversations(client: Client<ContentTypes> | null) {
               dedupedMap.set(conversation.id, conversation);
 
               const updatedList = Array.from(dedupedMap.values());
-              
+
               // Re-filter all conversations asynchronously to remove blocked ones
               void filterAllowedConversations(updatedList, client).then(
                 (filtered) => {
