@@ -124,9 +124,17 @@ export function MessageList({ messages }: { messages: Message[] }) {
   );
 }
 
-export function ConversationView() {
+export function ConversationView({
+  initialAgents,
+  customGreeting,
+}: {
+  initialAgents?: AgentConfig[];
+  customGreeting?: React.ReactNode;
+} = {}) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [selectedAgents, setSelectedAgents] = useState<AgentConfig[]>([]);
+  const [selectedAgents, setSelectedAgents] = useState<AgentConfig[]>(
+    initialAgents || [],
+  );
   const [openAgentsDialog, setOpenAgentsDialog] = useState(false);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [isSyncingConversation, setIsSyncingConversation] = useState(false);
@@ -773,14 +781,19 @@ export function ConversationView() {
             {!selectedConversation &&
               !isCreatingConversation &&
               !createError &&
-              selectedAgents.length === 0 &&
-              !conversationId && (
-                <Greeting
-                  onOpenAgents={() => {
-                    setOpenAgentsDialog(true);
-                  }}
-                />
-              )}
+              !conversationId &&
+              messages.length === 0 &&
+              (customGreeting ? (
+                customGreeting
+              ) : (
+                selectedAgents.length === 0 && (
+                  <Greeting
+                    onOpenAgents={() => {
+                      setOpenAgentsDialog(true);
+                    }}
+                  />
+                )
+              ))}
             {messages.length > 0 && <MessageList messages={messages} />}
             {isWaitingForAgent &&
               !isCreatingConversation &&

@@ -273,7 +273,7 @@ function AgentList({
   );
 }
 
-export function DevPortalPage() {
+export function PortalPage() {
   const [agents, setAgents] = useState<AgentConfig[]>([]);
   const [editingAgent, setEditingAgent] = useState<AgentConfig | undefined>();
   const [showForm, setShowForm] = useState(false);
@@ -299,7 +299,7 @@ export function DevPortalPage() {
         "success",
       );
     } catch (error) {
-      console.error("[DevPortal] Error saving agent:", error);
+      console.error("[Portal] Error saving agent:", error);
       showToast("Failed to save agent", "error");
     }
   };
@@ -318,7 +318,7 @@ export function DevPortalPage() {
       loadAgents();
       showToast("Agent deleted successfully", "success");
     } catch (error) {
-      console.error("[DevPortal] Error deleting agent:", error);
+      console.error("[Portal] Error deleting agent:", error);
       showToast("Failed to delete agent", "error");
     }
   };
@@ -344,7 +344,12 @@ export function DevPortalPage() {
         <div className="mx-auto max-w-4xl px-4 py-8 md:px-8">
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
-              <h1 className="font-semibold text-xl">Developer Portal</h1>
+              <div>
+                <h1 className="font-semibold text-xl">Developer Portal</h1>
+                <p className="text-xs text-muted-foreground">
+                  Publish and manage your XMTP agents
+                </p>
+              </div>
               {!showForm && (
                 <Button onClick={handleNewAgent} size="sm">
                   <PlusIcon size={14} />
@@ -352,32 +357,29 @@ export function DevPortalPage() {
                 </Button>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Publish and manage your XMTP agents
-            </p>
           </div>
 
-          {showForm ? (
-            <div className="rounded border border-zinc-800 bg-zinc-950 p-6">
-              <h2 className="font-semibold text-sm mb-4">
-                {editingAgent ? "Edit Agent" : "Create New Agent"}
-              </h2>
-              <AgentForm
-                agent={editingAgent}
-                onSave={handleSave}
-                onCancel={handleCancel}
-              />
-            </div>
-          ) : (
-            <div className="rounded border border-zinc-800 bg-zinc-950 p-6">
-              <h2 className="font-semibold text-sm mb-4">Your Agents</h2>
-              <AgentList
-                agents={agents}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            </div>
-          )}
+      {showForm ? (
+        <div className="rounded border border-zinc-800 bg-zinc-950 p-6">
+          <h2 className="font-semibold text-sm mb-4">
+            {editingAgent ? "Edit Agent" : "Create New Agent"}
+          </h2>
+          <AgentForm
+            agent={editingAgent}
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
+        </div>
+      ) : (
+        <div className="rounded border border-zinc-800 bg-zinc-950 p-6">
+          <h2 className="font-semibold text-sm mb-4">Your Agents</h2>
+          <AgentList
+            agents={agents}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        </div>
+      )}
         </div>
       </div>
     </div>

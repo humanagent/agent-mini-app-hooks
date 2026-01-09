@@ -1,6 +1,6 @@
 import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
-import { ExploreIcon, PlusIcon, AnalyticsIcon, CodeIcon } from "@ui/icons";
+import { ExploreIcon, PlusIcon, AnalyticsIcon } from "@ui/icons";
 import {
   SidebarContent,
   SidebarFooter,
@@ -154,20 +154,6 @@ export function Sidebar() {
                 <ExploreIcon size={16} />
                 <span className="group-data-[collapsible=icon]:hidden">
                   Explore
-                </span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={location.pathname === "/dev-portal"}
-              tooltip="Developer Portal"
-            >
-              <Link to="/dev-portal">
-                <CodeIcon size={16} />
-                <span className="group-data-[collapsible=icon]:hidden">
-                  Dev Portal
                 </span>
               </Link>
             </SidebarMenuButton>
