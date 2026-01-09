@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.28] - 2026-01-09
+
+### Changed
+
+- Refactored input area component by extracting unified-selector and plus-panel into separate components
+- Simplified input-area/index.tsx by removing code duplication and consolidating logic
+- Improved code organization and maintainability of input area components
+
 ## [0.1.27] - 2025-01-07
 
 ### Added
