@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.31] - 2026-01-09
+
+### Changed
+
+- Refactored portal structure by moving analytics and dev-portal components to portal directory
+- Updated imports and references across App, sidebar, and message-list components
+- Improved code organization with centralized portal components
+
 ## [0.1.30] - 2026-01-09
 
 ### Added
