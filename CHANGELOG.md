@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.32] - 2026-01-10
+
+### Fixed
+
+- Fixed infinite conversation creation loop when clicking agents in explore page
+- Removed automatic conversation creation - conversations now only created when user clicks send button
+- Fixed explore page to pre-select agent without auto-creating conversation
+
+### Changed
+
+- Removed pending conversation creation logic that caused infinite loops
+- Simplified conversation creation flow to be explicit (user must send message)
+- Updated explore page navigation to pass agent via location state instead of auto-creating
+
 ## [0.1.31] - 2026-01-09
 
 ### Changed
