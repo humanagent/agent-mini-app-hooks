@@ -1,258 +1,35 @@
 import { useIsMobile } from "@hooks/use-mobile";
 import { Button } from "@ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@ui/dialog";
-import {
-	ArrowUpIcon,
-	Loader2Icon,
-	MetadataIcon,
-	PlusIcon,
-	XIcon,
-} from "@ui/icons";
-import { Textarea } from "@ui/textarea";
+import { ArrowUpIcon, MetadataIcon, PlusIcon } from "@ui/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
-import { useToast } from "@ui/toast";
 import type { Conversation } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-	type ComponentProps,
-	type HTMLAttributes,
-	type KeyboardEventHandler,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { type AgentConfig, AI_AGENTS } from "@/agent-registry/agents";
 import { cn } from "@/lib/utils";
-import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 import { PlusPanel } from "./plus-panel";
+import { AgentChips } from "./agent-chips";
+import { SuggestedActions } from "./suggested-actions";
+import {
+	PromptInput,
+	PromptInputTextarea,
+	PromptInputToolbar,
+	PromptInputTools,
+	PromptInputSubmit,
+} from "./prompt-input";
+import { MetadataDialog } from "./dialogs/metadata-dialog";
+import { AddAgentDialog } from "./dialogs/add-agent-dialog";
+import { RemoveAgentDialog } from "./dialogs/remove-agent-dialog";
+import { useInputAreaModes } from "./hooks/use-input-area-modes";
+import { useConversationAgents } from "./hooks/use-conversation-agents";
+import { useAgentManagement } from "./hooks/use-agent-management";
+import { shuffleArray, appendAgentMentions } from "./utils";
 
 export type Message = {
 	id: string;
 	role: "user" | "assistant";
 	content: string;
 	sentAt?: Date;
-};
-
-function MetadataDialog({
-	open,
-	onOpenChange,
-	conversation,
-}: {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
-	conversation: Conversation | null;
-}) {
-	const [metadata, setMetadata] = useState<string>("");
-	const [isLoading, setIsLoading] = useState(false);
-
-	useEffect(() => {
-		if (open && conversation) {
-			void (async () => {
-				setIsLoading(true);
-				try {
-					console.log("[Metadata] Fetching conversation metadata");
-					const members = await conversation.members();
-					const isGroup = conversation instanceof Group;
-					const conversationData = {
-						id: conversation.id,
-						...(isGroup
-							? {
-									name: (conversation as Group).name,
-									description: (conversation as Group).description,
-								}
-							: {}),
-						members: members.map((member) => ({
-							inboxId: member.inboxId,
-							accountIdentifiers: member.accountIdentifiers,
-							installationIds: member.installationIds,
-							permissionLevel: member.permissionLevel,
-							consentState: member.consentState,
-						})),
-					};
-					setMetadata(JSON.stringify(conversationData, null, 2));
-					console.log("[Metadata] Conversation metadata fetched successfully");
-				} catch (err) {
-					console.error("[Metadata] Error fetching metadata:", err);
-					setMetadata(
-						JSON.stringify(
-							{
-								error:
-									err instanceof Error
-										? err.message
-										: "Failed to fetch metadata",
-							},
-							null,
-							2,
-						),
-					);
-				} finally {
-					setIsLoading(false);
-				}
-			})();
-		}
-	}, [open, conversation]);
-
-	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-				<DialogHeader className="flex-shrink-0">
-					<DialogTitle>Conversation Metadata</DialogTitle>
-					<DialogDescription>
-						JSON details of the conversation including id, members, and other
-						metadata.
-					</DialogDescription>
-				</DialogHeader>
-				<div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-					{isLoading ? (
-						<div className="py-8 text-center text-muted-foreground">
-							Loading metadata...
-						</div>
-					) : (
-						<pre className="flex-1 min-h-0 overflow-auto rounded border border-zinc-800 bg-zinc-950 p-4 text-[10px]">
-							<code className="block whitespace-pre-wrap break-words">
-								{metadata || "No data available"}
-							</code>
-						</pre>
-					)}
-				</div>
-				<DialogFooter className="flex-shrink-0">
-					<Button variant="ghost" onClick={() => onOpenChange(false)}>
-						Close
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
-	);
-}
-
-type PromptInputProps = HTMLAttributes<HTMLFormElement>;
-
-const PromptInput = ({ className, ...props }: PromptInputProps) => (
-	<form
-		className={cn(
-			"w-full overflow-hidden rounded border border-zinc-800 bg-black",
-			className,
-		)}
-		{...props}
-	/>
-);
-
-type PromptInputTextareaProps = ComponentProps<typeof Textarea> & {
-	minHeight?: number;
-	maxHeight?: number;
-	disableAutoResize?: boolean;
-	resizeOnNewLinesOnly?: boolean;
-};
-
-const PromptInputTextarea = ({
-	onChange,
-	onKeyDown,
-	className,
-	placeholder = "What would you like to know?",
-	minHeight: _minHeight = 48,
-	maxHeight: _maxHeight = 164,
-	disableAutoResize = false,
-	resizeOnNewLinesOnly = false,
-	...props
-}: PromptInputTextareaProps) => {
-	const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
-		onKeyDown?.(e);
-
-		if (e.key === "Enter") {
-			if (e.nativeEvent.isComposing) {
-				return;
-			}
-
-			if (e.shiftKey) {
-				return;
-			}
-
-			e.preventDefault();
-			const form = e.currentTarget.form;
-			if (form) {
-				form.requestSubmit();
-			}
-		}
-	};
-
-	return (
-		<Textarea
-			className={cn(
-				"w-full resize-none rounded-none border-none p-3 shadow-none outline-hidden ring-0",
-				disableAutoResize
-					? "field-sizing-fixed"
-					: resizeOnNewLinesOnly
-						? "field-sizing-fixed"
-						: "field-sizing-content max-h-[6lh]",
-				"bg-transparent dark:bg-transparent",
-				"focus-visible:ring-0",
-				className,
-			)}
-			name="message"
-			onChange={(e) => {
-				onChange?.(e);
-			}}
-			onKeyDown={handleKeyDown}
-			placeholder={placeholder}
-			{...props}
-		/>
-	);
-};
-
-type PromptInputToolbarProps = HTMLAttributes<HTMLDivElement>;
-
-const PromptInputToolbar = ({
-	className,
-	...props
-}: PromptInputToolbarProps) => (
-	<div
-		className={cn("flex items-center justify-between p-1", className)}
-		{...props}
-	/>
-);
-
-type PromptInputToolsProps = HTMLAttributes<HTMLDivElement>;
-
-const PromptInputTools = ({ className, ...props }: PromptInputToolsProps) => (
-	<div
-		className={cn(
-			"flex items-center gap-1",
-			"[&_button:first-child]:rounded-bl-xl",
-			className,
-		)}
-		{...props}
-	/>
-);
-
-type PromptInputSubmitProps = ComponentProps<typeof Button>;
-
-const PromptInputSubmit = ({
-	className,
-	variant = "default",
-	size = "icon",
-	children,
-	...props
-}: PromptInputSubmitProps) => {
-	return (
-		<Button
-			className={cn("gap-1.5 rounded", className)}
-			size={size}
-			type="submit"
-			variant={variant}
-			{...props}
-		>
-			{children}
-		</Button>
-	);
 };
 
 export function InputArea({
@@ -275,20 +52,81 @@ export function InputArea({
 	const [input, setInput] = useState("");
 	const [plusPanelOpen, setPlusPanelOpen] = useState(false);
 	const [metadataOpen, setMetadataOpen] = useState(false);
-	const [conversationAgents, setConversationAgents] = useState<AgentConfig[]>(
-		[],
-	);
 	const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-	const [confirmAddAgentOpen, setConfirmAddAgentOpen] = useState(false);
-	const [agentToAdd, setAgentToAdd] = useState<AgentConfig | null>(null);
-	const [isAddingAgent, setIsAddingAgent] = useState(false);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const isSubmittingRef = useRef(false);
 	const isGroup = conversation instanceof Group;
 	const isMobile = useIsMobile();
-	const { refreshConversations } = useConversationsContext();
-	const { showToast } = useToast();
+
+	// Determine modes
+	const { isChatAreaMode, isMessageListMode, isMultiAgentMode } =
+		useInputAreaModes({
+			selectedAgents,
+			setSelectedAgents,
+			conversation,
+		});
+
+	// Initialize live agents
+	const [liveAgents] = useState(() =>
+		shuffleArray(AI_AGENTS.filter((agent) => agent.live)),
+	);
+
+	// Load conversation agents (needs isMultiAgentMode)
+	const { conversationAgents, singleAgent, setSingleAgent } =
+		useConversationAgents(conversation, isMultiAgentMode);
+
+	// Initialize single agent for non-multi-agent mode (needs isMultiAgentMode and liveAgents)
+	const [singleAgentState, setSingleAgentState] = useState<
+		AgentConfig | undefined
+	>(() => {
+		if (!isMultiAgentMode && liveAgents.length > 0) {
+			return liveAgents[0];
+		}
+		return undefined;
+	});
+
+	// Agent management
+	const {
+		handleAddAgent,
+		handleRemoveAgent,
+		confirmAddAgentOpen,
+		setConfirmAddAgentOpen,
+		agentToAdd,
+		setAgentToAdd,
+		isAddingAgent,
+		handleConfirmAddAgent,
+		confirmRemoveAgentOpen,
+		setConfirmRemoveAgentOpen,
+		agentToRemove,
+		setAgentToRemove,
+		isRemovingAgent,
+		handleConfirmRemoveAgent,
+	} = useAgentManagement({
+		conversation,
+		isMultiAgentMode,
+		isMessageListMode,
+		isGroup,
+		selectedAgents,
+		setSelectedAgents,
+		conversationAgents,
+		setPlusPanelOpen,
+		onOpenAgentsDialogChange,
+		textareaRef,
+		setSingleAgent: setSingleAgentState,
+	});
+
+	// Use conversation agents' singleAgent if available, otherwise use local state
+	const effectiveSingleAgent = singleAgent ?? singleAgentState;
+
+	// In message list mode, show all conversation agents. In chat area mode, use selected agents or single agent
+	const currentSelectedAgents = isMultiAgentMode
+		? selectedAgents
+		: isMessageListMode && conversationAgents.length > 0
+			? conversationAgents
+			: effectiveSingleAgent
+				? [effectiveSingleAgent]
+				: [];
 
 	// Keyboard shortcut: CMD/CTRL + K to open plus panel
 	useEffect(() => {
@@ -331,121 +169,20 @@ export function InputArea({
 		}
 	}, [openAgentsDialog, onOpenAgentsDialogChange]);
 
-	// Determine context mode:
-	// Chat Area Mode: selectedAgents provided AND conversation is null/undefined (conversation not started)
-	// Message List Mode: conversation provided AND selectedAgents not provided (conversation ongoing)
-	const isChatAreaMode =
-		selectedAgents !== undefined && setSelectedAgents !== undefined;
-	const isMessageListMode =
-		conversation !== undefined && selectedAgents === undefined;
-
-	console.log("[InputArea] Mode detection:", {
-		hasSelectedAgents: selectedAgents !== undefined,
-		hasSetSelectedAgents: setSelectedAgents !== undefined,
-		hasConversation: conversation !== undefined,
-		isChatAreaMode,
-		isMessageListMode,
-		conversationId: conversation?.id,
-	});
-
-	// Multi-agent mode: use props (for chat area)
-	// Single-agent mode: use internal state (for message list)
-	const isMultiAgentMode = isChatAreaMode;
-
-	const shuffleArray = <T,>(array: T[]): T[] => {
-		const shuffled = [...array];
-		for (let i = shuffled.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-		}
-		return shuffled;
-	};
-
-	const [liveAgents] = useState(() =>
-		shuffleArray(AI_AGENTS.filter((agent) => agent.live)),
-	);
-
-	const [singleAgent, setSingleAgent] = useState<AgentConfig | undefined>(
-		() => {
-			if (!isMultiAgentMode && liveAgents.length > 0) {
-				return liveAgents[0];
-			}
-			return undefined;
-		},
-	);
-
-	const currentSelectedAgents = isMultiAgentMode
-		? selectedAgents
-		: singleAgent
-			? [singleAgent]
-			: [];
-
+	// Update single agent state when conversation agents change
 	useEffect(() => {
-		if (!conversation) {
-			setConversationAgents([]);
-			if (!isMultiAgentMode) {
-				setSingleAgent(undefined);
-			}
-			return;
-		}
-
 		if (!isMultiAgentMode) {
-			setSingleAgent(undefined);
-		}
-
-		const loadConversationAgents = async () => {
-			try {
-				console.log(
-					"[InputArea] Loading conversation agents for conversation:",
-					conversation.id,
-				);
-				const members = await conversation.members();
-				const memberAddresses = new Set(
-					members.flatMap((member) =>
-						member.accountIdentifiers
-							.filter((id) => id.identifierKind === "Ethereum")
-							.map((id) => id.identifier.toLowerCase()),
-					),
-				);
-
-				console.log(
-					"[InputArea] Member addresses:",
-					Array.from(memberAddresses),
-				);
-
-				const agents = AI_AGENTS.filter((agent) =>
-					memberAddresses.has(agent.address.toLowerCase()),
-				);
-
-				console.log(
-					"[InputArea] Found agents:",
-					agents.map((a) => a.name),
-				);
-
-				setConversationAgents(agents);
-
-				if (!isMultiAgentMode && agents.length > 0) {
-					console.log("[InputArea] Setting singleAgent to:", agents[0].name);
-					setSingleAgent(agents[0]);
-				} else if (!isMultiAgentMode && agents.length === 0) {
-					console.log(
-						"[InputArea] No agents found in conversation, clearing singleAgent",
-					);
-					setSingleAgent(undefined);
-				}
-			} catch (error) {
-				console.error("[InputArea] Error loading conversation agents:", error);
-				setConversationAgents([]);
-				if (!isMultiAgentMode) {
-					setSingleAgent(undefined);
-				}
+			if (singleAgent) {
+				setSingleAgentState(singleAgent);
+			} else if (conversationAgents.length > 0) {
+				setSingleAgentState(conversationAgents[0]);
+			} else {
+				setSingleAgentState(undefined);
 			}
-		};
+		}
+	}, [singleAgent, conversationAgents, isMultiAgentMode]);
 
-		void loadConversationAgents();
-	}, [conversation, isMultiAgentMode]);
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: shuffleArray is a stable function defined above
+	// Suggested actions
 	const suggestedActions = useMemo(() => {
 		if (currentSelectedAgents.length === 0) {
 			return [];
@@ -463,97 +200,6 @@ export function InputArea({
 		return shuffled.slice(0, 4);
 	}, [currentSelectedAgents]);
 
-	const handleAddAgent = (agent: AgentConfig) => {
-		if (isMultiAgentMode) {
-			const agents = selectedAgents || [];
-			const setAgents = setSelectedAgents as (agents: AgentConfig[]) => void;
-			// Check if agent is already selected
-			const isAlreadySelected = agents.some((a) => a.address === agent.address);
-			if (!isAlreadySelected) {
-				// Add to array instead of replace
-				setAgents([...agents, agent]);
-			}
-		} else {
-			console.log(
-				"[InputArea] handleAddAgent called in single-agent mode with agent:",
-				agent.name,
-			);
-			console.log("[InputArea] Current conversation:", conversation?.id);
-			if (conversation) {
-				// If conversation exists and it's a group, show confirmation dialog
-				if (isGroup && conversation instanceof Group) {
-					setAgentToAdd(agent);
-					setConfirmAddAgentOpen(true);
-					setPlusPanelOpen(false);
-					onOpenAgentsDialogChange?.(false);
-					return;
-				} else {
-					console.log(
-						"[InputArea] Conversation is not a group, cannot add agent",
-					);
-				}
-				setPlusPanelOpen(false);
-				onOpenAgentsDialogChange?.(false);
-				textareaRef.current?.focus();
-				return;
-			}
-			console.log(
-				"[InputArea] No conversation, setting singleAgent to:",
-				agent.name,
-			);
-			setSingleAgent(agent);
-			setPlusPanelOpen(false);
-			onOpenAgentsDialogChange?.(false);
-			textareaRef.current?.focus();
-		}
-
-		textareaRef.current?.focus();
-	};
-
-	const handleConfirmAddAgent = async () => {
-		if (!agentToAdd || !conversation || !(conversation instanceof Group)) {
-			return;
-		}
-
-		setIsAddingAgent(true);
-		try {
-			console.log(
-				"[InputArea] Adding agent to existing group conversation:",
-				agentToAdd.name,
-			);
-			await conversation.addMembersByIdentifiers([
-				{
-					identifier: agentToAdd.address.toLowerCase(),
-					identifierKind: "Ethereum" as const,
-				},
-			]);
-			console.log("[InputArea] Agent added to group successfully");
-			showToast(`Added ${agentToAdd.name} to the conversation`, "success");
-			void refreshConversations();
-			setConfirmAddAgentOpen(false);
-			setAgentToAdd(null);
-		} catch (error) {
-			console.error(
-				"[InputArea] Error adding agent to conversation:",
-				error,
-			);
-			showToast(
-				`Failed to add ${agentToAdd.name}. Please try again.`,
-				"error",
-			);
-		} finally {
-			setIsAddingAgent(false);
-		}
-	};
-
-	const handleRemoveAgent = (address: string) => {
-		if (isMultiAgentMode) {
-			const agents = selectedAgents || [];
-			const setAgents = setSelectedAgents as (agents: AgentConfig[]) => void;
-			setAgents(agents.filter((a) => a.address !== address));
-		}
-	};
-
 	const handleSelectMember = (address: string) => {
 		// Check if member is already selected
 		if (!selectedMembers.includes(address.toLowerCase())) {
@@ -563,25 +209,6 @@ export function InputArea({
 
 	const handleRemoveMember = (address: string) => {
 		setSelectedMembers((prev) => prev.filter((a) => a !== address));
-	};
-
-	const truncateAddress = (address: string): string => {
-		if (address.length <= 10) return address;
-		return `${address.slice(0, 6)}...${address.slice(-4)}`;
-	};
-
-	const appendAgentMentions = (message: string): string => {
-		// Use conversationAgents if available (existing conversation), otherwise use selected agents
-		const agentsToMention =
-			conversationAgents.length > 0
-				? conversationAgents
-				: currentSelectedAgents;
-
-		if (agentsToMention.length === 0) {
-			return message;
-		}
-		const mentions = agentsToMention.map((agent) => `@${agent.name}`).join(" ");
-		return `${message} ${mentions}`;
 	};
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -605,8 +232,11 @@ export function InputArea({
 		isSubmittingRef.current = true;
 
 		try {
-			const messageToSend = appendAgentMentions(messageContent);
-			console.log("[InputArea] Sending message with mentions:", messageToSend);
+			const messageToSend = appendAgentMentions(
+				messageContent,
+				conversationAgents,
+				currentSelectedAgents,
+			);
 			sendMessage?.(
 				messageToSend,
 				isMultiAgentMode ? currentSelectedAgents : undefined,
@@ -623,10 +253,10 @@ export function InputArea({
 
 	const handleSuggestionClick = (suggestion: string) => {
 		if (sendMessage) {
-			const messageToSend = appendAgentMentions(suggestion);
-			console.log(
-				"[InputArea] Sending suggestion with mentions:",
-				messageToSend,
+			const messageToSend = appendAgentMentions(
+				suggestion,
+				conversationAgents,
+				currentSelectedAgents,
 			);
 			sendMessage(
 				messageToSend,
@@ -643,28 +273,10 @@ export function InputArea({
 				!input.trim() &&
 				isChatAreaMode &&
 				!conversation && (
-					<div className="grid w-full gap-2 sm:grid-cols-2">
-						{suggestedActions.map((suggestedAction, index) => (
-							<motion.div
-								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: 10 }}
-								initial={{ opacity: 0, y: 10 }}
-								key={suggestedAction}
-								transition={{ delay: 0.05 * index, duration: 0.15 }}
-							>
-								<Button
-									className="h-auto w-full whitespace-normal p-3 text-left"
-									onClick={() => {
-										handleSuggestionClick(suggestedAction);
-									}}
-									type="button"
-									variant="outline"
-								>
-									{suggestedAction}
-								</Button>
-							</motion.div>
-						))}
-					</div>
+					<SuggestedActions
+						suggestions={suggestedActions}
+						onClick={handleSuggestionClick}
+					/>
 				)}
 			<div className="relative" ref={panelRef}>
 				<PlusPanel
@@ -713,75 +325,15 @@ export function InputArea({
 					</div>
 					<PromptInputToolbar className="border-top-0! border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!">
 						<PromptInputTools className="gap-0 sm:gap-0.5">
-							<AnimatePresence mode="popLayout">
-								{(currentSelectedAgents.length > 0 ||
-									selectedMembers.length > 0) && (
-									<motion.div
-										initial={{ opacity: 0, width: 0 }}
-										animate={{ opacity: 1, width: "auto" }}
-										exit={{ opacity: 0, width: 0 }}
-										transition={{ duration: 0.2 }}
-										className="flex items-center gap-1.5 overflow-hidden flex-wrap"
-									>
-										{/* Agent chips */}
-										{currentSelectedAgents.map((agent) => (
-											<motion.div
-												key={`agent-${agent.address}`}
-												initial={{ opacity: 0, scale: 0.8 }}
-												animate={{ opacity: 1, scale: 1 }}
-												exit={{ opacity: 0, scale: 0.8 }}
-												transition={{ duration: 0.15 }}
-												className="inline-flex items-center gap-1 rounded bg-zinc-800 px-2 py-0.5 text-xs text-foreground h-6"
-											>
-												{agent.image ? (
-													<img
-														alt={agent.name}
-														className="h-4 w-4 shrink-0 rounded object-cover"
-														src={agent.image}
-													/>
-												) : (
-													<div className="h-4 w-4 shrink-0 rounded bg-muted" />
-												)}
-												<span>{agent.name}</span>
-												{isMultiAgentMode && (
-													<button
-														type="button"
-														onClick={() => {
-															handleRemoveAgent(agent.address);
-														}}
-														className="rounded hover:bg-zinc-700 p-0.5 transition-colors duration-200 active:scale-[0.97]"
-													>
-														<XIcon size={12} />
-													</button>
-												)}
-											</motion.div>
-										))}
-
-										{/* Member chips */}
-										{selectedMembers.map((address) => (
-											<motion.div
-												key={`member-${address}`}
-												initial={{ opacity: 0, scale: 0.8 }}
-												animate={{ opacity: 1, scale: 1 }}
-												exit={{ opacity: 0, scale: 0.8 }}
-												transition={{ duration: 0.15 }}
-												className="inline-flex items-center gap-1 rounded bg-zinc-800 px-2 py-0.5 text-xs text-foreground h-6"
-											>
-												<span>{truncateAddress(address)}</span>
-												<button
-													type="button"
-													onClick={() => {
-														handleRemoveMember(address);
-													}}
-													className="rounded hover:bg-zinc-700 p-0.5 transition-colors duration-200 active:scale-[0.97]"
-												>
-													<XIcon size={12} />
-												</button>
-											</motion.div>
-										))}
-									</motion.div>
-								)}
-							</AnimatePresence>
+							<AgentChips
+								agents={currentSelectedAgents}
+								members={selectedMembers}
+								onRemoveAgent={handleRemoveAgent}
+								onRemoveMember={handleRemoveMember}
+								isMultiAgentMode={isMultiAgentMode}
+								isMessageListMode={isMessageListMode}
+								conversation={conversation}
+							/>
 						</PromptInputTools>
 
 						<div className="flex items-center gap-1">
@@ -826,67 +378,20 @@ export function InputArea({
 					conversation={conversation}
 				/>
 			)}
-			<Dialog open={confirmAddAgentOpen} onOpenChange={setConfirmAddAgentOpen}>
-				<DialogContent className="max-w-md">
-					<DialogHeader>
-						<DialogTitle>Add agent to conversation</DialogTitle>
-						<DialogDescription>
-							{agentToAdd && (
-								<div className="flex items-center gap-3 mt-2">
-									{agentToAdd.image ? (
-										<img
-											alt={agentToAdd.name}
-											className="h-12 w-12 shrink-0 rounded object-cover"
-											src={agentToAdd.image}
-										/>
-									) : (
-										<div className="h-12 w-12 shrink-0 rounded bg-muted" />
-									)}
-									<div className="flex flex-col flex-1 min-w-0">
-										<span className="text-sm font-medium text-foreground">
-											{agentToAdd.name}
-										</span>
-										{agentToAdd.tagline && (
-											<span className="text-xs text-muted-foreground">
-												{agentToAdd.tagline}
-											</span>
-										)}
-									</div>
-								</div>
-							)}
-						</DialogDescription>
-					</DialogHeader>
-					<DialogFooter>
-						<Button
-							variant="ghost"
-							onClick={() => {
-								setConfirmAddAgentOpen(false);
-								setAgentToAdd(null);
-							}}
-							disabled={isAddingAgent}
-						>
-							Cancel
-						</Button>
-						<Button
-							className="bg-accent text-accent-foreground hover:bg-accent/90"
-							onClick={handleConfirmAddAgent}
-							disabled={isAddingAgent}
-						>
-							{isAddingAgent ? (
-								<>
-									<Loader2Icon
-										className="mr-2 h-4 w-4 animate-spin"
-										size={16}
-									/>
-									Adding...
-								</>
-							) : (
-								"Add agent"
-							)}
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
+			<AddAgentDialog
+				open={confirmAddAgentOpen}
+				onOpenChange={setConfirmAddAgentOpen}
+				agent={agentToAdd}
+				isAdding={isAddingAgent}
+				onConfirm={handleConfirmAddAgent}
+			/>
+			<RemoveAgentDialog
+				open={confirmRemoveAgentOpen}
+				onOpenChange={setConfirmRemoveAgentOpen}
+				agent={agentToRemove}
+				isRemoving={isRemovingAgent}
+				onConfirm={handleConfirmRemoveAgent}
+			/>
 		</div>
 	);
 }

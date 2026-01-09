@@ -72,26 +72,17 @@ export function UnifiedSelector({
 		if (!open) return;
 
 		const handleKeyDown = (e: KeyboardEvent) => {
-			console.log("[UnifiedSelector] Key pressed:", e.key);
-
 			if (e.key === "ArrowDown" || e.key === "ArrowUp") {
 				e.preventDefault();
 				e.stopPropagation();
 				const items = commandRef.current?.querySelectorAll(
 					'[cmdk-item]:not([aria-disabled="true"])',
 				);
-				console.log("[UnifiedSelector] Found items:", items?.length);
 				if (!items || items.length === 0) return;
 
 				const focusedElement = document.activeElement;
 				const currentIndex = Array.from(items).indexOf(
 					focusedElement as Element,
-				);
-				console.log(
-					"[UnifiedSelector] Current index:",
-					currentIndex,
-					"Total items:",
-					items.length,
 				);
 
 				let nextIndex: number;
@@ -105,29 +96,21 @@ export function UnifiedSelector({
 							: (currentIndex - 1 + items.length) % items.length;
 				}
 
-				console.log("[UnifiedSelector] Moving to index:", nextIndex);
 				(items[nextIndex] as HTMLElement).focus();
 			} else if (e.key === "Enter") {
 				e.preventDefault();
 				e.stopPropagation();
 				const focusedElement = document.activeElement;
-				console.log("[UnifiedSelector] Enter pressed, focused element:", {
-					tagName: focusedElement?.tagName,
-					hasCmdkItem: focusedElement?.hasAttribute("cmdk-item"),
-					isDisabled: focusedElement?.hasAttribute("aria-disabled"),
-				});
 				if (
 					focusedElement &&
 					focusedElement.hasAttribute("cmdk-item") &&
 					!focusedElement.hasAttribute("aria-disabled")
 				) {
-					console.log("[UnifiedSelector] Clicking focused element");
 					(focusedElement as HTMLElement).click();
 				}
 			} else if (e.key === "Escape") {
 				e.preventDefault();
 				e.stopPropagation();
-				console.log("[UnifiedSelector] Escape pressed, closing selector");
 				onClose?.();
 			}
 		};
@@ -152,7 +135,6 @@ export function UnifiedSelector({
 				);
 				if (firstItem instanceof HTMLElement) {
 					firstItem.focus();
-					console.log("[UnifiedSelector] Focused first item");
 				}
 			}, 50);
 		}
@@ -170,16 +152,6 @@ export function UnifiedSelector({
 		if (cmd.requiresGroup && !isGroup) return false;
 		if (cmd.requiresConversation && !conversation) return false;
 		return true;
-	});
-
-	console.log("[UnifiedSelector] Command filtering:", {
-		mode,
-		isGroup,
-		conversation,
-		totalCommands: COMMANDS.length,
-		availableCommands: availableCommands.length,
-		searchQuery,
-		availableCommandNames: availableCommands.map((c) => c.label),
 	});
 
 	const filteredCommands = availableCommands.filter(

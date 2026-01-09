@@ -72,8 +72,6 @@ export function PlusPanel({
 		setIsAdding(true);
 
 		try {
-			console.log("[PlusPanel] Adding member to selection:", trimmedAddress);
-			
 			// If there's a group, add to the actual group
 			if (group) {
 				await group.addMembersByIdentifiers([
@@ -82,7 +80,6 @@ export function PlusPanel({
 						identifierKind: "Ethereum" as const,
 					},
 				]);
-				console.log("[PlusPanel] Member added to group successfully");
 				void refreshConversations();
 			}
 			
@@ -177,7 +174,6 @@ export function PlusPanel({
 								<button
 									type="button"
 									onClick={() => {
-										console.log("[PlusPanel] Add member button clicked, setting showMemberInput to true");
 										setShowMemberInput(true);
 									}}
 									className="w-full px-4 py-3 text-left text-xs text-foreground hover:bg-zinc-800 transition-colors duration-200"
