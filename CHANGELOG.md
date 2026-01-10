@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.37] - 2026-01-10
+
+### Changed
+
+- Configured ngrok to use custom domain (amazed-hedgehog-actual.ngrok-free.app)
+- Updated vite config to allow ngrok domain and disable HMR to prevent rate limiting
+
 ## [0.1.36] - 2026-01-10
 
 ### Fixed
