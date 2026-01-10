@@ -60,7 +60,7 @@ export function PortalSidebar() {
           <div className="flex flex-row items-center justify-between group-data-[collapsible=icon]:justify-center">
             <SidebarLogo
               className="group-data-[collapsible=icon]:hidden"
-              onClick={() => handleNavClick("/dev-portal")}
+              onClick={() => handleNavClick("/")}
             />
             <SidebarToggle />
           </div>

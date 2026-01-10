@@ -34,6 +34,21 @@ function AgentForm({
 
   const [suggestionInput, setSuggestionInput] = useState("");
 
+  useEffect(() => {
+    setFormData({
+      name: agent?.name || "",
+      address: agent?.address || "",
+      networks: agent?.networks || ["production"],
+      live: agent?.live ?? true,
+      description: agent?.description || "",
+      category: agent?.category || "",
+      domain: agent?.domain || "",
+      image: agent?.image || "",
+      suggestions: agent?.suggestions || [],
+    });
+    setSuggestionInput("");
+  }, [agent]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -229,27 +244,40 @@ function AgentList({
       {agents.map((agent) => (
         <div
           key={agent.address}
-          className="flex items-center justify-between p-3 rounded border border-zinc-800 bg-zinc-950 hover:bg-zinc-900 transition-colors"
+          className="flex items-center justify-between p-3 rounded bg-zinc-950 hover:bg-zinc-900 transition-colors"
         >
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-xs truncate">{agent.name}</h3>
-              <span
-                className={`text-[9px] px-1.5 py-0.5 rounded font-medium shrink-0 ${
-                  agent.live
-                    ? "bg-green-500/20 text-green-500"
-                    : "bg-zinc-800 text-zinc-500"
-                }`}
-              >
-                {agent.live ? "ONLINE" : "DOWN"}
-              </span>
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {agent.image ? (
+              <img
+                alt={agent.name}
+                className="size-10 shrink-0 rounded object-cover"
+                src={agent.image}
+              />
+            ) : (
+              <div className="flex size-10 shrink-0 items-center justify-center rounded bg-zinc-800 text-sm font-semibold text-foreground">
+                {agent.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-xs truncate">{agent.name}</h3>
+                <span
+                  className={`text-[9px] px-1.5 py-0.5 rounded font-medium shrink-0 ${
+                    agent.live
+                      ? "bg-green-500/20 text-green-500"
+                      : "bg-zinc-800 text-zinc-500"
+                  }`}
+                >
+                  {agent.live ? "ONLINE" : "DOWN"}
+                </span>
+              </div>
+              <p className="text-[10px] text-muted-foreground truncate mt-1">
+                {agent.description || agent.address}
+              </p>
+              <p className="text-[9px] text-muted-foreground truncate mt-0.5">
+                {agent.address}
+              </p>
             </div>
-            <p className="text-[10px] text-muted-foreground truncate mt-1">
-              {agent.description || agent.address}
-            </p>
-            <p className="text-[9px] text-muted-foreground truncate mt-0.5">
-              {agent.address}
-            </p>
           </div>
           <div className="flex items-center gap-2 shrink-0 ml-4">
             <Button
@@ -359,27 +387,27 @@ export function PortalPage() {
             </div>
           </div>
 
-      {showForm ? (
-        <div className="rounded border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="font-semibold text-sm mb-4">
-            {editingAgent ? "Edit Agent" : "Create New Agent"}
-          </h2>
-          <AgentForm
-            agent={editingAgent}
-            onSave={handleSave}
-            onCancel={handleCancel}
-          />
-        </div>
-      ) : (
-        <div className="rounded border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="font-semibold text-sm mb-4">Your Agents</h2>
-          <AgentList
-            agents={agents}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        </div>
-      )}
+          {showForm ? (
+            <div className="rounded bg-zinc-950 p-6">
+              <h2 className="font-semibold text-sm mb-4">
+                {editingAgent ? "Edit Agent" : "Create New Agent"}
+              </h2>
+              <AgentForm
+                agent={editingAgent}
+                onSave={handleSave}
+                onCancel={handleCancel}
+              />
+            </div>
+          ) : (
+            <div className="rounded bg-zinc-950 p-6">
+              <h2 className="font-semibold text-sm mb-4">Your Agents</h2>
+              <AgentList
+                agents={agents}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

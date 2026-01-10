@@ -224,7 +224,8 @@ export function ConversationItem({
                     onBlur={handleSave}
                     onKeyDown={handleKeyDown}
                     disabled={isSaving}
-                    className={`truncate text-xs font-medium bg-transparent border-none outline-none focus:outline-none flex-1 text-foreground ${isSaving ? "opacity-70" : ""}`}
+                    placeholder="Enter conversation name"
+                    className={`truncate text-xs font-medium bg-transparent border-none outline-none focus:outline-none flex-1 text-foreground placeholder:text-muted-foreground ${isSaving ? "opacity-70" : ""}`}
                     style={{ WebkitTapHighlightColor: "transparent" }}
                     onClick={(e) => e.stopPropagation()}
                     onDoubleClick={(e) => e.stopPropagation()}

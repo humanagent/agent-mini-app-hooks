@@ -1,5 +1,11 @@
 import { useXMTPClient } from "@hooks/use-xmtp-client";
-import { CopyIcon, CheckIcon, ResetIcon, CodeIcon } from "@ui/icons";
+import {
+  CopyIcon,
+  CheckIcon,
+  ResetIcon,
+  CodeIcon,
+  ChevronDownIcon,
+} from "@ui/icons";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@ui/sidebar";
 import {
   Dialog,
@@ -18,10 +24,11 @@ import {
   DropdownMenuTrigger,
 } from "@ui/dropdown-menu";
 import { Button } from "@ui/button";
+import { Skeleton } from "@ui/skeleton";
 import { shortAddress } from "@/lib/utils";
 import { clearEphemeralAccountKey } from "@/lib/xmtp/signer";
 import { useState, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 
 function generateGradient(address: string): string {
   // Generate two colors from the address for gradient
@@ -35,8 +42,9 @@ function generateGradient(address: string): string {
 }
 
 export function SidebarUserNav() {
-  const { client } = useXMTPClient();
+  const { client, isLoading } = useXMTPClient();
   const navigate = useNavigate();
+  const location = useLocation();
   const [copied, setCopied] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const address = client?.accountIdentifier?.identifier;
@@ -44,6 +52,7 @@ export function SidebarUserNav() {
     ? shortAddress(address.toLowerCase())
     : "Guest";
   const initial = address ? address.substring(2, 3).toUpperCase() : "G";
+  const isPortal = location.pathname.startsWith("/dev-portal");
 
   const avatarGradient = useMemo(() => {
     return address ? generateGradient(address) : undefined;
@@ -85,25 +94,40 @@ export function SidebarUserNav() {
       <SidebarMenu>
         <SidebarMenuItem>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild disabled={isLoading}>
               <SidebarMenuButton
-                className="h-9 justify-between bg-transparent"
+                className="h-9 bg-transparent"
                 data-testid="user-nav-button"
               >
-                <div
-                  className="flex aspect-square size-6 items-center justify-center rounded text-white shadow-sm"
-                  style={{ background: avatarGradient || "var(--accent)" }}
-                >
-                  <span className="text-xs font-semibold drop-shadow-sm">
-                    {initial}
-                  </span>
-                </div>
-                <span
-                  className="flex-1 truncate text-left"
-                  data-testid="user-email"
-                >
-                  {displayAddress}
-                </span>
+                {isLoading ? (
+                  <>
+                    <Skeleton className="size-6 rounded" />
+                    <Skeleton className="h-4 w-24" />
+                  </>
+                ) : (
+                  <>
+                    <div
+                      className="flex shrink-0 aspect-square size-6 items-center justify-center rounded text-white shadow-sm"
+                      style={{ background: avatarGradient || "var(--accent)" }}
+                    >
+                      <span className="text-xs font-semibold drop-shadow-sm">
+                        {initial}
+                      </span>
+                    </div>
+                    <span
+                      className="flex-1 truncate text-left min-w-0 self-center leading-none"
+                      data-testid="user-email"
+                    >
+                      {displayAddress}
+                    </span>
+                    <div className="ml-auto shrink-0 flex items-center group-data-[collapsible=icon]:hidden">
+                      <ChevronDownIcon
+                        size={16}
+                        className="text-muted-foreground translate-y-[1px]"
+                      />
+                    </div>
+                  </>
+                )}
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -126,11 +150,15 @@ export function SidebarUserNav() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
-                  navigate("/dev-portal");
+                  if (isPortal) {
+                    navigate("/");
+                  } else {
+                    navigate("/dev-portal");
+                  }
                 }}
               >
                 <CodeIcon size={16} />
-                <span>Developer Portal</span>
+                <span>{isPortal ? "Back to App" : "Developer Portal"}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

@@ -129,6 +129,14 @@ export function Sidebar() {
     }
   };
 
+  const handleLogoClick = useCallback(() => {
+    console.log("[Sidebar] Logo clicked, navigating to app route");
+    navigate("/", { replace: true });
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [navigate, isMobile, setOpenMobile]);
+
   return (
     <SidebarUI className="group-data-[side=left]:border-r-0" collapsible="icon">
       <SidebarHeader className="group-data-[collapsible=icon]:p-0">
@@ -136,14 +144,7 @@ export function Sidebar() {
           <div className="flex flex-row items-center justify-between group-data-[collapsible=icon]:justify-center">
             <SidebarLogo
               className="group-data-[collapsible=icon]:hidden"
-              onClick={() => {
-                setSelectedConversation(null);
-                setPendingConversation(null);
-                navigate("/", { replace: true });
-                if (isMobile) {
-                  setOpenMobile(false);
-                }
-              }}
+              onClick={handleLogoClick}
             />
             <SidebarToggle />
           </div>
@@ -223,16 +224,7 @@ export function Sidebar() {
       </SidebarContent>
       <SidebarFooter className="group-data-[collapsible=icon]:p-0">
         <div className="hidden group-data-[collapsible=icon]:flex items-center justify-center">
-          <SidebarLogo
-            onClick={() => {
-              setSelectedConversation(null);
-              setPendingConversation(null);
-              navigate("/", { replace: true });
-              if (isMobile) {
-                setOpenMobile(false);
-              }
-            }}
-          />
+          <SidebarLogo onClick={handleLogoClick} />
         </div>
         <div className="group-data-[collapsible=icon]:hidden">
           <SidebarUserNav />
