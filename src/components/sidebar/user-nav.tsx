@@ -96,7 +96,7 @@ export function SidebarUserNav() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild disabled={isLoading}>
               <SidebarMenuButton
-                className="h-9 bg-transparent border-2 border-zinc-900 hover:border-zinc-700 pl-3 pr-2 py-2 data-[active=true]:border-zinc-700"
+                className="h-9 bg-transparent border-2 border-zinc-900 hover:border-zinc-700 pl-3 pr-2 py-2 data-[active=true]:border-zinc-700 focus-visible:ring-0 focus:ring-0 focus:outline-none data-[state=open]:ring-0"
                 data-testid="user-nav-button"
               >
                 {isLoading ? (
@@ -131,9 +131,10 @@ export function SidebarUserNav() {
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              align="end"
+              align="start"
               side="top"
-              className="w-56 min-w-[14rem]"
+              alignOffset={-8}
+              className="w-[calc(var(--sidebar-width)-1rem)]"
             >
               <DropdownMenuLabel className="text-xs">
                 {displayAddress}
