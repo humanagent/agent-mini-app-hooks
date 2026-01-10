@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.36] - 2026-01-10
+
+### Fixed
+
+- Fixed dropdown menu alignment to match sidebar item width for consistent panel appearance
+- Removed focus ring/border on dropdown trigger button after clicking
+
 ## [0.1.35] - 2026-01-10
 
 ### Fixed
