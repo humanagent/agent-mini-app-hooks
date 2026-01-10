@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.34] - 2026-01-10
+
+### Added
+
+- Added placeholder text to conversation name input when editing
+
 ## [0.1.33] - 2026-01-10
 
 ### Added
