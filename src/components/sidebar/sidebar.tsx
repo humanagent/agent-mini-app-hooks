@@ -176,7 +176,15 @@ export function Sidebar() {
               isActive={location.pathname === "/explore"}
               tooltip="Explore"
             >
-              <Link to="/explore">
+              <Link
+                to="/explore"
+                onClick={() => {
+                  setSelectedConversation(null);
+                  if (isMobile) {
+                    setOpenMobile(false);
+                  }
+                }}
+              >
                 <ExploreIcon size={16} />
                 <span className="group-data-[collapsible=icon]:hidden">
                   Explore
@@ -209,7 +217,10 @@ export function Sidebar() {
               <ConversationItem
                 key={conversation.id}
                 conversation={conversation}
-                isActive={selectedConversation?.id === conversation.id}
+                isActive={
+                  selectedConversation?.id === conversation.id &&
+                  location.pathname.startsWith("/conversation/")
+                }
                 lastMessagePreview={lastMessagePreview}
                 onClick={() => {
                   handleConversationClick(conversation);

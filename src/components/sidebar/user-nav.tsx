@@ -96,7 +96,7 @@ export function SidebarUserNav() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild disabled={isLoading}>
               <SidebarMenuButton
-                className="h-9 bg-transparent"
+                className="h-9 bg-transparent border-2 border-zinc-900 hover:border-zinc-700 pl-3 pr-2 py-2 data-[active=true]:border-zinc-700"
                 data-testid="user-nav-button"
               >
                 {isLoading ? (
@@ -120,10 +120,10 @@ export function SidebarUserNav() {
                     >
                       {displayAddress}
                     </span>
-                    <div className="ml-auto shrink-0 flex items-center group-data-[collapsible=icon]:hidden">
+                    <div className="ml-auto shrink-0 flex items-center justify-center group-data-[collapsible=icon]:hidden">
                       <ChevronDownIcon
                         size={16}
-                        className="text-muted-foreground translate-y-[1px]"
+                        className="text-muted-foreground"
                       />
                     </div>
                   </>
