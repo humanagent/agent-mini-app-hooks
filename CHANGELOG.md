@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.39] - 2026-01-10
+
+### Changed
+
+- Replaced loading dots with animated text wave effect - letters type one by one with wave opacity animation
+- Improved loading indicator animation with letter-by-letter typing and smooth wave opacity transitions
+- Enhanced user experience with visually engaging loading states across all conversation operations
+
 ## [0.1.38] - 2026-01-10
 
 ### Fixed
