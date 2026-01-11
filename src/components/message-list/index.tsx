@@ -232,7 +232,6 @@ export function ConversationView({
 
       // Cleanup previous stream
       if (streamCleanupRef.current) {
-        console.log("[ConversationView] Cleaning up previous stream");
         void streamCleanupRef.current();
         streamCleanupRef.current = null;
       }
@@ -251,6 +250,8 @@ export function ConversationView({
   }, [selectedAgents, selectedConversation, setSelectedConversation, navigate]);
 
   // Sync selected conversation with URL params
+  const prevConversationIdRef = useRef<string | undefined>(conversationId);
+  const prevSelectedConversationRef = useRef(selectedConversation);
   useEffect(() => {
     if (conversationId) {
       const conversation = conversations.find((c) => c.id === conversationId);
@@ -275,20 +276,39 @@ export function ConversationView({
         setSelectedConversation(null);
       }
     }
+
+    // Clear stacked agents when navigating to home (either from conversation OR when selectedConversation is cleared)
+    const wasOnConversation = prevConversationIdRef.current !== undefined;
+    const conversationCleared =
+      prevSelectedConversationRef.current !== null &&
+      selectedConversation === null;
+    const isOnHome = !conversationId;
+
+    if (
+      isOnHome &&
+      !location.state &&
+      (wasOnConversation || conversationCleared) &&
+      selectedAgents.length > 0
+    ) {
+      console.log(
+        "[ConversationView] Clearing stacked agents - on home with no conversation",
+      );
+      setSelectedAgents([]);
+    }
+
+    prevConversationIdRef.current = conversationId;
+    prevSelectedConversationRef.current = selectedConversation;
   }, [
     conversationId,
     conversations,
     selectedConversation,
     setSelectedConversation,
     navigate,
+    selectedAgents,
+    location.state,
   ]);
 
   useEffect(() => {
-    console.log(
-      "[ConversationView] selectedConversation changed:",
-      selectedConversation?.id,
-    );
-
     // Clear messages immediately when conversation changes
     setMessages([]);
     setSyncError(null);
@@ -299,7 +319,6 @@ export function ConversationView({
 
     // Cleanup previous stream
     if (streamCleanupRef.current) {
-      console.log("[ConversationView] Cleaning up previous stream");
       void streamCleanupRef.current();
       streamCleanupRef.current = null;
     }
@@ -454,7 +473,6 @@ export function ConversationView({
           });
 
           streamCleanupRef.current = async () => {
-            console.log("[ConversationView] Ending stream");
             await stream.end();
           };
         } catch (error) {
@@ -485,7 +503,6 @@ export function ConversationView({
     void setupMessages();
 
     return () => {
-      console.log("[ConversationView] Cleanup effect");
       mounted = false;
       if (streamCleanupRef.current) {
         void streamCleanupRef.current();
@@ -608,15 +625,15 @@ export function ConversationView({
   );
 
   return (
-    <div className="overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-black">
+    <div className="flex h-svh min-h-0 min-w-0 flex-col overflow-hidden bg-black">
       <ChatHeader conversation={selectedConversation} />
 
-      <div className="relative flex-1">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         <div
           ref={scrollContainerRef}
-          className="absolute inset-0 touch-pan-y overflow-y-auto"
+          className="absolute inset-0 left-[1px] -webkit-overflow-scrolling-touch overscroll-behavior-contain overflow-y-auto touch-pan-y"
         >
-          <div className="mx-auto flex min-w-0 max-w-4xl flex-col pl-[60px] pr-3 py-4 md:px-6 md:py-6">
+          <div className="mx-auto flex min-w-0 max-w-4xl flex-col px-4 py-4 md:pl-[60px] md:pr-6 md:py-6">
             {createError && !selectedConversation && (
               <ThinkingIndicator
                 error
@@ -687,7 +704,7 @@ export function ConversationView({
         </div>
       </div>
 
-      <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-black px-2 pb-3 md:px-4 md:pb-4">
+      <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-black px-4 pb-4 pt-3 md:px-4 md:pb-4 md:pt-0">
         <InputArea
           {...(selectedConversation
             ? {}

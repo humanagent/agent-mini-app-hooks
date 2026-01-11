@@ -16,6 +16,7 @@ export function useAgentManagement({
   setPlusPanelOpen,
   onOpenAgentsDialogChange,
   textareaRef,
+  setSingleAgent,
 }: {
   conversation?: Conversation | null;
   isMultiAgentMode: boolean;
@@ -27,6 +28,7 @@ export function useAgentManagement({
   setPlusPanelOpen: (open: boolean) => void;
   onOpenAgentsDialogChange?: (open: boolean) => void;
   textareaRef: React.RefObject<HTMLTextAreaElement>;
+  setSingleAgent?: (agent: AgentConfig | undefined) => void;
 }) {
   const [confirmAddAgentOpen, setConfirmAddAgentOpen] = useState(false);
   const [agentToAdd, setAgentToAdd] = useState<AgentConfig | null>(null);
@@ -47,6 +49,9 @@ export function useAgentManagement({
         // Add to array instead of replace
         setAgents([...agents, agent]);
       }
+      setPlusPanelOpen(false);
+      onOpenAgentsDialogChange?.(false);
+      textareaRef.current?.focus();
     } else {
       if (conversation) {
         // If conversation exists and it's a group, show confirmation dialog
@@ -96,7 +101,7 @@ export function useAgentManagement({
     }
   };
 
-  const handleRemoveAgent = (address: string) => {
+  const handleRemoveAgent = async (address: string) => {
     if (isMultiAgentMode) {
       const agents = selectedAgents || [];
       const setAgents = setSelectedAgents as (agents: AgentConfig[]) => void;
@@ -107,6 +112,11 @@ export function useAgentManagement({
         (a) => a.address.toLowerCase() === address.toLowerCase(),
       );
       if (agent && isGroup && conversation instanceof Group) {
+        // Check member count - don't show modal if there are only 2 members
+        const members = await conversation.members();
+        if (members.length <= 2) {
+          return;
+        }
         setAgentToRemove(agent);
         setConfirmRemoveAgentOpen(true);
       }

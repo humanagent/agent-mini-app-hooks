@@ -149,7 +149,7 @@ const SidebarProvider = React.forwardRef<
         <TooltipProvider delayDuration={0}>
           <div
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              "group/sidebar-wrapper flex w-full has-[[data-variant=inset]]:bg-sidebar",
               className,
             )}
             ref={ref}
@@ -157,6 +157,7 @@ const SidebarProvider = React.forwardRef<
               {
                 "--sidebar-width": SIDEBAR_WIDTH,
                 "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+                minHeight: "100svh",
                 ...style,
               } as React.CSSProperties
             }
@@ -253,7 +254,7 @@ const Sidebar = React.forwardRef<
         />
         <div
           className={cn(
-            "fixed inset-y-0 z-10 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] duration-150 ease-linear md:flex",
+            "fixed z-10 hidden w-[var(--sidebar-width)] transition-[left,right,width] duration-150 ease-linear md:flex",
             side === "left"
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -263,6 +264,11 @@ const Sidebar = React.forwardRef<
               : "group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)] group-data-[side=left]:border-r group-data-[side=right]:border-l",
             className,
           )}
+          style={{
+            top: "env(safe-area-inset-top, 0px)",
+            bottom: "env(safe-area-inset-bottom, 0px)",
+            height: "calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))",
+          }}
           {...props}
         >
           <div
@@ -345,6 +351,9 @@ const SidebarInset = React.forwardRef<
         className,
       )}
       ref={ref}
+      style={{
+        minHeight: "100svh",
+      }}
       {...props}
     />
   );

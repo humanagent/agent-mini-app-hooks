@@ -299,16 +299,24 @@
     @apply border-border;
   }
 
+  html {
+    overflow-x: hidden;
+    /* Use small viewport height for proper mobile viewport handling */
+    min-height: 100svh;
+    min-height: -webkit-fill-available;
+    /* Ensure background covers safe areas */
+    background-color: #000000;
+  }
+
   body {
     @apply bg-background text-foreground;
     overflow-x: hidden;
     position: relative;
     font-weight: 400;
     letter-spacing: -0.01em;
-  }
-
-  html {
-    overflow-x: hidden;
+    /* Ensure body fills viewport properly */
+    min-height: 100svh;
+    min-height: -webkit-fill-available;
   }
 
   /* Typography - XMTP branding */

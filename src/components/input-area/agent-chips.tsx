@@ -1,7 +1,9 @@
 import { XIcon } from "@ui/icons";
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import type { AgentConfig } from "@/agent-registry/agents";
 import type { Conversation } from "@xmtp/browser-sdk";
+import { Group } from "@xmtp/browser-sdk";
 import { truncateAddress } from "./utils";
 
 type AgentChipsProps = {
@@ -23,6 +25,24 @@ export function AgentChips({
   isMessageListMode,
   conversation,
 }: AgentChipsProps) {
+  const [canRemove, setCanRemove] = useState(true);
+
+  useEffect(() => {
+    if (isMessageListMode && conversation instanceof Group) {
+      void (async () => {
+        try {
+          const groupMembers = await conversation.members();
+          setCanRemove(groupMembers.length > 2);
+        } catch (error) {
+          console.error("[AgentChips] Error fetching members:", error);
+          setCanRemove(true);
+        }
+      })();
+    } else {
+      setCanRemove(true);
+    }
+  }, [conversation, isMessageListMode]);
+
   if (agents.length === 0 && members.length === 0) {
     return null;
   }
@@ -56,17 +76,18 @@ export function AgentChips({
               <div className="h-4 w-4 shrink-0 rounded bg-muted" />
             )}
             <span>{agent.name}</span>
-            {(isMultiAgentMode || (isMessageListMode && conversation)) && (
-              <button
-                type="button"
-                onClick={() => {
-                  onRemoveAgent(agent.address);
-                }}
-                className="rounded hover:bg-zinc-700 p-0.5 transition-colors duration-200 active:scale-[0.97]"
-              >
-                <XIcon size={12} />
-              </button>
-            )}
+            {(isMultiAgentMode || (isMessageListMode && conversation)) &&
+              canRemove && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onRemoveAgent(agent.address);
+                  }}
+                  className="rounded hover:bg-zinc-700 p-0.5 transition-colors duration-200 active:scale-[0.97]"
+                >
+                  <XIcon size={12} />
+                </button>
+              )}
           </motion.div>
         ))}
 

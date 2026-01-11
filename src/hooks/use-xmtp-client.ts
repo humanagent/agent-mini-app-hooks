@@ -19,14 +19,10 @@ function notifySubscribers(
 
 async function initializeClient(): Promise<Client<ContentTypes>> {
   if (globalClient) {
-    console.log("[XMTP] Using existing global client");
     return globalClient;
   }
 
   if (isInitializing && globalClientPromise) {
-    console.log(
-      "[XMTP] Client initialization already in progress, waiting for existing promise...",
-    );
     return globalClientPromise;
   }
 
@@ -43,22 +39,12 @@ async function initializeClient(): Promise<Client<ContentTypes>> {
     }
   }
 
-  console.log("[XMTP] Starting new client initialization...");
   isInitializing = true;
 
   globalClientPromise = (async () => {
     try {
-      console.log("[XMTP] Getting or creating ephemeral account key...");
       const accountKey = getOrCreateEphemeralAccountKey();
-      console.log(
-        "[XMTP] Account key obtained:",
-        accountKey.slice(0, 10) + "...",
-      );
-
-      console.log("[XMTP] Creating XMTP client...");
       const xmtpClient = await createXMTPClient(accountKey);
-
-      console.log("[XMTP] XMTP client initialization complete");
       globalClient = xmtpClient;
       isInitializing = false;
       globalClientPromise = null;
@@ -90,23 +76,11 @@ export function useXMTPClient() {
     }
 
     if (globalClient) {
-      console.log("[XMTP] Client already exists, using it");
       setClient(globalClient);
       setIsLoading(false);
       return;
     }
 
-    console.log("[XMTP] useXMTPClient effect running");
-    console.log(
-      "[XMTP] Current state - globalClient:",
-      !!globalClient,
-      "globalClientPromise:",
-      !!globalClientPromise,
-      "isInitializing:",
-      isInitializing,
-      "subscribers:",
-      subscribers.size,
-    );
     setIsLoading(true);
     setError(null);
 
@@ -114,22 +88,12 @@ export function useXMTPClient() {
       newClient: Client<ContentTypes> | null,
       newError: Error | null,
     ) => {
-      console.log(
-        "[XMTP] Subscriber notified - client:",
-        !!newClient,
-        "error:",
-        !!newError,
-      );
       setClient(newClient);
       setError(newError);
       setIsLoading(false);
     };
 
     subscribers.add(subscriber);
-    console.log(
-      "[XMTP] Subscriber added, total subscribers:",
-      subscribers.size,
-    );
 
     initializeClient().catch((err) => {
       console.error("[XMTP] Failed to initialize client:", err);
@@ -139,7 +103,6 @@ export function useXMTPClient() {
 
     return () => {
       subscribers.delete(subscriber);
-      console.log("[XMTP] useXMTPClient cleanup running");
     };
   }, []);
 

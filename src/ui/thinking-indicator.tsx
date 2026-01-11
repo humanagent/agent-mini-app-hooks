@@ -1,21 +1,51 @@
+import { useState, useEffect } from "react";
 import { XIcon } from "./icons";
 
-function TypingDots() {
+function AnimatedText({ message }: { message: string }) {
+  const [displayLength, setDisplayLength] = useState(0);
+
+  useEffect(() => {
+    setDisplayLength(0);
+  }, [message]);
+
+  useEffect(() => {
+    if (displayLength >= message.length) return;
+
+    const timer = setTimeout(() => {
+      setDisplayLength((prev) => prev + 1);
+    }, 60);
+
+    return () => clearTimeout(timer);
+  }, [displayLength, message.length]);
+
   return (
-    <div className="flex items-center gap-1">
-      <span
-        className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce"
-        style={{ animationDelay: "0ms", animationDuration: "600ms" }}
-      />
-      <span
-        className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce"
-        style={{ animationDelay: "150ms", animationDuration: "600ms" }}
-      />
-      <span
-        className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce"
-        style={{ animationDelay: "300ms", animationDuration: "600ms" }}
-      />
-    </div>
+    <span className="inline-block">
+      {message.split("").map((char, index) => {
+        if (index >= displayLength) {
+          return null;
+        }
+
+        const distance = displayLength - index;
+        const wavePosition = distance / 6;
+        const wave = Math.cos(wavePosition * Math.PI);
+        const opacity = Math.max(
+          0.4,
+          Math.min(1.0, 0.4 + 0.6 * Math.max(0, wave)),
+        );
+
+        return (
+          <span
+            key={index}
+            style={{
+              opacity,
+              transition: "opacity 300ms ease-out",
+            }}
+          >
+            {char === " " ? "\u00A0" : char}
+          </span>
+        );
+      })}
+    </span>
   );
 }
 
@@ -31,11 +61,15 @@ export function ThinkingIndicator({
       <div className="flex flex-col gap-2 md:gap-3 max-w-[calc(100%-2.5rem)] sm:max-w-[min(fit-content,80%)]">
         <div className="flex items-center gap-2.5">
           {error ? (
-            <XIcon size={14} className="text-destructive shrink-0" />
+            <>
+              <XIcon size={14} className="text-destructive shrink-0" />
+              <p className="text-xs text-muted-foreground">{message}</p>
+            </>
           ) : (
-            <TypingDots />
+            <p className="text-xs text-muted-foreground">
+              <AnimatedText message={message} />
+            </p>
           )}
-          <p className="text-xs text-muted-foreground">{message}</p>
         </div>
       </div>
     </div>

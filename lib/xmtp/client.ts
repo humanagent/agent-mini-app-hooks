@@ -36,9 +36,6 @@ export async function createXMTPClient(
   }
 
   isCreatingClient = true;
-  console.log(
-    "[XMTP] [createXMTPClient] Starting client creation (isCreatingClient set to true)",
-  );
 
   try {
     const signer = createEphemeralSigner(privateKey);
@@ -52,48 +49,17 @@ export async function createXMTPClient(
       new MarkdownCodec(),
     ];
 
-    console.log("[XMTP] Creating client...");
-    const identifier = signer.getIdentifier();
-    const identifierValue =
-      identifier instanceof Promise ? await identifier : identifier;
-    console.log("[XMTP] Signer address:", identifierValue.identifier);
-    console.log("[XMTP] Environment: production");
-    console.log("[XMTP] Codecs count:", codecs.length);
-    console.log(
-      "[XMTP] Codec types:",
-      codecs.map((c) => c.constructor.name),
-    );
-
-    console.log("[XMTP] Starting Client.create() call...");
-    console.log(
-      "[XMTP] Browser environment check:",
-      typeof window !== "undefined",
-    );
-    console.log(
-      "[XMTP] IndexedDB available:",
-      typeof indexedDB !== "undefined",
-    );
-
     const startTime = Date.now();
-    console.log("[XMTP] Calling Client.create()...");
-    console.log("[XMTP] Signer type:", typeof signer);
-
     const clientPromise = Client.create(signer, {
       env: "production",
       appVersion: "xmtp-agents/0",
       codecs,
     });
 
-    console.log("[XMTP] Client.create() promise created, awaiting...");
     const client = await clientPromise;
 
     const duration = Date.now() - startTime;
-    console.log(`[XMTP] Client.create() completed in ${duration}ms`);
-    console.log("[XMTP] Client created successfully");
-    console.log("[XMTP] Client inbox ID:", client.inboxId);
-    console.log("[XMTP] Client installation ID:", client.installationId);
-    console.log("[XMTP] Client type:", typeof client);
-    console.log("[XMTP] Client constructor:", client.constructor.name);
+    console.log(`[XMTP] Client created in ${duration}ms (inbox: ${client.inboxId.slice(0, 8)}...)`);
 
     isCreatingClient = false;
     return client;

@@ -92,15 +92,6 @@ function AppContent() {
 export default function App() {
   const { client, isLoading, error } = useXMTPClient();
 
-  console.log(
-    "[XMTP] App - client:",
-    client ? "exists" : "null",
-    "isLoading:",
-    isLoading,
-    "error:",
-    error?.message,
-  );
-
   return (
     <BrowserRouter>
       <ToastProvider>

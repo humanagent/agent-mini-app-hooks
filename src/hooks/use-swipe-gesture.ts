@@ -23,6 +23,7 @@ export function useSwipeGesture(options: SwipeGestureOptions) {
     null,
   );
   const touchEnd = useRef<{ x: number; y: number; time: number } | null>(null);
+  const isVerticalScroll = useRef(false);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
@@ -32,19 +33,41 @@ export function useSwipeGesture(options: SwipeGestureOptions) {
       time: Date.now(),
     };
     touchEnd.current = null;
+    isVerticalScroll.current = false;
   }, []);
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    touchEnd.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-      time: Date.now(),
-    };
-  }, []);
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      const touch = e.touches[0];
+      if (!touchStart.current) return;
+
+      const deltaX = Math.abs(touch.clientX - touchStart.current.x);
+      const deltaY = Math.abs(touch.clientY - touchStart.current.y);
+
+      // If vertical movement is greater, this is a scroll, not a swipe
+      if (deltaY > deltaX && deltaY > threshold) {
+        isVerticalScroll.current = true;
+      }
+
+      touchEnd.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        time: Date.now(),
+      };
+    },
+    [threshold],
+  );
 
   const handleTouchEnd = useCallback(() => {
     if (!touchStart.current || !touchEnd.current) {
+      return;
+    }
+
+    // Ignore if this was a vertical scroll
+    if (isVerticalScroll.current) {
+      touchStart.current = null;
+      touchEnd.current = null;
+      isVerticalScroll.current = false;
       return;
     }
 
@@ -58,10 +81,13 @@ export function useSwipeGesture(options: SwipeGestureOptions) {
 
     // Require minimum swipe distance and reasonable speed
     if (distance < minSwipeDistance || deltaTime > 300) {
+      touchStart.current = null;
+      touchEnd.current = null;
+      isVerticalScroll.current = false;
       return;
     }
 
-    // Determine primary direction
+    // Only trigger horizontal swipes if horizontal movement is dominant
     if (absDeltaX > absDeltaY && absDeltaX > threshold) {
       if (deltaX > 0 && onSwipeRight) {
         onSwipeRight();
@@ -78,6 +104,7 @@ export function useSwipeGesture(options: SwipeGestureOptions) {
 
     touchStart.current = null;
     touchEnd.current = null;
+    isVerticalScroll.current = false;
   }, [
     onSwipeLeft,
     onSwipeRight,

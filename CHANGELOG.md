@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.1.39] - 2026-01-10
+
+### Changed
+
+- Replaced loading dots with animated text wave effect - letters type one by one with wave opacity animation
+- Improved loading indicator animation with letter-by-letter typing and smooth wave opacity transitions
+- Enhanced user experience with visually engaging loading states across all conversation operations
+
+## [0.1.38] - 2026-01-10
+
+### Fixed
+
+- Fixed iPhone PWA layout issues: vertical centering, safe area handling, and viewport configuration
+- Fixed floating navbar toggle button positioning to respect iPhone safe areas (notch/home indicator)
+- Fixed whole screen scrolling issue - only message area scrolls now, preventing brief page scroll on swipe
+- Fixed white splash screen - changed to pure black (#000000) background matching app theme
+- Added logo to iOS splash screen configuration
+- Improved swipe gesture detection to distinguish vertical scrolling from horizontal swiping
+- Updated status bar style to solid black for consistent dark theme appearance
+
+### Changed
+
+- Updated PWA manifest and vite config background colors to pure black (#000000)
+- Improved safe area inset handling throughout app with proper CSS environment variables
+- Enhanced scroll containment with overflow-hidden on outer containers
+- Updated sidebar layout to use svh units for better mobile viewport handling
+
 ## [0.1.37] - 2026-01-10
 
 ### Changed

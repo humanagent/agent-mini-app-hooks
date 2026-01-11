@@ -1,3 +1,4 @@
+import { useIsMobile } from "@hooks/use-mobile";
 import { Input } from "@ui/input";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -18,6 +19,7 @@ export function PlusPanel({
   onSelectAgent,
 }: PlusPanelProps) {
   const [agentFilter, setAgentFilter] = useState("");
+  const isMobile = useIsMobile();
 
   // Filter agents by name
   const filteredAgents = agentFilter.trim()
@@ -52,7 +54,7 @@ export function PlusPanel({
                   value={agentFilter}
                   onChange={(e) => setAgentFilter(e.target.value)}
                   className="h-7 text-xs border-0 bg-transparent"
-                  autoFocus
+                  autoFocus={!isMobile}
                 />
               </div>
               <div className="overflow-y-auto max-h-[200px] px-2 py-2">

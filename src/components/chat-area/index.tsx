@@ -13,12 +13,12 @@ export const ChatHeader = ({
 export const Greeting = ({ onOpenAgents }: { onOpenAgents?: () => void }) => {
   return (
     <div
-      className="mx-auto mt-4 flex size-full max-w-3xl flex-col justify-center pl-[60px] pr-4 md:mt-16 md:px-8"
+      className="mx-auto flex size-full max-w-3xl flex-col justify-center px-4 pt-8 pb-4 md:mt-16 md:px-8 md:pt-0"
       key="overview"
     >
       <motion.div
         animate={{ opacity: 1, y: 0 }}
-        className="font-semibold text-xl md:text-2xl flex items-center gap-2"
+        className="flex mt-10 items-center gap-2 font-semibold text-lg md:text-xl lg:text-2xl"
         exit={{ opacity: 0, y: 8 }}
         initial={{ opacity: 0, y: 8 }}
         transition={{ delay: 0.1, duration: 0.15 }}
@@ -39,7 +39,7 @@ export const Greeting = ({ onOpenAgents }: { onOpenAgents?: () => void }) => {
       </motion.div>
       <motion.div
         animate={{ opacity: 1, y: 0 }}
-        className="text-base md:text-lg text-muted-foreground"
+        className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-base lg:text-lg"
         exit={{ opacity: 0, y: 8 }}
         initial={{ opacity: 0, y: 8 }}
         transition={{ delay: 0.15, duration: 0.15 }}
@@ -49,7 +49,7 @@ export const Greeting = ({ onOpenAgents }: { onOpenAgents?: () => void }) => {
           <button
             type="button"
             onClick={onOpenAgents}
-            className="text-accent underline hover:text-accent/80 transition-colors duration-200 active:scale-[0.97]"
+            className="text-accent underline transition-colors duration-200 hover:text-accent/80 active:scale-[0.97]"
           >
             Select an agent
           </button>

@@ -34,10 +34,6 @@ export function ConversationsProvider({
   client: Client<ContentTypes> | null;
   children: ReactNode;
 }) {
-  console.log(
-    "[XMTP] ConversationsProvider - client:",
-    client ? "exists" : "null",
-  );
   const conversationsData = useXMTPConversations(client);
   const [pendingConversation, setPendingConversation] = useState<{
     agentAddresses: string[];
@@ -52,16 +48,6 @@ export function ConversationsProvider({
     setPendingConversation,
   };
 
-  console.log(
-    "[XMTP] ConversationsProvider - conversations:",
-    value.conversations.length,
-    "isLoading:",
-    value.isLoading,
-    "error:",
-    value.error?.message,
-    "pendingConversation:",
-    pendingConversation ? pendingConversation.agentAddresses.length : null,
-  );
   return (
     <ConversationsContext.Provider value={value}>
       {children}

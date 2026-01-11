@@ -28,34 +28,32 @@ export function RemoveAgentDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Remove agent from conversation</DialogTitle>
-          <DialogDescription>
-            {agent && (
-              <div className="flex items-center gap-3 mt-2">
-                {agent.image ? (
-                  <img
-                    alt={agent.name}
-                    className="h-12 w-12 shrink-0 rounded object-cover"
-                    src={agent.image}
-                  />
-                ) : (
-                  <div className="h-12 w-12 shrink-0 rounded bg-muted" />
-                )}
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="text-sm font-medium text-foreground">
-                    {agent.name}
+          {agent && (
+            <div className="flex items-center gap-3 mt-2">
+              {agent.image ? (
+                <img
+                  alt={agent.name}
+                  className="h-12 w-12 shrink-0 rounded object-cover"
+                  src={agent.image}
+                />
+              ) : (
+                <div className="h-12 w-12 shrink-0 rounded bg-muted" />
+              )}
+              <div className="flex flex-col flex-1 min-w-0">
+                <span className="text-sm font-medium text-foreground">
+                  {agent.name}
+                </span>
+                {agent.tagline && (
+                  <span className="text-xs text-muted-foreground">
+                    {agent.tagline}
                   </span>
-                  {agent.tagline && (
-                    <span className="text-xs text-muted-foreground">
-                      {agent.tagline}
-                    </span>
-                  )}
-                </div>
+                )}
               </div>
-            )}
-            <p className="mt-3 text-xs text-muted-foreground">
-              This agent will be removed from the conversation and won't receive
-              future messages.
-            </p>
+            </div>
+          )}
+          <DialogDescription className="mt-3">
+            This agent will be removed from the conversation and won't receive
+            future messages.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
