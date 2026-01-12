@@ -16,6 +16,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@ui/tooltip";
+import { MessageContent } from "./message-content";
+import { RightNav } from "@components/right-nav";
+import { FloatingRightNavToggle } from "@components/right-nav/floating-toggle-button";
+import { Group } from "@xmtp/browser-sdk";
 
 function formatTimeAgo(date: Date): string {
   const now = new Date();
@@ -40,7 +44,13 @@ function getMessageSentAt(msg: DecodedMessage<unknown>): Date | undefined {
   return undefined;
 }
 
-export function MessageList({ messages }: { messages: Message[] }) {
+export function MessageList({
+  messages,
+  onMentionClick,
+}: {
+  messages: Message[];
+  onMentionClick?: (agent: AgentConfig) => void;
+}) {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
   const handleCopy = useCallback(async (content: string, messageId: string) => {
@@ -78,7 +88,10 @@ export function MessageList({ messages }: { messages: Message[] }) {
                   }`}
                 >
                   <div className="space-y-2 whitespace-normal size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_code]:whitespace-pre-wrap [&_code]:break-words [&_pre]:max-w-full [&_pre]:overflow-x-auto">
-                    <p className="leading-relaxed">{message.content}</p>
+                    <MessageContent
+                      content={message.content}
+                      onMentionClick={onMentionClick}
+                    />
                   </div>
                 </div>
                 <div
@@ -142,6 +155,7 @@ export function ConversationView({
   const [syncError, setSyncError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isWaitingForAgent, setIsWaitingForAgent] = useState(false);
+  const [rightNavOpen, setRightNavOpen] = useState(false);
   const waitingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const streamCleanupRef = useRef<(() => Promise<void>) | null>(null);
   const tempMessageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -691,7 +705,15 @@ export function ConversationView({
                       }}
                     />
                   ))}
-            {messages.length > 0 && <MessageList messages={messages} />}
+            {messages.length > 0 && (
+              <MessageList
+                messages={messages}
+                onMentionClick={(agent) => {
+                  // Keep for future use
+                  console.log("[ConversationView] Mention clicked:", agent.name);
+                }}
+              />
+            )}
             {isWaitingForAgent &&
               !isCreatingConversation &&
               !isSyncingConversation &&
@@ -721,6 +743,18 @@ export function ConversationView({
           conversation={selectedConversation ?? undefined}
         />
       </div>
+
+      <RightNav
+        conversation={selectedConversation}
+        open={rightNavOpen}
+        onOpenChange={setRightNavOpen}
+      />
+      {selectedConversation instanceof Group && (
+        <FloatingRightNavToggle
+          onClick={() => setRightNavOpen(!rightNavOpen)}
+          visible={true}
+        />
+      )}
     </div>
   );
 }
