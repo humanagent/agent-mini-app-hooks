@@ -1,6 +1,6 @@
 import { useXMTPClient } from "@hooks/use-xmtp-client";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
-import { ExploreIcon, PlusIcon, AnalyticsIcon } from "@ui/icons";
+import { ExploreIcon, MessageIcon, AnalyticsIcon } from "@ui/icons";
 import {
   SidebarContent,
   SidebarFooter,
@@ -154,30 +154,14 @@ export function Sidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              tooltip="New Chat"
-              onClick={() => {
-                setSelectedConversation(null);
-                setPendingConversation(null);
-                navigate("/", { replace: true });
-                if (isMobile) {
-                  setOpenMobile(false);
-                }
-              }}
-            >
-              <PlusIcon size={16} />
-              <span className="group-data-[collapsible=icon]:hidden">
-                New Chat
-              </span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
               asChild
-              isActive={location.pathname === "/explore"}
-              tooltip="Explore"
+              isActive={
+                location.pathname === "/" || location.pathname === "/explore"
+              }
+              tooltip="Browse"
             >
               <Link
-                to="/explore"
+                to="/"
                 onClick={() => {
                   setSelectedConversation(null);
                   if (isMobile) {
@@ -187,9 +171,31 @@ export function Sidebar() {
               >
                 <ExploreIcon size={16} />
                 <span className="group-data-[collapsible=icon]:hidden">
-                  Explore
+                  Browse
                 </span>
               </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Chats"
+              isActive={
+                location.pathname === "/chat" ||
+                location.pathname.startsWith("/conversation/")
+              }
+              onClick={() => {
+                setSelectedConversation(null);
+                setPendingConversation(null);
+                navigate("/chat", { replace: true });
+                if (isMobile) {
+                  setOpenMobile(false);
+                }
+              }}
+            >
+              <MessageIcon size={16} />
+              <span className="group-data-[collapsible=icon]:hidden">
+                Chats
+              </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           {/* <SidebarMenuItem>

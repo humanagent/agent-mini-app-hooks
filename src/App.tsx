@@ -30,12 +30,13 @@ function SidebarInsetWithSwipe() {
   return (
     <SidebarInset {...combinedHandlers}>
       <Routes>
+        <Route path="/" element={<ExplorePage />} />
         <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/chat" element={<ConversationView />} />
         <Route
           path="/conversation/:conversationId"
           element={<ConversationView />}
         />
-        <Route path="/" element={<ConversationView />} />
       </Routes>
     </SidebarInset>
   );

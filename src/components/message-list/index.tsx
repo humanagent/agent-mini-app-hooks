@@ -47,9 +47,11 @@ function getMessageSentAt(msg: DecodedMessage<unknown>): Date | undefined {
 export function MessageList({
   messages,
   onMentionClick,
+  isGroup = false,
 }: {
   messages: Message[];
   onMentionClick?: (agent: AgentConfig) => void;
+  isGroup?: boolean;
 }) {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
@@ -91,6 +93,7 @@ export function MessageList({
                     <MessageContent
                       content={message.content}
                       onMentionClick={onMentionClick}
+                      isGroup={isGroup}
                     />
                   </div>
                 </div>
@@ -156,6 +159,8 @@ export function ConversationView({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isWaitingForAgent, setIsWaitingForAgent] = useState(false);
   const [rightNavOpen, setRightNavOpen] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<AgentConfig | null>(null);
+  const [rightNavTab, setRightNavTab] = useState<"transactions" | "permissions">("transactions");
   const waitingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const streamCleanupRef = useRef<(() => Promise<void>) | null>(null);
   const tempMessageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -233,7 +238,7 @@ export function ConversationView({
       // Clear conversation to show fresh chat area
       if (selectedConversation) {
         setSelectedConversation(null);
-        navigate("/", { replace: true });
+        navigate("/chat", { replace: true });
       }
 
       // Clear all messages and state
@@ -266,6 +271,15 @@ export function ConversationView({
   // Sync selected conversation with URL params
   const prevConversationIdRef = useRef<string | undefined>(conversationId);
   const prevSelectedConversationRef = useRef(selectedConversation);
+
+  // Clear selected agent when conversation changes
+  useEffect(() => {
+    if (selectedConversation !== prevSelectedConversationRef.current) {
+      setSelectedAgent(null);
+      setRightNavTab("transactions");
+    }
+    prevSelectedConversationRef.current = selectedConversation;
+  }, [selectedConversation]);
   useEffect(() => {
     if (conversationId) {
       const conversation = conversations.find((c) => c.id === conversationId);
@@ -277,9 +291,9 @@ export function ConversationView({
         setSelectedConversation(conversation);
       } else if (!conversation && conversations.length > 0) {
         console.log(
-          "[ConversationView] Conversation not found in list, navigating to home",
+          "[ConversationView] Conversation not found in list, navigating to chat",
         );
-        navigate("/");
+        navigate("/chat");
       }
     } else {
       // Clear selected conversation when navigating to home (no conversationId in URL)
@@ -708,9 +722,14 @@ export function ConversationView({
             {messages.length > 0 && (
               <MessageList
                 messages={messages}
+                isGroup={selectedConversation instanceof Group}
                 onMentionClick={(agent) => {
-                  // Keep for future use
                   console.log("[ConversationView] Mention clicked:", agent.name);
+                  if (selectedConversation instanceof Group) {
+                    setSelectedAgent(agent);
+                    setRightNavTab("permissions");
+                    setRightNavOpen(true);
+                  }
                 }}
               />
             )}
@@ -747,7 +766,16 @@ export function ConversationView({
       <RightNav
         conversation={selectedConversation}
         open={rightNavOpen}
-        onOpenChange={setRightNavOpen}
+        onOpenChange={(open) => {
+          setRightNavOpen(open);
+          if (!open) {
+            setSelectedAgent(null);
+            setRightNavTab("transactions");
+          }
+        }}
+        selectedAgent={selectedAgent}
+        activeTab={rightNavTab}
+        onTabChange={setRightNavTab}
       />
       {selectedConversation instanceof Group && (
         <FloatingRightNavToggle

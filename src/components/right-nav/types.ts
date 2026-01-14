@@ -9,3 +9,13 @@ export interface Transaction {
   token: "USDC";
   chain: "Worldchain";
 }
+
+export interface Permission {
+  id: string;
+  token: "USDC" | "ETH" | "WETH";
+  tokenAddress: string;
+  allowance: string;
+  spender: string;
+  grantedAt: Date;
+  chain: "Worldchain" | "Base" | "Ethereum";
+}

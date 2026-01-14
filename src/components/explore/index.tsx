@@ -61,8 +61,8 @@ export function ExplorePage() {
       agent.address,
     );
 
-    // Navigate with agent in state to pre-select it
-    navigate("/", {
+    // Navigate to chat with agent in state to pre-select it
+    navigate("/chat", {
       replace: true,
       state: { selectedAgent: agent },
     });
@@ -73,9 +73,9 @@ export function ExplorePage() {
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-6xl px-4 py-8 md:px-8">
           <div className="mb-8">
-            <h1 className="mb-2 font-semibold text-xl">XMTP Agents</h1>
+            <h1 className="mb-2 font-semibold text-xl">Agent Store</h1>
             <p className="text-xs text-muted-foreground">
-              Chat with your favorite XMTP agents
+              Discover and interact with XMTP agents
             </p>
           </div>
 

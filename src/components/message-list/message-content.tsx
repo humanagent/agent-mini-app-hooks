@@ -2,14 +2,24 @@ import { parseAgentMentions } from "./parse-mentions";
 import type { AgentConfig } from "@/agent-registry/agents";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
+import { Button } from "@ui/button";
 
 type MessageContentProps = {
   content: string;
   onMentionClick?: (agent: AgentConfig) => void;
   className?: string;
+  isGroup?: boolean;
 };
 
-function AgentProfileContent({ agent }: { agent: AgentConfig }) {
+function AgentProfileContent({
+  agent,
+  onCheckPermissions,
+  showPermissionsButton,
+}: {
+  agent: AgentConfig;
+  onCheckPermissions?: () => void;
+  showPermissionsButton?: boolean;
+}) {
   const description =
     agent.description ||
     agent.suggestions?.[0]?.replace(`@${agent.name}`, "").trim() ||
@@ -50,6 +60,18 @@ function AgentProfileContent({ agent }: { agent: AgentConfig }) {
             {agent.domain}
           </p>
         )}
+        {showPermissionsButton && onCheckPermissions && (
+          <Button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onCheckPermissions();
+            }}
+            className="mt-3 h-7 w-full text-xs bg-zinc-800 hover:bg-zinc-700 text-foreground"
+          >
+            Check Permissions
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -59,6 +81,7 @@ export function MessageContent({
   content,
   onMentionClick,
   className,
+  isGroup = false,
 }: MessageContentProps) {
   const segments = parseAgentMentions(content);
 
@@ -86,7 +109,11 @@ export function MessageContent({
               sideOffset={8}
               className="w-64 p-3"
             >
-              <AgentProfileContent agent={segment.agent} />
+              <AgentProfileContent
+                agent={segment.agent}
+                onCheckPermissions={() => onMentionClick?.(segment.agent)}
+                showPermissionsButton={isGroup}
+              />
             </TooltipContent>
           </Tooltip>
         );
