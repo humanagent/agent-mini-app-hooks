@@ -187,6 +187,7 @@ export function ConversationView({
   const tempMessageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const isSendingRef = useRef(false);
+  const shouldNavigateAfterCreateRef = useRef(true);
   const { client } = useClient();
   const {
     selectedConversation,
@@ -340,7 +341,15 @@ export function ConversationView({
   // Clear state when conversation changes
   useEffect(() => {
     prevSelectedConversationRef.current = selectedConversation;
-  }, [selectedConversation]);
+    // If selectedConversation is cleared while on /chat, user clicked "New Chat"
+    // Cancel any pending navigation from conversation creation
+    if (
+      selectedConversation === null &&
+      (location.pathname === "/" || location.pathname === "/chat")
+    ) {
+      shouldNavigateAfterCreateRef.current = false;
+    }
+  }, [selectedConversation, location.pathname]);
   useEffect(() => {
     if (conversationId) {
       const conversation = conversations.find((c) => c.id === conversationId);
@@ -617,6 +626,11 @@ export function ConversationView({
             );
             setCreateError(null);
 
+            // Capture starting path to detect if user navigated away during async operation
+            const startingPath = location.pathname;
+            // Reset navigation flag - will be cleared if "New Chat" is clicked
+            shouldNavigateAfterCreateRef.current = true;
+
             // 0. Show optimistic message immediately with sending indicator
             const tempMessage: Message = {
               id: `temp-${Date.now()}`,
@@ -678,9 +692,18 @@ export function ConversationView({
               chatMessages.length,
             );
 
-            // 6. Update state and navigate
+            // 6. Update state and navigate (only if user hasn't navigated away)
             setSelectedConversation(conversation);
-            navigate(`/conversation/${conversation.id}`, { replace: true });
+            // Only navigate if we're still on the same path we started from
+            // and navigation wasn't cancelled by "New Chat" click
+            const currentPath = location.pathname;
+            if (
+              shouldNavigateAfterCreateRef.current &&
+              (startingPath === "/" || startingPath === "/chat") &&
+              (currentPath === "/" || currentPath === "/chat")
+            ) {
+              navigate(`/conversation/${conversation.id}`, { replace: true });
+            }
 
             // 7. Refresh conversations list in background
             void refreshConversations();
@@ -776,7 +799,7 @@ export function ConversationView({
           ref={scrollContainerRef}
           className="absolute inset-0 left-[1px] -webkit-overflow-scrolling-touch overscroll-behavior-contain overflow-y-auto touch-pan-y"
         >
-          <div className="mx-auto flex min-w-0 max-w-4xl flex-col px-4 py-4 md:px-6 md:py-6">
+          <div className="mx-auto flex min-h-full min-w-0 max-w-4xl flex-col px-4 py-4 md:px-6 md:py-6">
             {createError && (
               <ThinkingIndicator error message={`Error: ${createError}`} />
             )}
@@ -798,19 +821,6 @@ export function ConversationView({
               (isLoadingConversations || conversations.length === 0) && (
                 <ThinkingIndicator message="Loading conversation..." />
               )}
-            {!selectedConversation &&
-              !createError &&
-              !conversationId &&
-              messages.length === 0 &&
-              (customGreeting ? (
-                customGreeting
-              ) : (
-                <Greeting
-                  onOpenAgents={() => {
-                    setOpenAgentsDialog(true);
-                  }}
-                />
-              ))}
             {messages.length > 0 && (
               <MessageList
                 messages={messages}
@@ -820,17 +830,32 @@ export function ConversationView({
               />
             )}
             {showCenteredInput && (
-              <div className="mx-auto flex w-full max-w-4xl px-4 pb-4 pt-6 md:px-4 md:pb-4 md:pt-8">
-                <InputArea
-                  selectedAgents={selectedAgents}
-                  setSelectedAgents={setSelectedAgents}
-                  openAgentsDialog={openAgentsDialog}
-                  onOpenAgentsDialogChange={setOpenAgentsDialog}
-                  sendMessage={(content, agents) => {
-                    void handleSendMessage(content, agents);
-                  }}
-                  conversation={selectedConversation ?? undefined}
-                />
+              <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-4 md:px-8">
+                {!selectedConversation &&
+                  !createError &&
+                  !conversationId &&
+                  messages.length === 0 &&
+                  (customGreeting ? (
+                    customGreeting
+                  ) : (
+                    <Greeting
+                      onOpenAgents={() => {
+                        setOpenAgentsDialog(true);
+                      }}
+                    />
+                  ))}
+                <div className="mt-8">
+                  <InputArea
+                    selectedAgents={selectedAgents}
+                    setSelectedAgents={setSelectedAgents}
+                    openAgentsDialog={openAgentsDialog}
+                    onOpenAgentsDialogChange={setOpenAgentsDialog}
+                    sendMessage={(content, agents) => {
+                      void handleSendMessage(content, agents);
+                    }}
+                    conversation={selectedConversation ?? undefined}
+                  />
+                </div>
               </div>
             )}
           </div>

@@ -1,11 +1,8 @@
 export const Greeting = ({ onOpenAgents }: { onOpenAgents?: () => void }) => {
   return (
-    <div
-      className="mx-auto flex size-full max-w-3xl flex-col justify-center px-4 pt-8 pb-4 md:mt-16 md:px-8 md:pt-0"
-      key="overview"
-    >
+    <>
       <div
-        className="flex mt-10 items-center gap-2 font-semibold text-lg md:text-xl lg:text-2xl animate-fade-in-up"
+        className="flex items-center gap-2 font-semibold text-lg md:text-xl lg:text-2xl animate-fade-in-up"
         style={{ animationDelay: "100ms", animationDuration: "150ms" }}
       >
         <span>Hello there</span>
@@ -32,6 +29,6 @@ export const Greeting = ({ onOpenAgents }: { onOpenAgents?: () => void }) => {
         )}{" "}
         to get started.
       </div>
-    </div>
+    </>
   );
 };

@@ -12,7 +12,7 @@ type PromptInputProps = HTMLAttributes<HTMLFormElement>;
 export const PromptInput = ({ className, ...props }: PromptInputProps) => (
   <form
     className={cn(
-      "w-full overflow-hidden rounded border border-zinc-800 bg-black",
+      "w-full overflow-hidden rounded-l border border-zinc-800 bg-black",
       className,
     )}
     {...props}

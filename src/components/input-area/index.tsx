@@ -250,7 +250,7 @@ export function InputArea({
           onSelectAgent={handleAddAgent}
         />
         <PromptInput
-          className={`rounded border border-zinc-800 bg-black transition-all duration-200 focus-within:border-zinc-700 hover:border-zinc-700 ${isMultiAgentMode ? "p-2" : "p-3"}`}
+          className={`transition-all duration-200 focus-within:border-zinc-700 hover:border-zinc-700 ${isMultiAgentMode ? "p-2" : "p-3"}`}
           onSubmit={handleSubmit}
         >
           <div className="flex items-center gap-2">

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.52] - 2026-01-27
+
+### Fixed
+
+- Fixed "New Chat" button not navigating when clicked right after creating a conversation
+- Prevented navigation race condition where conversation creation would override "New Chat" navigation
+
 ## [0.1.51] - 2026-01-27
 
 ### Changed
