@@ -19,6 +19,9 @@ import {
 import { MessageContent } from "./message-content";
 import { Group } from "@xmtp/browser-sdk";
 import { formatTimeAgo } from "@/src/utils";
+import { useConversationMembers } from "@xmtp/use-conversation-members";
+import { matchAgentsFromMembers } from "@lib/agent-utils";
+import { AI_AGENTS } from "@xmtp/agents";
 
 function getMessageSentAt(msg: DecodedMessage<unknown>): Date | undefined {
   // Handle both sentAt (Date) and sentAtNs (bigint nanoseconds)
@@ -33,13 +36,18 @@ export function MessageList({
   onMentionClick,
   isGroup = false,
   clientInboxId: _clientInboxId,
+  conversationId,
 }: {
   messages: Message[];
   onMentionClick?: (agent: AgentConfig) => void;
   isGroup?: boolean;
   clientInboxId?: string;
+  conversationId?: string;
 }) {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const { client } = useClient();
+  const { members } = useConversationMembers(conversationId, client);
+  const conversationAgents = matchAgentsFromMembers(members, AI_AGENTS);
 
   const handleCopy = useCallback(async (content: string, messageId: string) => {
     try {
@@ -55,9 +63,10 @@ export function MessageList({
 
   return (
     <TooltipProvider>
-      {messages.map((message) => {
+      {messages.map((message, index) => {
         const isCopied = copiedMessageId === message.id;
         const role = message.role;
+        const showAgentLogos = role === "assistant" && conversationAgents.length > 0;
         return (
           <div
             key={message.id}
@@ -76,6 +85,34 @@ export function MessageList({
                       : "text-foreground"
                   }`}
                 >
+                  {showAgentLogos && (
+                    <div className="flex items-center gap-1 mb-2">
+                      {conversationAgents.map((agent) =>
+                        agent.image ? (
+                          <img
+                            key={agent.address}
+                            alt={agent.name}
+                            className="h-3 w-3 shrink-0 rounded object-cover border border-zinc-800"
+                            src={agent.image}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div
+                            key={agent.address}
+                            className="h-3 w-3 shrink-0 rounded bg-zinc-800 border border-zinc-800 flex items-center justify-center"
+                            title={agent.name}
+                          >
+                            <span className="text-[6px] text-muted-foreground leading-none">
+                              {agent.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  )}
                   <div className="space-y-2 whitespace-normal size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_code]:whitespace-pre-wrap [&_code]:break-words [&_pre]:max-w-full [&_pre]:overflow-x-auto">
                     <MessageContent
                       content={message.content}
@@ -777,6 +814,7 @@ export function ConversationView({
                 messages={messages}
                 isGroup={selectedConversation instanceof Group}
                 clientInboxId={client?.inboxId}
+                conversationId={selectedConversation?.id}
               />
             )}
           </div>

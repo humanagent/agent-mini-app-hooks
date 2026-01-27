@@ -14,6 +14,9 @@ import { TrashIcon } from "@ui/icons";
 import { useState } from "react";
 import { useIsMobile } from "@hooks/use-mobile";
 import { useClient } from "@xmtp/use-client";
+import { useConversationMembers } from "@xmtp/use-conversation-members";
+import { matchAgentsFromMembers } from "@lib/agent-utils";
+import { AI_AGENTS } from "@xmtp/agents";
 
 interface ConversationItemProps {
   conversation: Conversation;
@@ -44,6 +47,9 @@ export function ConversationItem({
 
   const _isMobile = useIsMobile();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { client } = useClient();
+  const { members } = useConversationMembers(conversation.id, client);
+  const conversationAgents = matchAgentsFromMembers(members, AI_AGENTS);
 
   return (
     <SidebarMenuItem>
@@ -66,9 +72,44 @@ export function ConversationItem({
               </span>
             </div>
             {lastMessagePreview && (
-              <span className="truncate text-[10px] text-muted-foreground/70 w-full">
-                {lastMessagePreview}
-              </span>
+              <div className="flex items-center gap-1.5 w-full">
+                {conversationAgents.length > 0 && (
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    {conversationAgents.slice(0, 3).map((agent) =>
+                      agent.image ? (
+                        <img
+                          key={agent.address}
+                          alt={agent.name}
+                          className="h-3 w-3 shrink-0 rounded object-cover border border-zinc-800"
+                          src={agent.image}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div
+                          key={agent.address}
+                          className="h-3 w-3 shrink-0 rounded bg-zinc-800 border border-zinc-800 flex items-center justify-center"
+                          title={agent.name}
+                        >
+                          <span className="text-[6px] text-muted-foreground leading-none">
+                            {agent.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      ),
+                    )}
+                    {conversationAgents.length > 3 && (
+                      <span className="text-[8px] text-muted-foreground/70 leading-none">
+                        +{conversationAgents.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
+                <span className="truncate text-[10px] text-muted-foreground/70 flex-1">
+                  {lastMessagePreview}
+                </span>
+              </div>
             )}
           </div>
         </SidebarMenuButton>

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.47] - 2026-01-27
+
+### Added
+
+- Added agent logos to all assistant message bubbles (inside each bubble at the top)
+- Added agent logos to sidebar conversation items (to the left of last message preview)
+- Added placeholder avatars for agents without images (shows first letter of agent name)
+
+### Changed
+
+- Moved agent logos from sidebar bottom-right to left of subtitle message
+- Removed image filter - now shows all agents in conversation, not just those with images
+
 ## [0.1.46] - 2026-01-26
 
 ### Changed
