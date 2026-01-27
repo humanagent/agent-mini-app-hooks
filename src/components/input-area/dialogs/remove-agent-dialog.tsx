@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@ui/dialog";
 import { Loader2Icon } from "@ui/icons";
-import type { AgentConfig } from "@/src/xmtp/agents";
+import type { AgentConfig } from "@xmtp/agents";
 
 export function RemoveAgentDialog({
   open,

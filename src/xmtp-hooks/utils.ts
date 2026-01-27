@@ -11,7 +11,7 @@ import { toBytes, type Hex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { Group, ConsentState, ConsentEntityType } from "@xmtp/browser-sdk";
 import type { Conversation } from "@xmtp/browser-sdk";
-import type { AgentConfig } from "@/src/xmtp/agents";
+import type { AgentConfig } from "./agents";
 
 type PrivateKey = Hex;
 

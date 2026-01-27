@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Conversation } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
-import type { AgentConfig } from "@/src/xmtp/agents";
+import type { AgentConfig } from "@xmtp/agents";
 import { useToast } from "@ui/toast";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 
@@ -67,7 +67,11 @@ export function useAgentManagement({
         textareaRef.current?.focus();
         return;
       }
+      // Update both singleAgent state and selectedAgents prop (if provided)
       setSingleAgent?.(agent);
+      if (setSelectedAgents) {
+        setSelectedAgents([agent]);
+      }
       setPlusPanelOpen(false);
       onOpenAgentsDialogChange?.(false);
       textareaRef.current?.focus();

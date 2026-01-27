@@ -1,13 +1,13 @@
 import { ChatHeader, Greeting } from "@components/chat-area/index";
 import { InputArea, type Message } from "@components/input-area";
-import { useClient } from "@xmtp/hooks/use-client";
+import { useClient } from "@xmtp/use-client";
 import { useCallback, useEffect, useState, useRef } from "react";
 import type { DecodedMessage } from "@xmtp/browser-sdk";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 import { useParams, useNavigate, useLocation } from "react-router";
 import { ThinkingIndicator } from "@ui/thinking-indicator";
 import { createGroupWithAgentAddresses } from "@xmtp/utils";
-import type { AgentConfig } from "@/src/agents";
+import type { AgentConfig } from "@xmtp/agents";
 import { CopyIcon, CheckIcon } from "@ui/icons";
 import { Button } from "@ui/button";
 import {
@@ -534,8 +534,20 @@ export function ConversationView({
         let conversation = selectedConversation;
 
         if (!conversation) {
-          const agentsToUse = agents || selectedAgents;
+          const agentsToUse = agents && agents.length > 0 ? agents : selectedAgents;
+          console.log(
+            "[ConversationView] No conversation, agents passed:",
+            agents?.map((a) => a.name),
+            "selectedAgents:",
+            selectedAgents.map((a) => a.name),
+            "agentsToUse:",
+            agentsToUse.map((a) => a.name),
+          );
           if (agentsToUse.length === 0) {
+            console.error(
+              "[ConversationView] No agents available to create conversation",
+            );
+            setCreateError("Please select an agent before sending a message");
             isSendingRef.current = false;
             return;
           }
@@ -608,7 +620,14 @@ export function ConversationView({
         }, 5000);
 
         try {
+          console.log(
+            "[ConversationView] Sending message to conversation:",
+            conversation.id,
+            "content:",
+            content,
+          );
           await conversation.send(content);
+          console.log("[ConversationView] Message sent successfully");
         } catch (error) {
           console.error("[ConversationView] Failed to send message:", error);
           setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
@@ -617,11 +636,12 @@ export function ConversationView({
             tempMessageTimeoutRef.current = null;
           }
           // Show error to user
-          setCreateError(
+          const errorMessage =
             error instanceof Error
               ? `Failed to send message: ${error.message}`
-              : "Failed to send message",
-          );
+              : "Failed to send message";
+          console.error("[ConversationView] Error message:", errorMessage);
+          setCreateError(errorMessage);
         }
       } finally {
         isSendingRef.current = false;

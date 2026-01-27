@@ -1,5 +1,5 @@
 import { parseAgentMentions } from "./parse-mentions";
-import type { AgentConfig } from "@/src/xmtp/agents";
+import type { AgentConfig } from "@xmtp/agents";
 import { cn } from "@/src/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { Button } from "@ui/button";
@@ -20,10 +20,7 @@ function AgentProfileContent({
   onCheckPermissions?: () => void;
   showPermissionsButton?: boolean;
 }) {
-  const description =
-    agent.description ||
-    agent.suggestions?.[0]?.replace(`@${agent.name}`, "").trim() ||
-    "AI agent";
+  const description = agent.description || "AI agent";
 
   return (
     <div className="flex gap-3 p-0">

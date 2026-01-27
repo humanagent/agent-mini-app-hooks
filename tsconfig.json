@@ -13,7 +13,7 @@
       "@hooks/*": ["./src/hooks/*"],
       "@components/*": ["./src/components/*"],
       "@ui/*": ["./src/ui/*"],
-      "@xmtp/*": ["./src/xmtp/*"]
+      "@xmtp/*": ["./src/xmtp-hooks/*"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,

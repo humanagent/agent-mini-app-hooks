@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import type { AgentConfig } from "@/src/xmtp/agents";
+import type { AgentConfig } from "./agents";
 
 export function useAgentSelection() {
   const [selectedAgents, setSelectedAgents] = useState<AgentConfig[]>([]);

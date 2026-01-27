@@ -1,4 +1,4 @@
-import { useClient } from "@xmtp/hooks/use-client";
+import { useClient } from "@xmtp/use-client";
 import { CopyIcon, CheckIcon, ResetIcon, ChevronDownIcon } from "@ui/icons";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@ui/sidebar";
 import {

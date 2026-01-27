@@ -10,7 +10,6 @@ export type AgentConfig = {
   address: string;
   networks: string[];
   live: boolean;
-  suggestions?: string[];
   image?: string;
   domain?: string;
   category?: string;
@@ -25,11 +24,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Finance",
     description: "Financial assistance and guidance",
-    suggestions: [
-      "@elsa Help me with financial planning",
-      "@elsa Explain investment strategies",
-      "@elsa Guide me through budgeting",
-    ],
     domain: "elsa",
     image:
       "https://ipfs.io/ipfs/bafkreibjqv4kxzjx62hq5scjskkaocegji4rnyjf6avbxnz6u442szo2im",
@@ -41,11 +35,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Business",
     description: "Token launch and deployment assistance",
-    suggestions: [
-      "@flaunchy Help me launch a token",
-      "@flaunchy Deploy my token contract",
-      "@flaunchy Guide me through token creation",
-    ],
   },
   {
     name: "mamo",
@@ -54,11 +43,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Finance",
     description: "Banking and financial services",
-    suggestions: [
-      "@mamo Help me with banking services",
-      "@mamo Explain payment processing",
-      "@mamo Guide me through account setup",
-    ],
     domain: "mamo",
     image:
       "https://ipfs.io/ipfs/bafybeicgjmetc4iyla4k5ndm65xuvo6yutptloy3vdkydrat5u6tewijdu",
@@ -70,11 +54,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Games",
     description: "Blockchain development and smart contracts",
-    suggestions: [
-      "@alphie Help with blockchain development",
-      "@alphie Explain smart contracts",
-      "@alphie Guide me through DeFi",
-    ],
     domain: "alphie",
     image:
       "https://ipfs.io/ipfs/bafkreibaa5gfjhisegdugksqb63bwkwstmbeitxc3hkpnq3ughtmpyioq4",
@@ -86,11 +65,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Finance",
     description: "Banking and financial services",
-    suggestions: [
-      "@arma Help me with banking services",
-      "@arma Explain financial transactions",
-      "@arma Guide me through account management",
-    ],
     domain: "armaxyz",
     image:
       "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/1bf441eb-cc59-47d9-8fcc-f337c43fa600/original",
@@ -102,11 +76,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Business",
     description: "Technical development and debugging",
-    suggestions: [
-      "@jesse Help me debug my code",
-      "@jesse Optimize my algorithm",
-      "@jesse Review my implementation",
-    ],
     domain: "jessexbt",
     image:
       "https://ipfs.io/ipfs/bafkreigqyohpla5hihjqrprmynmoroce6pf7a4hniv6t77ad6yy3em7nyq",
@@ -118,11 +87,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Finance",
     description: "Banking and financial services",
-    suggestions: [
-      "@freysa Help me with banking services",
-      "@freysa Explain financial products",
-      "@freysa Guide me through banking setup",
-    ],
     domain: "hifreysa",
     image:
       "https://ipfs.io/ipfs/bafkreihzf4frxkt3j42peowhm2w3ryihbbumfq6od5ace2xx2puwcyxwby",
@@ -134,11 +98,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Trading",
     description: "Trading and market analysis",
-    suggestions: [
-      "@neurobro Analyze market trends",
-      "@neurobro Help me with trading strategies",
-      "@neurobro Explain trading indicators",
-    ],
   },
   {
     name: "bracky",
@@ -147,11 +106,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Trading",
     description: "Sports betting and odds analysis",
-    suggestions: [
-      "@bracky Analyze sports betting odds",
-      "@bracky Help me with betting strategies",
-      "@bracky Explain sports betting markets",
-    ],
   },
   {
     name: "bankr",
@@ -160,11 +114,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Trading",
     description: "Trading and market analysis",
-    suggestions: [
-      "@bankr Help with financial planning",
-      "@bankr Analyze market trends",
-      "@bankr Explain investment strategies",
-    ],
     domain: "bankr",
     image:
       "https://ipfs.io/ipfs/bafkreig3hwrxfm2zkzgvlja6kgctu6qcnwztbppxrkbikvhmspfj7bpnqu",
@@ -179,11 +128,6 @@ export const AI_AGENTS: AgentConfig[] = [
     domain: "askbasemate",
     image:
       "https://ipfs.io/ipfs/bafkreib6sck2doq64pwx7zqq3mvgjf5odrtdenzp6kc36enfzjl7s6zs64",
-    suggestions: [
-      "@basemate Help me manage events on Base",
-      "@basemate Create a new event",
-      "@basemate Find upcoming Base events",
-    ],
   },
   {
     name: "gm",
@@ -192,11 +136,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Business",
     description: "Friendly greeting and conversation starter",
-    suggestions: [
-      "@gm Good morning! How can I help?",
-      "@gm Start a conversation",
-      "@gm Get started with XMTP",
-    ],
     domain: "hi.xmtp.eth",
     image:
       "https://ipfs.io/ipfs/QmaSZuaXfNUwhF7khaRxCwbhohBhRosVX1ZcGzmtcWnqav",
@@ -208,11 +147,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Business",
     description: "QA agent for testing and verification",
-    suggestions: [
-      "@key-check Check my API keys",
-      "@key-check Verify my configuration",
-      "@key-check Test my setup",
-    ],
     domain: "key-check.eth",
     image: "https://euc.li/key-check.eth",
   },
@@ -223,11 +157,6 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Business",
     description: "XMTP documentation and code examples",
-    suggestions: [
-      "@xmtp-docs How do I send a message?",
-      "@xmtp-docs Explain XMTP concepts",
-      "@xmtp-docs Show me code examples",
-    ],
     domain: "xmtp-docs.eth",
   },
 ];

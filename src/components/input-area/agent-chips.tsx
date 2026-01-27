@@ -1,7 +1,7 @@
 import { XIcon } from "@ui/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import type { AgentConfig } from "@/src/xmtp/agents";
+import type { AgentConfig } from "@xmtp/agents";
 import type { Conversation } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
 import { shortAddress } from "@/src/utils";

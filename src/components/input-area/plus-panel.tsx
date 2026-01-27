@@ -2,7 +2,7 @@ import { useIsMobile } from "@hooks/use-mobile";
 import { Input } from "@ui/input";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import type { AgentConfig } from "@/src/xmtp/agents";
+import type { AgentConfig } from "@xmtp/agents";
 import { cn } from "@/src/utils";
 
 type PlusPanelProps = {

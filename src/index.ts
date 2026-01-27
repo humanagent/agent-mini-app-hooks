@@ -2,4 +2,4 @@
 export * from "./hooks";
 
 // Re-export types
-export type { AgentConfig } from "./xmtp/agents";
+export type { AgentConfig } from "./xmtp-hooks/agents";

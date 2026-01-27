@@ -1,11 +1,11 @@
 import type { Client, Conversation } from "@xmtp/browser-sdk";
 import { useCallback, useEffect, useState } from "react";
-import type { ContentTypes } from "../utils";
+import type { ContentTypes } from "./utils";
 import {
   isConversationAllowed,
   toError,
   deduplicateConversations,
-} from "../utils";
+} from "./utils";
 
 async function filterAllowedConversations(
   conversations: Conversation[],

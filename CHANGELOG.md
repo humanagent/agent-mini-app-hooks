@@ -152,7 +152,7 @@
 - Added Developer Portal page for publishing and managing XMTP agents
 - Added agent CRUD operations (Create, Read, Update, Delete) with localStorage persistence
 - Added developer portal navigation item in sidebar with code icon
-- Added agent form component with fields: name, address, description, category, domain, image, suggestions, and live status
+- Added agent form component with fields: name, address, description, category, domain, image, and live status
 - Added agent list view with inline edit and delete actions
 - Integrated user-submitted agents into Explore page alongside registry agents
 - Added agent storage utility (`lib/agent-storage.ts`) for managing user agents

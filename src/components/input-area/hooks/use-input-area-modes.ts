@@ -1,4 +1,4 @@
-import type { AgentConfig } from "@/src/xmtp/agents";
+import type { AgentConfig } from "@xmtp/agents";
 import type { Conversation } from "@xmtp/browser-sdk";
 
 export function useInputAreaModes({

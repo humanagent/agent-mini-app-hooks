@@ -6,8 +6,8 @@ import type {
 } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
 import { useCallback, useEffect, useState, useRef } from "react";
-import type { ContentTypes } from "../utils";
-import { toError, assignMessageRole } from "../utils";
+import type { ContentTypes } from "./utils";
+import { toError, assignMessageRole } from "./utils";
 
 export type Message = {
   id: string;

@@ -1,4 +1,4 @@
-import { useClient } from "@xmtp/hooks/use-client";
+import { useClient } from "@xmtp/use-client";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 import { MessageIcon } from "@ui/icons";
 import {

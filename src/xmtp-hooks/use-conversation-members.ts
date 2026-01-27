@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Client, GroupMember } from "@xmtp/browser-sdk";
-import type { ContentTypes } from "../utils";
-import { toError } from "../utils";
+import type { ContentTypes } from "./utils";
+import { toError } from "./utils";
 
 export function useConversationMembers(
   conversationId: string | null | undefined,

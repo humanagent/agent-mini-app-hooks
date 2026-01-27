@@ -5,7 +5,7 @@ import {
   getOrCreateEphemeralAccountKey,
   type ContentTypes,
   toError,
-} from "../utils";
+} from "./utils";
 
 let globalClientPromise: Promise<Client<ContentTypes>> | null = null;
 let globalClient: Client<ContentTypes> | null = null;
