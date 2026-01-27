@@ -2,6 +2,8 @@
 
 Minimal React hooks for building XMTP agent mini apps. Simple, composable hooks for all XMTP operations.
 
+![](./main.png)
+
 ## Quick start
 
 ```tsx

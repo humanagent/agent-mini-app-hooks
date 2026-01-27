@@ -1,6 +1,6 @@
 import { useClient } from "@xmtp/use-client";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
-import { MessageIcon } from "@ui/icons";
+import { PlusIcon } from "@ui/icons";
 import {
   SidebarContent,
   SidebarFooter,
@@ -146,7 +146,7 @@ export function Sidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              tooltip="Chats"
+              tooltip="New Chat"
               isActive={
                 location.pathname === "/" ||
                 location.pathname === "/chat" ||
@@ -161,9 +161,9 @@ export function Sidebar() {
                 }
               }}
             >
-              <MessageIcon size={16} />
+              <PlusIcon size={16} />
               <span className="group-data-[collapsible=icon]:hidden">
-                Chats
+                New Chat
               </span>
             </SidebarMenuButton>
           </SidebarMenuItem>

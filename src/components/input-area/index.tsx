@@ -253,7 +253,7 @@ export function InputArea({
           className={`rounded border border-zinc-800 bg-black transition-all duration-200 focus-within:border-zinc-700 hover:border-zinc-700 ${isMultiAgentMode ? "p-2" : "p-3"}`}
           onSubmit={handleSubmit}
         >
-          <div className="flex items-start gap-2">
+          <div className="flex items-center gap-2">
             <Button
               type="button"
               variant="ghost"
@@ -262,11 +262,11 @@ export function InputArea({
                 plusPanelOpen
                   ? "text-foreground hover:text-foreground"
                   : "text-muted-foreground hover:text-foreground",
-                isMobile ? "h-10 w-10" : "h-8 w-8",
+                isMobile ? "h-10 w-10" : isMultiAgentMode ? "h-7 w-7" : "h-8 w-8",
               )}
               onClick={() => setPlusPanelOpen((prev) => !prev)}
             >
-              <PlusIcon size={isMobile ? 20 : 16} />
+              <PlusIcon size={isMobile ? 20 : isMultiAgentMode ? 12 : 16} />
             </Button>
             <PromptInputTextarea
               className={`grow resize-none border-0! border-none! bg-transparent text-xs outline-none ring-0 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden ${isMultiAgentMode ? "px-1 py-1 min-h-[24px] max-h-[120px]" : "p-2"}`}
@@ -277,19 +277,7 @@ export function InputArea({
               }}
               ref={textareaRef}
             />
-          </div>
-          <PromptInputToolbar className="border-top-0! border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!">
-            <PromptInputTools className="gap-0 sm:gap-0.5">
-              <AgentChips
-                agents={currentSelectedAgents}
-                onRemoveAgent={handleRemoveAgent}
-                isMultiAgentMode={isMultiAgentMode}
-                isMessageListMode={isMessageListMode}
-                conversation={conversation}
-              />
-            </PromptInputTools>
-
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               <PromptInputSubmit
                 className={`rounded bg-zinc-800 text-foreground transition-all duration-200 hover:bg-zinc-700 active:scale-[0.97] disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none ${isMobile ? "size-10" : isMultiAgentMode ? "size-7" : "size-8"}`}
                 disabled={
@@ -302,6 +290,17 @@ export function InputArea({
                 />
               </PromptInputSubmit>
             </div>
+          </div>
+          <PromptInputToolbar className="border-top-0! border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!">
+            <PromptInputTools className="gap-0 sm:gap-0.5">
+              <AgentChips
+                agents={currentSelectedAgents}
+                onRemoveAgent={handleRemoveAgent}
+                isMultiAgentMode={isMultiAgentMode}
+                isMessageListMode={isMessageListMode}
+                conversation={conversation}
+              />
+            </PromptInputTools>
           </PromptInputToolbar>
         </PromptInput>
       </div>

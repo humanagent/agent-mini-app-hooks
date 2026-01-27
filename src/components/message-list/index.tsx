@@ -767,6 +767,8 @@ export function ConversationView({
     ],
   );
 
+  const showCenteredInput = messages.length === 0;
+
   return (
     <div className="flex h-svh min-h-0 min-w-0 flex-col overflow-hidden bg-black">
       <div className="relative min-h-0 flex-1 overflow-hidden">
@@ -800,15 +802,15 @@ export function ConversationView({
               !createError &&
               !conversationId &&
               messages.length === 0 &&
-              (customGreeting
-                ? customGreeting
-                : selectedAgents.length === 0 && (
-                    <Greeting
-                      onOpenAgents={() => {
-                        setOpenAgentsDialog(true);
-                      }}
-                    />
-                  ))}
+              (customGreeting ? (
+                customGreeting
+              ) : (
+                <Greeting
+                  onOpenAgents={() => {
+                    setOpenAgentsDialog(true);
+                  }}
+                />
+              ))}
             {messages.length > 0 && (
               <MessageList
                 messages={messages}
@@ -817,26 +819,42 @@ export function ConversationView({
                 conversationId={selectedConversation?.id}
               />
             )}
+            {showCenteredInput && (
+              <div className="mx-auto flex w-full max-w-4xl px-4 pb-4 pt-6 md:px-4 md:pb-4 md:pt-8">
+                <InputArea
+                  selectedAgents={selectedAgents}
+                  setSelectedAgents={setSelectedAgents}
+                  openAgentsDialog={openAgentsDialog}
+                  onOpenAgentsDialogChange={setOpenAgentsDialog}
+                  sendMessage={(content, agents) => {
+                    void handleSendMessage(content, agents);
+                  }}
+                  conversation={selectedConversation ?? undefined}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-black px-4 pb-4 pt-3 md:px-4 md:pb-4 md:pt-0">
-        <InputArea
-          {...(selectedConversation
-            ? {}
-            : {
-                selectedAgents,
-                setSelectedAgents,
-                openAgentsDialog,
-                onOpenAgentsDialogChange: setOpenAgentsDialog,
-              })}
-          sendMessage={(content, agents) => {
-            void handleSendMessage(content, agents);
-          }}
-          conversation={selectedConversation ?? undefined}
-        />
-      </div>
+      {!showCenteredInput && (
+        <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-black px-4 pb-4 pt-3 md:px-4 md:pb-4 md:pt-0">
+          <InputArea
+            {...(selectedConversation
+              ? {}
+              : {
+                  selectedAgents,
+                  setSelectedAgents,
+                  openAgentsDialog,
+                  onOpenAgentsDialogChange: setOpenAgentsDialog,
+                })}
+            sendMessage={(content, agents) => {
+              void handleSendMessage(content, agents);
+            }}
+            conversation={selectedConversation ?? undefined}
+          />
+        </div>
+      )}
     </div>
   );
 }

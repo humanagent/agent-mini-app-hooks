@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.51] - 2026-01-27
+
+### Changed
+
+- Aligned plus and send buttons vertically in the input area
+- Centered input area on screen until first message is sent (ChatGPT-style)
+- Kept greeting message visible until first message is sent
+
 ## [0.1.50] - 2026-01-27
 
 ### Changed

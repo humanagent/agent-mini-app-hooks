@@ -190,6 +190,7 @@ export function matchAgentsFromMembers(
 
 /**
  * Creates a group conversation with agent addresses
+ * Resolves ENS domains to addresses before creating the group
  */
 export async function createGroupWithAgentAddresses(
   client: Client<ContentTypes>,
@@ -199,7 +200,19 @@ export async function createGroupWithAgentAddresses(
     throw new Error("No addresses provided for group creation");
   }
 
-  const identifiers = addresses.map((address) => ({
+  // Resolve ENS domains to addresses
+  const { resolveToAddress } = await import("@/src/utils");
+  const resolvedAddresses = await Promise.all(
+    addresses.map(async (addr) => {
+      const resolved = await resolveToAddress(addr);
+      if (!resolved) {
+        throw new Error(`Failed to resolve address or ENS: ${addr}`);
+      }
+      return resolved;
+    }),
+  );
+
+  const identifiers = resolvedAddresses.map((address) => ({
     identifier: address.toLowerCase(),
     identifierKind: "Ethereum" as const,
   }));
