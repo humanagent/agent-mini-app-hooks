@@ -49,28 +49,28 @@ export function AgentChips({
           key={`agent-${agent.address}`}
           className="inline-flex items-center gap-1 rounded bg-zinc-800 px-2 py-0.5 text-xs text-foreground h-6 animate-fade-in-scale"
         >
-            {agent.image ? (
-              <img
-                alt={agent.name}
-                className="h-4 w-4 shrink-0 rounded object-cover"
-                src={agent.image}
-              />
-            ) : (
-              <div className="h-4 w-4 shrink-0 rounded bg-muted" />
+          {agent.image ? (
+            <img
+              alt={agent.name}
+              className="h-4 w-4 shrink-0 rounded object-cover"
+              src={agent.image}
+            />
+          ) : (
+            <div className="h-4 w-4 shrink-0 rounded bg-muted" />
+          )}
+          <span>{agent.name}</span>
+          {(isMultiAgentMode || (isMessageListMode && conversation)) &&
+            canRemove && (
+              <button
+                type="button"
+                onClick={() => {
+                  onRemoveAgent(agent.address);
+                }}
+                className="rounded hover:bg-zinc-700 p-0.5 transition-colors duration-200 active:scale-[0.97]"
+              >
+                <XIcon size={12} />
+              </button>
             )}
-            <span>{agent.name}</span>
-            {(isMultiAgentMode || (isMessageListMode && conversation)) &&
-              canRemove && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onRemoveAgent(agent.address);
-                  }}
-                  className="rounded hover:bg-zinc-700 p-0.5 transition-colors duration-200 active:scale-[0.97]"
-                >
-                  <XIcon size={12} />
-                </button>
-              )}
         </div>
       ))}
     </div>

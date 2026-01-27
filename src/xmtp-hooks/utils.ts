@@ -6,12 +6,11 @@ import { RemoteAttachmentCodec } from "@xmtp/content-type-remote-attachment";
 import { ReplyCodec } from "@xmtp/content-type-reply";
 import { TransactionReferenceCodec } from "@xmtp/content-type-transaction-reference";
 import { WalletSendCallsCodec } from "@xmtp/content-type-wallet-send-calls";
-import type { Signer, GroupMember, DecodedMessage } from "@xmtp/browser-sdk";
+import type { Signer, GroupMember } from "@xmtp/browser-sdk";
 import { toBytes, type Hex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { Group, ConsentState, ConsentEntityType } from "@xmtp/browser-sdk";
 import type { Conversation } from "@xmtp/browser-sdk";
-import type { AgentConfig } from "./agents";
 
 type PrivateKey = Hex;
 
@@ -203,5 +202,3 @@ export function extractMemberAddresses(members: GroupMember[]): string[] {
   }
   return Array.from(addresses);
 }
-
-

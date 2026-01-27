@@ -45,7 +45,7 @@ export function ConversationItem({
     isGroup && groupName && groupName !== "Agent Group" ? groupName : displayId;
   const isNamed = isGroup && groupName && groupName !== "Agent Group";
 
-  const isMobile = useIsMobile();
+  const _isMobile = useIsMobile();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { client } = useClient();
   const { members } = useConversationMembers(conversation.id, client);

@@ -1,7 +1,6 @@
 import { useIsMobile } from "@hooks/use-mobile";
 import { Button } from "@ui/button";
 import { ArrowUpIcon, PlusIcon } from "@ui/icons";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import type { Conversation } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -123,11 +122,20 @@ export function InputArea({
   useEffect(() => {
     if (!conversation && !isMessageListMode && defaultGmAgent) {
       // Sync with selectedAgents prop if provided and empty
-      if (setSelectedAgents && (!selectedAgents || selectedAgents.length === 0)) {
+      if (
+        setSelectedAgents &&
+        (!selectedAgents || selectedAgents.length === 0)
+      ) {
         setSelectedAgents([defaultGmAgent]);
       }
     }
-  }, [conversation, isMessageListMode, defaultGmAgent, setSelectedAgents, selectedAgents]);
+  }, [
+    conversation,
+    isMessageListMode,
+    defaultGmAgent,
+    setSelectedAgents,
+    selectedAgents,
+  ]);
 
   // Agent management
   const {

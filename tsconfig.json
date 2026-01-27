@@ -18,7 +18,9 @@
       "@xmtp/use-client": ["./src/xmtp-hooks/use-client"],
       "@xmtp/use-conversations": ["./src/xmtp-hooks/use-conversations"],
       "@xmtp/use-conversation": ["./src/xmtp-hooks/use-conversation"],
-      "@xmtp/use-conversation-members": ["./src/xmtp-hooks/use-conversation-members"],
+      "@xmtp/use-conversation-members": [
+        "./src/xmtp-hooks/use-conversation-members"
+      ],
       "@xmtp/utils": ["./src/xmtp-hooks/utils"]
     },
     "resolveJsonModule": true,

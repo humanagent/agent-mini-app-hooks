@@ -54,7 +54,7 @@ async function initializeClient(
   globalClientPromise = (async () => {
     try {
       let xmtpClient: Client<ContentTypes>;
-      
+
       if (signer) {
         // Use custom signer
         xmtpClient = await createXMTPClient(signer, options);
@@ -64,7 +64,7 @@ async function initializeClient(
         const ephemeralSigner = createEphemeralSigner(accountKey);
         xmtpClient = await createXMTPClient(ephemeralSigner, options);
       }
-      
+
       globalClient = xmtpClient;
       isInitializing = false;
       globalClientPromise = null;

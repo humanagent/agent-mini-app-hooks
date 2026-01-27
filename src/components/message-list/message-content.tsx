@@ -10,11 +10,7 @@ type MessageContentProps = {
   isGroup?: boolean;
 };
 
-function AgentProfileContent({
-  agent,
-}: {
-  agent: AgentConfig;
-}) {
+function AgentProfileContent({ agent }: { agent: AgentConfig }) {
   const description = agent.description || "AI agent";
 
   return (
@@ -61,7 +57,7 @@ export function MessageContent({
   content,
   onMentionClick,
   className,
-  isGroup = false,
+  isGroup: _isGroup = false,
 }: MessageContentProps) {
   const segments = parseAgentMentions(content);
 

@@ -32,7 +32,7 @@ export function MessageList({
   messages,
   onMentionClick,
   isGroup = false,
-  clientInboxId,
+  clientInboxId: _clientInboxId,
 }: {
   messages: Message[];
   onMentionClick?: (agent: AgentConfig) => void;
@@ -554,7 +554,8 @@ export function ConversationView({
         let conversation = selectedConversation;
 
         if (!conversation) {
-          const agentsToUse = agents && agents.length > 0 ? agents : selectedAgents;
+          const agentsToUse =
+            agents && agents.length > 0 ? agents : selectedAgents;
           console.log(
             "[ConversationView] No conversation, agents passed:",
             agents?.map((a) => a.name),
@@ -628,7 +629,8 @@ export function ConversationView({
               )
               .map((msg) => ({
                 id: msg.id,
-                role: msg.senderInboxId === client.inboxId ? "user" : "assistant",
+                role:
+                  msg.senderInboxId === client.inboxId ? "user" : "assistant",
                 content: msg.content as string,
                 sentAt: getMessageSentAt(msg),
                 sending: false,
