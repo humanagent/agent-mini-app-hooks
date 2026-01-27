@@ -1,4 +1,5 @@
-
+import type { Client, GroupMember } from "@xmtp/browser-sdk";
+import { Group } from "@xmtp/browser-sdk";
 import type { ContentTypes } from "@xmtp/utils";
 import { extractMemberAddresses } from "@xmtp/utils";
 
@@ -178,7 +179,7 @@ export function getAgentById(id: string): AgentConfig | undefined {
  * Returns agents whose addresses match member addresses
  */
 export function matchAgentsFromMembers(
-  members: any[],
+  members: GroupMember[],
   agentList: AgentConfig[],
 ): AgentConfig[] {
   const memberAddresses = new Set(extractMemberAddresses(members));

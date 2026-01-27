@@ -1,6 +1,6 @@
 import { XIcon } from "@ui/icons";
 import { useEffect, useState } from "react";
-import type { AgentConfig } from "@xmtp/agents";
+import type { AgentConfig } from "@lib/agent-utils";
 import type { Conversation } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
 

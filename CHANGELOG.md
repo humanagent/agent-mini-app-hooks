@@ -1,11 +1,18 @@
 # Changelog
 
+## [0.1.49] - 2026-01-27
+
+### Fixed
+
+- Fixed build error by updating path aliases to point to new agent utilities location
+
 ## [0.1.48] - 2026-01-27
 
 ### Changed
 
 - Moved agent utilities from `src/xmtp-hooks/agents.ts` to `src/lib/agent-utils.ts` for better code organization
 - Consolidated agent types, configuration, and helper functions into a single utility module
+- Updated path aliases in `vite.config.ts` and `tsconfig.json` to point `@xmtp/agents` to the new location
 
 ## [0.1.47] - 2026-01-27
 

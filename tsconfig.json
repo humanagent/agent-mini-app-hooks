@@ -14,7 +14,7 @@
       "@components/*": ["./src/components/*"],
       "@ui/*": ["./src/ui/*"],
       "@lib/*": ["./src/lib/*"],
-      "@xmtp/agents": ["./src/xmtp-hooks/agents"],
+      "@xmtp/agents": ["./src/lib/agent-utils"],
       "@xmtp/use-client": ["./src/xmtp-hooks/use-client"],
       "@xmtp/use-conversations": ["./src/xmtp-hooks/use-conversations"],
       "@xmtp/use-conversation": ["./src/xmtp-hooks/use-conversation"],
