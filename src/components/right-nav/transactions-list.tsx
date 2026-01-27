@@ -1,10 +1,13 @@
 import { CopyIcon, CheckIcon } from "@ui/icons";
-import { Button } from "@ui/button";
 import { useState, useCallback } from "react";
 import { cn, formatTimeAgo, shortAddress } from "@/src/utils";
 import type { Transaction } from "./types";
 
-export function TransactionsList({ transactions }: { transactions: Transaction[] }) {
+export function TransactionsList({
+  transactions,
+}: {
+  transactions: Transaction[];
+}) {
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
 
@@ -58,7 +61,9 @@ export function TransactionsList({ transactions }: { transactions: Transaction[]
                   onClick={() => handleCopyAddress(tx.from)}
                   className="flex items-center gap-2 mb-1 w-full text-left hover:opacity-80 transition-opacity duration-200"
                 >
-                  <span className="text-[10px] text-muted-foreground">From</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    From
+                  </span>
                   <span className="text-xs font-mono text-foreground truncate flex items-center gap-1">
                     {shortAddress(tx.from)}
                     {isCopiedFrom ? (

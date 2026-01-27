@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Client, Conversation } from "@xmtp/browser-sdk";
+import type { Client } from "@xmtp/browser-sdk";
 import type { AgentConfig } from "@/src/agents";
 import { AI_AGENTS } from "@/src/agents";
 import type { ContentTypes } from "./utils";
@@ -27,9 +27,8 @@ export function useAgentConversationAgents(
         setIsLoading(true);
         setError(null);
 
-        const conversation = await client.conversations.getConversationById(
-          conversationId,
-        );
+        const conversation =
+          await client.conversations.getConversationById(conversationId);
 
         if (!conversation || !mounted) {
           if (mounted) {

@@ -1,6 +1,11 @@
 import type { Client } from "@xmtp/browser-sdk";
 import { useEffect, useState } from "react";
-import { createXMTPClient, getOrCreateEphemeralAccountKey, type ContentTypes, toError } from "./utils";
+import {
+  createXMTPClient,
+  getOrCreateEphemeralAccountKey,
+  type ContentTypes,
+  toError,
+} from "./utils";
 
 let globalClientPromise: Promise<Client<ContentTypes>> | null = null;
 let globalClient: Client<ContentTypes> | null = null;

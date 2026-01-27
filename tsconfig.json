@@ -20,11 +20,6 @@
     "strict": true,
     "target": "ESNext"
   },
-  "include": [
-    "src",
-    "scripts",
-    "vite.config.ts",
-    "postcss.config.cjs"
-  ],
+  "include": ["src", "scripts", "vite.config.ts", "postcss.config.cjs"],
   "exclude": ["dist", "node_modules"]
 }

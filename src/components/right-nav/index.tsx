@@ -1,4 +1,3 @@
-import { Button } from "@ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@ui/sheet";
 import { useIsMobile } from "@hooks/use-mobile";
 import { XIcon } from "@ui/icons";
@@ -53,14 +52,7 @@ export function RightNav({
     const loadTransactions = async () => {
       setIsLoading(true);
       try {
-        const members = await conversation.members();
-        const memberAddresses = members
-          .flatMap((member) =>
-            member.accountIdentifiers
-              .filter((id) => id.identifierKind === "Ethereum")
-              .map((id) => id.identifier.toLowerCase()),
-          )
-          .filter((addr, index, arr) => arr.indexOf(addr) === index);
+        await conversation.members();
 
         // TODO: Fetch real transaction data from blockchain
         // For now, showing empty state until real data integration
@@ -214,7 +206,8 @@ export function RightNav({
           width: RIGHT_NAV_WIDTH,
           top: "env(safe-area-inset-top, 0px)",
           bottom: "env(safe-area-inset-bottom, 0px)",
-          height: "calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))",
+          height:
+            "calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))",
         } as React.CSSProperties
       }
     >

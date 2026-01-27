@@ -39,8 +39,10 @@ export function ConversationsProvider({
   client: Client<ContentTypes> | null;
   children: ReactNode;
 }) {
-  const { conversations, isLoading, error, refresh } = useAgentConversations(client);
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const { conversations, isLoading, error, refresh } =
+    useAgentConversations(client);
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(null);
   const [pendingConversation, setPendingConversation] = useState<{
     agentAddresses: string[];
     agentConfigs: AgentConfig[];

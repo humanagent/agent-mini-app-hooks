@@ -146,7 +146,9 @@ export function ConversationView({
   const [isWaitingForAgent, setIsWaitingForAgent] = useState(false);
   const [rightNavOpen, setRightNavOpen] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<AgentConfig | null>(null);
-  const [rightNavTab, setRightNavTab] = useState<"transactions" | "permissions">("transactions");
+  const [rightNavTab, setRightNavTab] = useState<
+    "transactions" | "permissions"
+  >("transactions");
   const waitingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const streamCleanupRef = useRef<(() => Promise<void>) | null>(null);
   const tempMessageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -586,7 +588,9 @@ export function ConversationView({
 
       // Prevent duplicate sends
       if (isSendingRef.current) {
-        console.log("[ConversationView] Send already in progress, ignoring duplicate");
+        console.log(
+          "[ConversationView] Send already in progress, ignoring duplicate",
+        );
         return;
       }
 
@@ -615,30 +619,33 @@ export function ConversationView({
               client,
               agentAddresses,
             );
-            
+
             // Sync conversation to ensure it's fully ready
             console.log(
               "[ConversationView] Syncing newly created conversation:",
               conversation.id,
             );
             await conversation.sync();
-            
+
             // Set conversation state before navigation
             setSelectedConversation(conversation);
-            
+
             // Navigate to conversation URL
             navigate(`/conversation/${conversation.id}`, { replace: true });
-            
+
             // Refresh conversations list in background
             void refreshConversations();
-            
+
             wasNewConversation = true;
           } catch (error) {
             const errorMessage =
               error instanceof Error
                 ? error.message
                 : "Failed to create conversation";
-            console.error("[ConversationView] Failed to create conversation:", error);
+            console.error(
+              "[ConversationView] Failed to create conversation:",
+              error,
+            );
             setCreateError(errorMessage);
             setIsCreatingConversation(false);
             isSendingRef.current = false;
@@ -649,7 +656,9 @@ export function ConversationView({
         }
 
         if (!conversation) {
-          console.error("[ConversationView] No conversation available after creation attempt");
+          console.error(
+            "[ConversationView] No conversation available after creation attempt",
+          );
           isSendingRef.current = false;
           return;
         }
@@ -686,7 +695,7 @@ export function ConversationView({
           if (wasNewConversation) {
             await conversation.sync();
           }
-          
+
           await conversation.send(content);
 
           setIsWaitingForAgent(true);
@@ -802,7 +811,10 @@ export function ConversationView({
                 messages={messages}
                 isGroup={selectedConversation instanceof Group}
                 onMentionClick={(agent) => {
-                  console.log("[ConversationView] Mention clicked:", agent.name);
+                  console.log(
+                    "[ConversationView] Mention clicked:",
+                    agent.name,
+                  );
                   if (selectedConversation instanceof Group) {
                     setSelectedAgent(agent);
                     setRightNavTab("permissions");

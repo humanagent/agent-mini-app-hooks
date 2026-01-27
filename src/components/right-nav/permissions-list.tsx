@@ -1,12 +1,17 @@
 import { CopyIcon, CheckIcon } from "@ui/icons";
-import { Button } from "@ui/button";
 import { useState, useCallback } from "react";
 import { cn, formatTimeAgo, shortAddress } from "@/src/utils";
 import type { Permission } from "./types";
 
-export function PermissionsList({ permissions }: { permissions: Permission[] }) {
+export function PermissionsList({
+  permissions,
+}: {
+  permissions: Permission[];
+}) {
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
-  const [copiedTokenAddress, setCopiedTokenAddress] = useState<string | null>(null);
+  const [copiedTokenAddress, setCopiedTokenAddress] = useState<string | null>(
+    null,
+  );
 
   const handleCopyAddress = useCallback(async (address: string) => {
     try {
@@ -53,7 +58,9 @@ export function PermissionsList({ permissions }: { permissions: Permission[] }) 
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="text-xs font-semibold text-foreground">{perm.token}</div>
+                  <div className="text-xs font-semibold text-foreground">
+                    {perm.token}
+                  </div>
                   <span
                     className={cn(
                       "text-[9px] px-1.5 py-0.5 rounded font-medium bg-zinc-800 text-zinc-400",
@@ -67,7 +74,9 @@ export function PermissionsList({ permissions }: { permissions: Permission[] }) 
                   onClick={() => handleCopyAddress(perm.spender)}
                   className="flex items-center gap-2 mb-1 w-full text-left hover:opacity-80 transition-opacity duration-200"
                 >
-                  <span className="text-[10px] text-muted-foreground">Agent</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    Agent
+                  </span>
                   <span className="text-xs font-mono text-foreground truncate flex items-center gap-1">
                     {shortAddress(perm.spender)}
                     {isCopiedSpender ? (
@@ -82,7 +91,9 @@ export function PermissionsList({ permissions }: { permissions: Permission[] }) 
                   onClick={() => handleCopyTokenAddress(perm.tokenAddress)}
                   className="flex items-center gap-2 w-full text-left hover:opacity-80 transition-opacity duration-200"
                 >
-                  <span className="text-[10px] text-muted-foreground">Token</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    Token
+                  </span>
                   <span className="text-xs font-mono text-foreground truncate flex items-center gap-1">
                     {shortAddress(perm.tokenAddress)}
                     {isCopiedToken ? (

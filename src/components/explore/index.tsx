@@ -16,9 +16,9 @@ export function ExplorePage() {
 
   const categories = useMemo(() => {
     const uniqueCategories = new Set(
-      allAgents.map((agent) => agent.category).filter(
-        (category): category is string => Boolean(category),
-      ),
+      allAgents
+        .map((agent) => agent.category)
+        .filter((category): category is string => Boolean(category)),
     );
     return ["All", ...Array.from(uniqueCategories).sort()];
   }, [allAgents]);

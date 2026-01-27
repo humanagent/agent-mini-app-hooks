@@ -1,4 +1,9 @@
-import type { Client, Conversation, DecodedMessage, GroupMember } from "@xmtp/browser-sdk";
+import type {
+  Client,
+  Conversation,
+  DecodedMessage,
+  GroupMember,
+} from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
 import { useCallback, useEffect, useState, useRef } from "react";
 import type { ContentTypes } from "./utils";
@@ -40,7 +45,8 @@ export function useAgentConversation(
 
     const loadConversation = async () => {
       try {
-        const conv = await client.conversations.getConversationById(conversationId);
+        const conv =
+          await client.conversations.getConversationById(conversationId);
         if (mounted) {
           setConversation(conv || null);
         }

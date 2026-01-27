@@ -17,7 +17,7 @@ import { SidebarUserNav } from "@/src/components/sidebar/user-nav";
 import { ConversationItem } from "@/src/components/sidebar/conversation-item";
 import type { Conversation } from "@/src/hooks";
 import { useCallback, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { denyConversation } from "@/src/hooks/utils";
 import {
   sortConversationsByLastMessage,
@@ -34,7 +34,7 @@ const SidebarLogo = ({
 }) => (
   <img
     src="/icon.svg"
-    alt="GCAMAE"
+    alt="Agent Mini App Hooks"
     onClick={onClick}
     onKeyDown={(e) => {
       if (e.key === "Enter" || e.key === " ") {

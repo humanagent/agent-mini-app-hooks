@@ -5,7 +5,7 @@ import { useAgentClient } from "@hooks/use-agent-client";
 import { SidebarInset, SidebarProvider, useSidebar } from "@ui/sidebar";
 import { ConversationsProvider } from "@/src/contexts/xmtp-conversations-context";
 import { ToastProvider } from "@ui/toast";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { useSwipeGesture } from "@hooks/use-swipe-gesture";
 
 function SidebarInsetWithSwipe() {
@@ -31,6 +31,8 @@ function SidebarInsetWithSwipe() {
           path="/conversation/:conversationId"
           element={<ConversationView />}
         />
+        <Route path="/explore" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </SidebarInset>
   );
@@ -47,7 +49,7 @@ function AppContent() {
 }
 
 export default function App() {
-  const { client, isLoading, error } = useAgentClient();
+  const { client } = useAgentClient();
 
   return (
     <BrowserRouter>

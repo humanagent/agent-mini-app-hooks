@@ -128,7 +128,9 @@ export async function createXMTPClient(
     const client = await clientPromise;
 
     const duration = Date.now() - startTime;
-    console.log(`[XMTP] Client created in ${duration}ms (inbox: ${client.inboxId?.slice(0, 8) ?? 'unknown'}...)`);
+    console.log(
+      `[XMTP] Client created in ${duration}ms (inbox: ${client.inboxId?.slice(0, 8) ?? "unknown"}...)`,
+    );
 
     isCreatingClient = false;
     return client;
@@ -157,7 +159,7 @@ export async function createXMTPClient(
 
 export async function isConversationAllowed(
   conversation: Conversation,
-  client: Client<ContentTypes>,
+  _client: Client<ContentTypes>,
 ): Promise<boolean> {
   if (conversation instanceof Group) {
     const state = await conversation.consentState();

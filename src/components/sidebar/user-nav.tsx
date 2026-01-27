@@ -1,10 +1,5 @@
 import { useAgentClient } from "@hooks/use-agent-client";
-import {
-  CopyIcon,
-  CheckIcon,
-  ResetIcon,
-  ChevronDownIcon,
-} from "@ui/icons";
+import { CopyIcon, CheckIcon, ResetIcon, ChevronDownIcon } from "@ui/icons";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@ui/sidebar";
 import {
   Dialog,

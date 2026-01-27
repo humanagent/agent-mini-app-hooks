@@ -1,7 +1,11 @@
 import type { Client, Conversation } from "@xmtp/browser-sdk";
 import { useCallback, useEffect, useState } from "react";
 import type { ContentTypes } from "./utils";
-import { isConversationAllowed, toError, deduplicateConversations } from "./utils";
+import {
+  isConversationAllowed,
+  toError,
+  deduplicateConversations,
+} from "./utils";
 
 async function filterAllowedConversations(
   conversations: Conversation[],
@@ -68,7 +72,8 @@ export function useAgentConversations(client: Client<ContentTypes> | null) {
         const allConversations = await client.conversations.list();
 
         if (mounted) {
-          const uniqueConversations = deduplicateConversations(allConversations);
+          const uniqueConversations =
+            deduplicateConversations(allConversations);
 
           const allowedConversations = await filterAllowedConversations(
             uniqueConversations,

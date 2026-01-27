@@ -77,11 +77,21 @@ export function InputArea({
     client,
   );
 
+  // State for single agent (can be set when adding agent before conversation exists)
+  const [singleAgentState, setSingleAgentState] = useState<
+    AgentConfig | undefined
+  >(undefined);
+
   // Determine single agent for non-multi-agent mode
   const singleAgent = useMemo(() => {
     if (isMultiAgentMode) {
       return undefined;
     }
+    // Use state if set (for chat area mode before conversation exists)
+    if (singleAgentState) {
+      return singleAgentState;
+    }
+    // Otherwise use conversation agents or fallback to live agents
     if (conversationAgents.length > 0) {
       return conversationAgents[0];
     }
@@ -89,7 +99,14 @@ export function InputArea({
       return liveAgents[0];
     }
     return undefined;
-  }, [isMultiAgentMode, conversationAgents, liveAgents]);
+  }, [isMultiAgentMode, singleAgentState, conversationAgents, liveAgents]);
+
+  // Reset single agent state when conversation exists (message list mode)
+  useEffect(() => {
+    if (isMessageListMode && conversation) {
+      setSingleAgentState(undefined);
+    }
+  }, [isMessageListMode, conversation]);
 
   // Agent management
   const {
@@ -98,13 +115,11 @@ export function InputArea({
     confirmAddAgentOpen,
     setConfirmAddAgentOpen,
     agentToAdd,
-    setAgentToAdd,
     isAddingAgent,
     handleConfirmAddAgent,
     confirmRemoveAgentOpen,
     setConfirmRemoveAgentOpen,
     agentToRemove,
-    setAgentToRemove,
     isRemovingAgent,
     handleConfirmRemoveAgent,
   } = useAgentManagement({
@@ -173,7 +188,6 @@ export function InputArea({
     }
   }, [openAgentsDialog, onOpenAgentsDialogChange]);
 
-
   // Suggested actions
   const suggestedActions = useMemo(() => {
     if (currentSelectedAgents.length === 0) {
@@ -191,7 +205,6 @@ export function InputArea({
     const shuffled = shuffleArray(allSuggestions);
     return shuffled.slice(0, 4);
   }, [currentSelectedAgents]);
-
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

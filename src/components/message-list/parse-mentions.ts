@@ -8,12 +8,12 @@ export type TextSegment =
 export function parseAgentMentions(text: string): TextSegment[] {
   const segments: TextSegment[] = [];
   const allAgents = AI_AGENTS;
-  
+
   // Create a map of agent names (case-insensitive) to agent configs
   // Deduplicate by address to avoid duplicates
   const agentMap = new Map<string, AgentConfig>();
   const seenAddresses = new Set<string>();
-  
+
   for (const agent of allAgents) {
     const addressKey = agent.address.toLowerCase();
     if (!seenAddresses.has(addressKey)) {
