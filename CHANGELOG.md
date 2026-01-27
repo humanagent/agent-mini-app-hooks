@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.46] - 2026-01-26
+
+### Changed
+
+- Removed unused devDependencies: autoprefixer, browserslist, tsx
+
 ## [0.1.45] - 2026-01-26
 
 ### Fixed

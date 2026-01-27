@@ -2,7 +2,6 @@ import { useState } from "react";
 import type { Conversation } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
 import type { AgentConfig } from "@xmtp/agents";
-import { useToast } from "@ui/toast";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 
 export function useAgentManagement({
@@ -37,7 +36,6 @@ export function useAgentManagement({
   const [agentToRemove, setAgentToRemove] = useState<AgentConfig | null>(null);
   const [isRemovingAgent, setIsRemovingAgent] = useState(false);
   const { refreshConversations } = useConversationsContext();
-  const { showToast } = useToast();
 
   const handleAddAgent = (agent: AgentConfig) => {
     if (isMultiAgentMode) {
@@ -93,13 +91,11 @@ export function useAgentManagement({
           identifierKind: "Ethereum" as const,
         },
       ]);
-      showToast(`Added ${agentToAdd.name} to the conversation`, "success");
       void refreshConversations();
       setConfirmAddAgentOpen(false);
       setAgentToAdd(null);
     } catch (error) {
       console.error("[InputArea] Error adding agent to conversation:", error);
-      showToast(`Failed to add ${agentToAdd.name}. Please try again.`, "error");
     } finally {
       setIsAddingAgent(false);
     }
@@ -146,10 +142,6 @@ export function useAgentManagement({
 
       if (memberToRemove) {
         await conversation.removeMembers([memberToRemove.inboxId]);
-        showToast(
-          `Removed ${agentToRemove.name} from the conversation`,
-          "success",
-        );
         void refreshConversations();
         setConfirmRemoveAgentOpen(false);
         setAgentToRemove(null);
@@ -160,10 +152,6 @@ export function useAgentManagement({
       console.error(
         "[InputArea] Error removing agent from conversation:",
         error,
-      );
-      showToast(
-        `Failed to remove ${agentToRemove.name}. Please try again.`,
-        "error",
       );
     } finally {
       setIsRemovingAgent(false);

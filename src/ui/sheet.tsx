@@ -2,7 +2,7 @@
 
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cva, type VariantProps } from "class-variance-authority";
-import { X } from "lucide-react";
+import { XIcon } from "./icons";
 import * as React from "react";
 import { cn } from "@/src/utils";
 
@@ -177,7 +177,7 @@ const SheetContent = React.forwardRef<
       >
         {children}
         <DialogPrimitive.Close className="absolute right-3 top-3 rounded opacity-70 ring-offset-0 transition-all duration-200 hover:opacity-100 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0 disabled:pointer-events-none data-[state=open]:bg-zinc-800">
-          <X className="h-4 w-4" />
+          <XIcon size={16} />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>

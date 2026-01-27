@@ -1,6 +1,5 @@
 import { useIsMobile } from "@hooks/use-mobile";
 import { Input } from "@ui/input";
-import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import type { AgentConfig } from "@xmtp/agents";
 import { cn } from "@/src/utils";
@@ -35,16 +34,10 @@ export function PlusPanel({
     }
   }, [open]);
 
+  if (!open) return null;
+
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
-          className="absolute bottom-full left-0 right-0 mb-2 z-50"
-        >
+    <div className="absolute bottom-full left-0 right-0 mb-2 z-50 animate-fade-in-up">
           <div className="w-full rounded border border-zinc-800 bg-zinc-950 shadow-lg overflow-hidden">
             <div className="flex flex-col">
               {/* Add Agent Section */}
@@ -106,8 +99,6 @@ export function PlusPanel({
               </div>
             </div>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </div>
   );
 }

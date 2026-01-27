@@ -1,7 +1,7 @@
 import { useIsMobile } from "@hooks/use-mobile";
 import { Slot as SlotPrimitive } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeft } from "lucide-react";
+import { PanelLeftIcon } from "./icons";
 import * as React from "react";
 import { cn } from "@/src/utils";
 import { Button } from "./button";
@@ -304,7 +304,7 @@ const SidebarTrigger = React.forwardRef<
       variant="ghost"
       {...props}
     >
-      <PanelLeft />
+      <PanelLeftIcon size={16} />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

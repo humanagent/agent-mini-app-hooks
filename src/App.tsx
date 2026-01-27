@@ -4,7 +4,6 @@ import { FloatingNavButton } from "@components/sidebar/floating-nav-button";
 import { useClient } from "@xmtp/use-client";
 import { SidebarInset, SidebarProvider, useSidebar } from "@ui/sidebar";
 import { ConversationsProvider } from "@/src/contexts/xmtp-conversations-context";
-import { ToastProvider } from "@ui/toast";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { useSwipeGesture } from "@hooks/use-swipe-gesture";
 
@@ -52,11 +51,9 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <ToastProvider>
-        <ConversationsProvider client={client}>
-          <AppContent />
-        </ConversationsProvider>
-      </ToastProvider>
+      <ConversationsProvider client={client}>
+        <AppContent />
+      </ConversationsProvider>
     </BrowserRouter>
   );
 }

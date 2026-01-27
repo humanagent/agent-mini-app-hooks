@@ -664,3 +664,61 @@ export const HelpIcon = ({
     />
   </svg>
 );
+
+export const PanelLeftIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M2 2.5C1.44772 2.5 1 2.94772 1 3.5V12.5C1 13.0523 1.44772 13.5 2 13.5H6V2.5H2ZM0 3.5C0 2.11929 1.11929 1 2.5 1H14.5C15.8807 1 17 2.11929 17 3.5V12.5C17 13.8807 15.8807 15 14.5 15H2.5C1.11929 15 0 13.8807 0 12.5V3.5ZM7.5 2.5V13.5H14.5C15.0523 13.5 15.5 13.0523 15.5 12.5V3.5C15.5 2.94772 15.0523 2.5 14.5 2.5H7.5Z"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
+
+export const ChevronRightIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M5.29289 4.29289C5.68342 3.90237 6.31658 3.90237 6.70711 4.29289L10.7071 8.29289C11.0976 8.68342 11.0976 9.31658 10.7071 9.70711L6.70711 13.7071C6.31658 14.0976 5.68342 14.0976 5.29289 13.7071C4.90237 13.3166 4.90237 12.6834 5.29289 12.2929L8.58579 9L5.29289 5.70711C4.90237 5.31658 4.90237 4.68342 5.29289 4.29289Z"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
+
+export const CircleIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <circle cx="8" cy="8" r="3" fill="currentColor" />
+  </svg>
+);
