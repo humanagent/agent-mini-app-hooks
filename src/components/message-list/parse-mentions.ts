@@ -1,6 +1,5 @@
-import { AI_AGENTS } from "@/agent-registry/agents";
-import { getUserAgents } from "@/lib/agent-storage";
-import type { AgentConfig } from "@/agent-registry/agents";
+import { AI_AGENTS } from "@/src/agents";
+import type { AgentConfig } from "@/src/agents";
 
 export type TextSegment =
   | { type: "text"; content: string }
@@ -8,8 +7,7 @@ export type TextSegment =
 
 export function parseAgentMentions(text: string): TextSegment[] {
   const segments: TextSegment[] = [];
-  const userAgents = getUserAgents();
-  const allAgents = [...AI_AGENTS, ...userAgents];
+  const allAgents = AI_AGENTS;
   
   // Create a map of agent names (case-insensitive) to agent configs
   // Deduplicate by address to avoid duplicates

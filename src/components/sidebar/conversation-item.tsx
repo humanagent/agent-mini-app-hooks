@@ -1,5 +1,5 @@
-import type { Conversation } from "@xmtp/browser-sdk";
-import { Group } from "@xmtp/browser-sdk";
+import type { Conversation } from "@/src/hooks";
+import { Group } from "@/src/hooks";
 import { Button } from "@ui/button";
 import { SidebarMenuButton, SidebarMenuItem } from "@ui/sidebar";
 import {

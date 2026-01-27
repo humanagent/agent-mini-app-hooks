@@ -1,4 +1,4 @@
-import type { AgentConfig } from "@/agent-registry/agents";
+import type { AgentConfig } from "@/src/agents";
 
 export function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
@@ -7,11 +7,6 @@ export function shuffleArray<T>(array: T[]): T[] {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
-}
-
-export function truncateAddress(address: string): string {
-  if (address.length <= 10) return address;
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
 export function appendAgentMentions(

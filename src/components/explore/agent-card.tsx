@@ -1,4 +1,4 @@
-import type { AgentConfig } from "@/agent-registry/agents";
+import type { AgentConfig } from "@/src/agents";
 import { ArrowUpIcon, CopyIcon, CheckIcon } from "@ui/icons";
 import { motion } from "framer-motion";
 import { useState, useCallback } from "react";

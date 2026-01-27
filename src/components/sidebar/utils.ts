@@ -1,4 +1,4 @@
-import type { Conversation } from "@xmtp/browser-sdk";
+import type { Conversation } from "@/src/hooks";
 
 export type ConversationWithMeta = {
   conversation: Conversation;

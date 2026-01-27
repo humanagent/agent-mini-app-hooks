@@ -1,12 +1,17 @@
-import type { Client } from "@xmtp/browser-sdk";
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { useXMTPConversations } from "@/src/components/sidebar/use-xmtp-conversations";
-import type { ContentTypes } from "@/lib/xmtp/client";
-import type { AgentConfig } from "@/agent-registry/agents";
+import { useAgentConversations } from "@/src/hooks/use-agent-conversations";
+import type { Client, Conversation, ContentTypes } from "@/src/hooks";
+import type { AgentConfig } from "@/src/agents";
 
 type PendingConversationStatus = "creating" | "sending";
 
-type ConversationsContextType = ReturnType<typeof useXMTPConversations> & {
+type ConversationsContextType = {
+  conversations: Conversation[];
+  selectedConversation: Conversation | null;
+  setSelectedConversation: (conversation: Conversation | null) => void;
+  isLoading: boolean;
+  error: Error | null;
+  refreshConversations: () => Promise<void>;
   pendingConversation: {
     agentAddresses: string[];
     agentConfigs: AgentConfig[];
@@ -34,7 +39,8 @@ export function ConversationsProvider({
   client: Client<ContentTypes> | null;
   children: ReactNode;
 }) {
-  const conversationsData = useXMTPConversations(client);
+  const { conversations, isLoading, error, refresh } = useAgentConversations(client);
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [pendingConversation, setPendingConversation] = useState<{
     agentAddresses: string[];
     agentConfigs: AgentConfig[];
@@ -43,7 +49,12 @@ export function ConversationsProvider({
   } | null>(null);
 
   const value: ConversationsContextType = {
-    ...conversationsData,
+    conversations,
+    selectedConversation,
+    setSelectedConversation,
+    isLoading,
+    error,
+    refreshConversations: refresh,
     pendingConversation,
     setPendingConversation,
   };

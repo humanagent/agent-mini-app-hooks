@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import type { Conversation } from "@xmtp/browser-sdk";
+import type { Conversation } from "@/src/hooks";
 
 export const ChatHeader = ({
   conversation: _conversation,

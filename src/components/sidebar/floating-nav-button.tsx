@@ -1,7 +1,7 @@
 import { Button } from "@ui/button";
 import { SidebarLeftIcon } from "@ui/icons";
 import { useSidebar } from "@ui/sidebar";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/utils";
 
 export function FloatingNavButton() {
   const { isMobile, toggleSidebar } = useSidebar();
