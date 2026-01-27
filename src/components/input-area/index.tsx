@@ -289,7 +289,7 @@ export function InputArea({
             className="transition-all duration-200 focus-within:border-zinc-700 hover:border-zinc-700 p-2"
             onSubmit={handleSubmit}
           >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-2">
             <Button
               type="button"
               variant="ghost"
@@ -328,7 +328,7 @@ export function InputArea({
               </PromptInputSubmit>
             </div>
           </div>
-          <PromptInputToolbar className="border-top-0! border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!">
+          <PromptInputToolbar className="border-top-0! border-t-0! px-1 py-2 shadow-none dark:border-0 dark:border-transparent!">
             <PromptInputTools className="gap-0 sm:gap-0.5">
               <AgentChips
                 agents={currentSelectedAgents}
