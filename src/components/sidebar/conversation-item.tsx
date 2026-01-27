@@ -14,9 +14,6 @@ import { TrashIcon } from "@ui/icons";
 import { useState } from "react";
 import { useIsMobile } from "@hooks/use-mobile";
 import { useClient } from "@xmtp/use-client";
-import { useConversationMembers } from "@xmtp/use-conversation-members";
-import { matchAgentsFromMembers } from "@lib/agent-utils";
-import { AI_AGENTS } from "@xmtp/agents";
 
 interface ConversationItemProps {
   conversation: Conversation;
@@ -47,11 +44,6 @@ export function ConversationItem({
 
   const _isMobile = useIsMobile();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const { client } = useClient();
-  const { members } = useConversationMembers(conversation.id, client);
-  const conversationAgents = matchAgentsFromMembers(members, AI_AGENTS).filter(
-    (agent) => agent.image,
-  );
 
   return (
     <SidebarMenuItem>
@@ -79,27 +71,6 @@ export function ConversationItem({
               </span>
             )}
           </div>
-          {conversationAgents.length > 0 && (
-            <div className="absolute bottom-1 right-10 flex items-center gap-0.5 group-data-[collapsible=icon]:hidden">
-              {conversationAgents.slice(0, 3).map((agent) => (
-                <img
-                  key={agent.address}
-                  alt={agent.name}
-                  className="h-3 w-3 shrink-0 rounded object-cover border border-zinc-800"
-                  src={agent.image}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = "none";
-                  }}
-                />
-              ))}
-              {conversationAgents.length > 3 && (
-                <span className="text-[8px] text-muted-foreground/70 leading-none">
-                  +{conversationAgents.length - 3}
-                </span>
-              )}
-            </div>
-          )}
         </SidebarMenuButton>
         <Button
           type="button"
