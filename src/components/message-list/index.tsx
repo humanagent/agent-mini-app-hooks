@@ -6,7 +6,7 @@ import type { DecodedMessage, Conversation } from "@xmtp/browser-sdk";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 import { useParams, useNavigate, useLocation } from "react-router";
 import { ThinkingIndicator } from "@ui/thinking-indicator";
-import { createGroupWithAgentAddresses } from "@xmtp/utils";
+import { createGroupWithAgentAddresses } from "@lib/agent-utils";
 import type { AgentConfig } from "@xmtp/agents";
 import { CopyIcon, CheckIcon } from "@ui/icons";
 import { Button } from "@ui/button";
@@ -32,10 +32,12 @@ export function MessageList({
   messages,
   onMentionClick,
   isGroup = false,
+  clientInboxId,
 }: {
   messages: Message[];
   onMentionClick?: (agent: AgentConfig) => void;
   isGroup?: boolean;
+  clientInboxId?: string;
 }) {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
@@ -55,20 +57,21 @@ export function MessageList({
     <TooltipProvider>
       {messages.map((message) => {
         const isCopied = copiedMessageId === message.id;
+        const role = message.role;
         return (
           <div
             key={message.id}
             className="fade-in w-full animate-in duration-150"
           >
             <div
-              className={`group flex w-full items-start ${message.role === "user" ? "justify-end" : "justify-start"} mb-4`}
+              className={`group flex w-full items-start ${role === "user" ? "justify-end" : "justify-start"} mb-4`}
             >
               <div
-                className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%] sm:max-w-[80%] md:max-w-[70%]`}
+                className={`flex flex-col ${role === "user" ? "items-end" : "items-start"} max-w-[85%] sm:max-w-[80%] md:max-w-[70%]`}
               >
                 <div
                   className={`flex flex-col overflow-hidden text-xs w-fit break-words rounded px-4 py-3 ${
-                    message.role === "user"
+                    role === "user"
                       ? "bg-[var(--message-user)] text-[var(--message-user-foreground)]"
                       : "text-foreground"
                   }`}
@@ -82,7 +85,7 @@ export function MessageList({
                   </div>
                 </div>
                 <div
-                  className={`flex items-center gap-1.5 mt-1 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex items-center gap-1.5 mt-1 ${role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {message.sending && (
                     <span className="text-[10px] text-muted-foreground/60">
@@ -94,7 +97,7 @@ export function MessageList({
                       {formatTimeAgo(message.sentAt)}
                     </span>
                   )}
-                  {message.role === "assistant" && (
+                  {role === "assistant" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
@@ -771,6 +774,7 @@ export function ConversationView({
               <MessageList
                 messages={messages}
                 isGroup={selectedConversation instanceof Group}
+                clientInboxId={client?.inboxId}
               />
             )}
           </div>

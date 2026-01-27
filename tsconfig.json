@@ -13,6 +13,7 @@
       "@hooks/*": ["./src/hooks/*"],
       "@components/*": ["./src/components/*"],
       "@ui/*": ["./src/ui/*"],
+      "@lib/*": ["./src/lib/*"],
       "@xmtp/agents": ["./src/xmtp-hooks/agents"],
       "@xmtp/use-client": ["./src/xmtp-hooks/use-client"],
       "@xmtp/use-conversations": ["./src/xmtp-hooks/use-conversations"],

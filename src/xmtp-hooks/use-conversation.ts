@@ -3,16 +3,18 @@ import type {
   Conversation,
   DecodedMessage,
   GroupMember,
+  ContentTypeId,
 } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
 import { useCallback, useEffect, useState, useRef } from "react";
 import type { ContentTypes } from "./utils";
-import { toError, assignMessageRole } from "./utils";
+import { toError } from "./utils";
 
 export type Message = {
   id: string;
-  role: "user" | "assistant";
-  content: string;
+  senderInboxId: string;
+  content: unknown;
+  contentType?: ContentTypeId;
   sentAt?: Date;
 };
 
@@ -85,17 +87,13 @@ export function useConversation(
 
         // Load existing messages
         const existingMessages = await conversation.messages();
-        const chatMessages: Message[] = existingMessages
-          .filter(
-            (msg: DecodedMessage<unknown>): msg is DecodedMessage<string> =>
-              typeof msg.content === "string",
-          )
-          .map((msg) => ({
-            id: msg.id,
-            role: assignMessageRole(msg, client.inboxId),
-            content: msg.content as string,
-            sentAt: getMessageSentAt(msg),
-          }));
+        const chatMessages: Message[] = existingMessages.map((msg) => ({
+          id: msg.id,
+          senderInboxId: msg.senderInboxId,
+          content: msg.content,
+          contentType: msg.contentType,
+          sentAt: getMessageSentAt(msg),
+        }));
 
         if (mounted) {
           setMessages(chatMessages);
@@ -116,14 +114,15 @@ export function useConversation(
         // Stream new messages
         const stream = await conversation.stream({
           onValue: (message: DecodedMessage<unknown>) => {
-            if (!mounted || typeof message.content !== "string") {
+            if (!mounted) {
               return;
             }
 
             const newMessage: Message = {
               id: message.id,
-              role: assignMessageRole(message, client.inboxId),
+              senderInboxId: message.senderInboxId,
               content: message.content,
+              contentType: message.contentType,
               sentAt: getMessageSentAt(message),
             };
 

@@ -72,6 +72,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "."),
+      "@lib": path.resolve(__dirname, "./src/lib"),
       // Explicit aliases for local xmtp-hooks files (these take precedence over tsconfigPaths)
       "@xmtp/agents": path.resolve(__dirname, "./src/xmtp-hooks/agents"),
       "@xmtp/use-client": path.resolve(__dirname, "./src/xmtp-hooks/use-client"),

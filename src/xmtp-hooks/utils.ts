@@ -15,6 +15,11 @@ import type { AgentConfig } from "./agents";
 
 type PrivateKey = Hex;
 
+export type XMTPClientOptions = {
+  env?: "dev" | "production" | "local";
+  appVersion?: string;
+};
+
 export function toError(err: unknown): Error {
   return err instanceof Error ? err : new Error(String(err));
 }
@@ -93,7 +98,8 @@ export function clearEphemeralAccountKey(): void {
 let isCreatingClient = false;
 
 export async function createXMTPClient(
-  privateKey: PrivateKey,
+  signer: Signer,
+  options?: XMTPClientOptions,
 ): Promise<Client<ContentTypes>> {
   if (typeof window === "undefined") {
     throw new Error("XMTP client can only be created in browser environment");
@@ -108,7 +114,6 @@ export async function createXMTPClient(
   isCreatingClient = true;
 
   try {
-    const signer = createEphemeralSigner(privateKey);
     const codecs = [
       new ReactionCodec(),
       new ReplyCodec(),
@@ -121,8 +126,8 @@ export async function createXMTPClient(
 
     const startTime = Date.now();
     const clientPromise = Client.create(signer, {
-      env: "production",
-      appVersion: "xmtp-agents/0",
+      env: options?.env ?? "production",
+      appVersion: options?.appVersion ?? "xmtp-agents/0",
       codecs,
     });
 
@@ -182,30 +187,7 @@ export async function denyConversation(
   ]);
 }
 
-export async function createGroupWithAgentAddresses(
-  client: Client<ContentTypes>,
-  addresses: string[],
-): Promise<Group> {
-  if (!addresses || addresses.length === 0) {
-    throw new Error("No addresses provided for group creation");
-  }
-
-  const identifiers = addresses.map((address) => ({
-    identifier: address.toLowerCase(),
-    identifierKind: "Ethereum" as const,
-  }));
-
-  const group = await client.conversations.newGroupWithIdentifiers(
-    identifiers,
-    {
-      name: "Agent Group",
-    },
-  );
-
-  return group;
-}
-
-// Business logic utilities
+// Protocol-level utilities
 
 /**
  * Extracts Ethereum addresses from group members
@@ -222,32 +204,4 @@ export function extractMemberAddresses(members: GroupMember[]): string[] {
   return Array.from(addresses);
 }
 
-/**
- * Matches group members against an agent list
- * Returns agents whose addresses match member addresses
- */
-export function matchAgentsFromMembers(
-  members: GroupMember[],
-  agentList: AgentConfig[],
-): AgentConfig[] {
-  const memberAddresses = new Set(extractMemberAddresses(members));
-  return agentList.filter((agent) =>
-    memberAddresses.has(agent.address.toLowerCase()),
-  );
-}
 
-/**
- * Assigns a role to a message based on sender
- * @param message - The decoded message
- * @param clientInboxId - The current client's inbox ID
- * @param options - Optional role names (defaults to "user" and "assistant")
- * @returns The assigned role
- */
-export function assignMessageRole(
-  message: DecodedMessage<unknown>,
-  clientInboxId: string,
-  _options?: { userRole?: string; assistantRole?: string },
-): "user" | "assistant" {
-  const isFromClient = message.senderInboxId === clientInboxId;
-  return isFromClient ? "user" : "assistant";
-}

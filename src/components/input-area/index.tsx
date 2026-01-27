@@ -20,7 +20,7 @@ import { AddAgentDialog } from "./dialogs/add-agent-dialog";
 import { RemoveAgentDialog } from "./dialogs/remove-agent-dialog";
 import { useConversationMembers } from "@xmtp/use-conversation-members";
 import { useClient } from "@xmtp/use-client";
-import { matchAgentsFromMembers } from "@xmtp/utils";
+import { matchAgentsFromMembers } from "@lib/agent-utils";
 import { useAgentManagement } from "./hooks/use-agent-management";
 import { shuffleArray, appendAgentMentions } from "./utils";
 

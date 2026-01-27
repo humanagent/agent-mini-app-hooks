@@ -1,10 +1,13 @@
-import type { Client } from "@xmtp/browser-sdk";
+import type { Client, Signer } from "@xmtp/browser-sdk";
 import { useEffect, useState } from "react";
+
 import {
   createXMTPClient,
   getOrCreateEphemeralAccountKey,
+  createEphemeralSigner,
   type ContentTypes,
   toError,
+  type XMTPClientOptions,
 } from "./utils";
 
 let globalClientPromise: Promise<Client<ContentTypes>> | null = null;
@@ -21,7 +24,10 @@ function notifySubscribers(
   subscribers.forEach((subscriber) => subscriber(client, error));
 }
 
-async function initializeClient(): Promise<Client<ContentTypes>> {
+async function initializeClient(
+  signer?: Signer,
+  options?: XMTPClientOptions,
+): Promise<Client<ContentTypes>> {
   if (globalClient) {
     return globalClient;
   }
@@ -47,8 +53,18 @@ async function initializeClient(): Promise<Client<ContentTypes>> {
 
   globalClientPromise = (async () => {
     try {
-      const accountKey = getOrCreateEphemeralAccountKey();
-      const xmtpClient = await createXMTPClient(accountKey);
+      let xmtpClient: Client<ContentTypes>;
+      
+      if (signer) {
+        // Use custom signer
+        xmtpClient = await createXMTPClient(signer, options);
+      } else {
+        // Default: ephemeral signer
+        const accountKey = getOrCreateEphemeralAccountKey();
+        const ephemeralSigner = createEphemeralSigner(accountKey);
+        xmtpClient = await createXMTPClient(ephemeralSigner, options);
+      }
+      
       globalClient = xmtpClient;
       isInitializing = false;
       globalClientPromise = null;
@@ -67,7 +83,7 @@ async function initializeClient(): Promise<Client<ContentTypes>> {
   return globalClientPromise;
 }
 
-export function useClient() {
+export function useClient(signer?: Signer, options?: XMTPClientOptions) {
   const [client, setClient] = useState<Client<ContentTypes> | null>(
     globalClient,
   );
@@ -99,7 +115,7 @@ export function useClient() {
 
     subscribers.add(subscriber);
 
-    initializeClient().catch((err) => {
+    initializeClient(signer, options).catch((err) => {
       console.error("[XMTP] Failed to initialize client:", err);
       setError(toError(err));
       setIsLoading(false);
@@ -108,7 +124,7 @@ export function useClient() {
     return () => {
       subscribers.delete(subscriber);
     };
-  }, []);
+  }, [signer, options]);
 
   return { client, isLoading, error };
 }
