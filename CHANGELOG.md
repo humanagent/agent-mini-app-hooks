@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.1.44] - 2026-01-26
+
+### Changed
+
+- Reorganized XMTP hooks into `src/xmtp/` folder structure with clear separation of concerns
+- Renamed hooks to generic names: `useAgentClient` → `useClient`, `useAgentConversations` → `useConversations`, `useAgentConversation` → `useConversation`
+- Created `useConversationMembers` hook (generic, returns members only - no business logic)
+- Extracted business logic to utilities: `matchAgentsFromMembers()`, `assignMessageRole()`
+- Moved all XMTP utilities to `src/xmtp/utils.ts`
+- Updated all imports to use new `@xmtp/*` path aliases
+- Removed `hooks/index.ts` (not needed with path aliases)
+- Updated README with new import paths and architecture documentation
+
+### Architecture
+
+- Hooks are now generic data fetchers only
+- Business logic (agent matching, role assignment) moved to utilities
+- Clear separation of concerns for better reusability and testability
+
+## [0.1.42] - 2026-01-26
+
+### Fixed
+
+- Fixed race condition in conversation creation flow - conversation now syncs before sending messages
+- Added duplicate send prevention to avoid multiple simultaneous message sends
+- Improved error handling and state management in conversation creation
+- Enhanced URL-based conversation loading with fallback to direct client lookup
+- Fixed navigation timing to ensure conversation state is set before URL navigation
+
 ## [0.1.41] - 2026-01-10
 
 ### Changed

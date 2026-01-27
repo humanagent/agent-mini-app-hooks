@@ -1,7 +1,7 @@
 import { XIcon } from "@ui/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { createContext, useContext, useState, useCallback } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/utils";
 
 type ToastType = "error" | "success" | "warning";
 

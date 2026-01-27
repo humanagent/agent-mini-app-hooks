@@ -1,29 +1,13 @@
 import { CopyIcon, CheckIcon } from "@ui/icons";
-import { Button } from "@ui/button";
 import { useState, useCallback } from "react";
-import { cn } from "@/lib/utils";
+import { cn, formatTimeAgo, shortAddress } from "@/src/utils";
 import type { Transaction } from "./types";
 
-function formatTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHour = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHour / 24);
-
-  if (diffSec < 60) return "just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHour < 24) return `${diffHour}h ago`;
-  if (diffDay < 7) return `${diffDay}d ago`;
-  return date.toLocaleDateString();
-}
-
-function truncateAddress(address: string): string {
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
-
-export function TransactionsList({ transactions }: { transactions: Transaction[] }) {
+export function TransactionsList({
+  transactions,
+}: {
+  transactions: Transaction[];
+}) {
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
 
@@ -77,9 +61,11 @@ export function TransactionsList({ transactions }: { transactions: Transaction[]
                   onClick={() => handleCopyAddress(tx.from)}
                   className="flex items-center gap-2 mb-1 w-full text-left hover:opacity-80 transition-opacity duration-200"
                 >
-                  <span className="text-[10px] text-muted-foreground">From</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    From
+                  </span>
                   <span className="text-xs font-mono text-foreground truncate flex items-center gap-1">
-                    {truncateAddress(tx.from)}
+                    {shortAddress(tx.from)}
                     {isCopiedFrom ? (
                       <CheckIcon size={12} className="text-green-500" />
                     ) : (
@@ -94,7 +80,7 @@ export function TransactionsList({ transactions }: { transactions: Transaction[]
                 >
                   <span className="text-[10px] text-muted-foreground">To</span>
                   <span className="text-xs font-mono text-foreground truncate flex items-center gap-1">
-                    {truncateAddress(tx.to)}
+                    {shortAddress(tx.to)}
                     {isCopiedTo ? (
                       <CheckIcon size={12} className="text-green-500" />
                     ) : (

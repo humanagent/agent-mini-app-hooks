@@ -13,9 +13,10 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "icon.svg"],
       manifest: {
-        name: "XMTP Agents",
-        short_name: "XMTP Agents",
-        description: "Chat with XMTP agents",
+        name: "Agent Mini App Hooks",
+        short_name: "Agent Mini App Hooks",
+        description:
+          "Group Chat Agent Mini App Examples - Demo app for XMTP group chat agents",
         theme_color: "#000000",
         background_color: "#000000",
         display: "standalone",

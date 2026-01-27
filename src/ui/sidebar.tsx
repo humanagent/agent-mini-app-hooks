@@ -3,7 +3,7 @@ import { Slot as SlotPrimitive } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/utils";
 import { Button } from "./button";
 import { Input } from "./input";
 import { Separator } from "./separator";
@@ -267,7 +267,8 @@ const Sidebar = React.forwardRef<
           style={{
             top: "env(safe-area-inset-top, 0px)",
             bottom: "env(safe-area-inset-bottom, 0px)",
-            height: "calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))",
+            height:
+              "calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))",
           }}
           {...props}
         >

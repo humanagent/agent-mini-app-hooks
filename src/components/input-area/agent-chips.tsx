@@ -1,10 +1,10 @@
 import { XIcon } from "@ui/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import type { AgentConfig } from "@/agent-registry/agents";
+import type { AgentConfig } from "@/src/agents";
 import type { Conversation } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
-import { truncateAddress } from "./utils";
+import { shortAddress } from "@/src/utils";
 
 type AgentChipsProps = {
   agents: AgentConfig[];
@@ -101,7 +101,7 @@ export function AgentChips({
             transition={{ duration: 0.15 }}
             className="inline-flex items-center gap-1 rounded bg-zinc-800 px-2 py-0.5 text-xs text-foreground h-6"
           >
-            <span>{truncateAddress(address)}</span>
+            <span>{shortAddress(address)}</span>
             <button
               type="button"
               onClick={() => {

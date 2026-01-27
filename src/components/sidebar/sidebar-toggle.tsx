@@ -3,7 +3,7 @@ import { SidebarLeftIcon } from "@ui/icons";
 import { useSidebar, type SidebarTrigger } from "@ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import type { ComponentProps } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/utils";
 
 export function SidebarToggle({
   className,

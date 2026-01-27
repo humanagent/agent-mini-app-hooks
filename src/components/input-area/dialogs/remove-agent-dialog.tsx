@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@ui/dialog";
 import { Loader2Icon } from "@ui/icons";
-import type { AgentConfig } from "@/agent-registry/agents";
+import type { AgentConfig } from "@/src/agents";
 
 export function RemoveAgentDialog({
   open,

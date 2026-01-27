@@ -2,8 +2,8 @@ import { useIsMobile } from "@hooks/use-mobile";
 import { Input } from "@ui/input";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import type { AgentConfig } from "@/agent-registry/agents";
-import { cn } from "@/lib/utils";
+import type { AgentConfig } from "@/src/agents";
+import { cn } from "@/src/utils";
 
 type PlusPanelProps = {
   open: boolean;

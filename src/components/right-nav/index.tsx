@@ -1,17 +1,14 @@
-import { Button } from "@ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@ui/sheet";
 import { useIsMobile } from "@hooks/use-mobile";
 import { XIcon } from "@ui/icons";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/utils";
 import { useEffect, useState } from "react";
 import type { Conversation } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
 import { TransactionsList } from "./transactions-list";
 import { PermissionsList } from "./permissions-list";
-import { generateMockTransactions } from "./mock-transactions";
-import { generateMockPermissions } from "./mock-permissions";
 import type { Transaction, Permission } from "./types";
-import type { AgentConfig } from "@/agent-registry/agents";
+import type { AgentConfig } from "@/src/agents";
 
 const RIGHT_NAV_WIDTH = "32rem";
 const RIGHT_NAV_WIDTH_MOBILE = "36rem";
@@ -55,21 +52,11 @@ export function RightNav({
     const loadTransactions = async () => {
       setIsLoading(true);
       try {
-        const members = await conversation.members();
-        const memberAddresses = members
-          .flatMap((member) =>
-            member.accountIdentifiers
-              .filter((id) => id.identifierKind === "Ethereum")
-              .map((id) => id.identifier.toLowerCase()),
-          )
-          .filter((addr, index, arr) => arr.indexOf(addr) === index);
+        await conversation.members();
 
-        if (memberAddresses.length >= 2) {
-          const mockTransactions = generateMockTransactions(memberAddresses, 15);
-          setTransactions(mockTransactions);
-        } else {
-          setTransactions([]);
-        }
+        // TODO: Fetch real transaction data from blockchain
+        // For now, showing empty state until real data integration
+        setTransactions([]);
       } catch (error) {
         console.error("[RightNav] Error loading transactions:", error);
         setTransactions([]);
@@ -85,8 +72,9 @@ export function RightNav({
     if (selectedAgent) {
       setIsLoadingPermissions(true);
       try {
-        const mockPermissions = generateMockPermissions(selectedAgent.address);
-        setPermissions(mockPermissions);
+        // TODO: Fetch real permissions data for the agent
+        // For now, showing empty state until real data integration
+        setPermissions([]);
         setActiveTab("permissions");
       } catch (error) {
         console.error("[RightNav] Error loading permissions:", error);
@@ -218,7 +206,8 @@ export function RightNav({
           width: RIGHT_NAV_WIDTH,
           top: "env(safe-area-inset-top, 0px)",
           bottom: "env(safe-area-inset-bottom, 0px)",
-          height: "calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))",
+          height:
+            "calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))",
         } as React.CSSProperties
       }
     >

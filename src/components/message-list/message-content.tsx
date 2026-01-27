@@ -1,6 +1,6 @@
 import { parseAgentMentions } from "./parse-mentions";
-import type { AgentConfig } from "@/agent-registry/agents";
-import { cn } from "@/lib/utils";
+import type { AgentConfig } from "@/src/agents";
+import { cn } from "@/src/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@ui/tooltip";
 import { Button } from "@ui/button";
 

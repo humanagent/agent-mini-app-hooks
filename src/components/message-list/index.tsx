@@ -1,13 +1,13 @@
 import { ChatHeader, Greeting } from "@components/chat-area/index";
 import { InputArea, type Message } from "@components/input-area";
-import { useXMTPClient } from "@hooks/use-xmtp-client";
+import { useClient } from "@xmtp/hooks/use-client";
 import { useCallback, useEffect, useState, useRef } from "react";
 import type { DecodedMessage } from "@xmtp/browser-sdk";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 import { useParams, useNavigate, useLocation } from "react-router";
 import { ThinkingIndicator } from "@ui/thinking-indicator";
-import { createGroupWithAgentAddresses } from "@/lib/xmtp/conversations";
-import type { AgentConfig } from "@/agent-registry/agents";
+import { createGroupWithAgentAddresses } from "@xmtp/utils";
+import type { AgentConfig } from "@/src/agents";
 import { CopyIcon, CheckIcon } from "@ui/icons";
 import { Button } from "@ui/button";
 import {
@@ -20,21 +20,7 @@ import { MessageContent } from "./message-content";
 import { RightNav } from "@components/right-nav";
 import { FloatingRightNavToggle } from "@components/right-nav/floating-toggle-button";
 import { Group } from "@xmtp/browser-sdk";
-
-function formatTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHour = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHour / 24);
-
-  if (diffSec < 60) return "just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHour < 24) return `${diffHour}h ago`;
-  if (diffDay < 7) return `${diffDay}d ago`;
-  return date.toLocaleDateString();
-}
+import { formatTimeAgo } from "@/src/utils";
 
 function getMessageSentAt(msg: DecodedMessage<unknown>): Date | undefined {
   // Handle both sentAt (Date) and sentAtNs (bigint nanoseconds)
@@ -160,12 +146,15 @@ export function ConversationView({
   const [isWaitingForAgent, setIsWaitingForAgent] = useState(false);
   const [rightNavOpen, setRightNavOpen] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<AgentConfig | null>(null);
-  const [rightNavTab, setRightNavTab] = useState<"transactions" | "permissions">("transactions");
+  const [rightNavTab, setRightNavTab] = useState<
+    "transactions" | "permissions"
+  >("transactions");
   const waitingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const streamCleanupRef = useRef<(() => Promise<void>) | null>(null);
   const tempMessageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-  const { client } = useXMTPClient();
+  const isSendingRef = useRef(false);
+  const { client } = useClient();
   const {
     selectedConversation,
     setSelectedConversation,
@@ -289,11 +278,52 @@ export function ConversationView({
           conversationId,
         );
         setSelectedConversation(conversation);
-      } else if (!conversation && conversations.length > 0) {
-        console.log(
-          "[ConversationView] Conversation not found in list, navigating to chat",
-        );
-        navigate("/chat");
+      } else if (!conversation) {
+        // If conversation not found and we're still loading, wait
+        if (isLoadingConversations) {
+          console.log(
+            "[ConversationView] Conversation not found yet, still loading conversations",
+          );
+          return;
+        }
+        // If conversations list is populated but conversation not found, try to load it directly
+        if (conversations.length > 0 && client) {
+          console.log(
+            "[ConversationView] Conversation not in list, attempting to load directly:",
+            conversationId,
+          );
+          // Try to get conversation directly from client
+          client.conversations
+            .getConversationById(conversationId)
+            .then((conv) => {
+              if (conv) {
+                console.log(
+                  "[ConversationView] Found conversation via direct lookup:",
+                  conversationId,
+                );
+                setSelectedConversation(conv);
+                void refreshConversations();
+              } else {
+                console.log(
+                  "[ConversationView] Conversation not found, navigating to chat",
+                );
+                navigate("/chat");
+              }
+            })
+            .catch((error) => {
+              console.error(
+                "[ConversationView] Error loading conversation:",
+                error,
+              );
+              navigate("/chat");
+            });
+        } else if (conversations.length === 0 && !isLoadingConversations) {
+          // No conversations and not loading - conversation doesn't exist
+          console.log(
+            "[ConversationView] No conversations available, navigating to chat",
+          );
+          navigate("/chat");
+        }
       }
     } else {
       // Clear selected conversation when navigating to home (no conversationId in URL)
@@ -556,90 +586,147 @@ export function ConversationView({
         return;
       }
 
-      let conversation = selectedConversation;
-
-      if (!conversation) {
-        const agentsToUse = agents || selectedAgents;
-        if (agentsToUse.length === 0) {
-          return;
-        }
-
-        try {
-          console.log(
-            "[ConversationView] Creating conversation via send button:",
-            agentsToUse.map((a) => a.name),
-          );
-          setCreateError(null);
-          setIsCreatingConversation(true);
-          const agentAddresses = agentsToUse.map((agent) => agent.address);
-          conversation = await createGroupWithAgentAddresses(
-            client,
-            agentAddresses,
-          );
-          setSelectedConversation(conversation);
-          navigate(`/conversation/${conversation.id}`);
-          void refreshConversations();
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "Failed to create conversation";
-          setCreateError(errorMessage);
-          setIsCreatingConversation(false);
-          return;
-        } finally {
-          setIsCreatingConversation(false);
-        }
-      }
-
-      if (!conversation) {
+      // Prevent duplicate sends
+      if (isSendingRef.current) {
+        console.log(
+          "[ConversationView] Send already in progress, ignoring duplicate",
+        );
         return;
       }
 
-      const tempMessage: Message = {
-        id: `temp-${Date.now()}`,
-        role: "user",
-        content,
-        sentAt: new Date(),
-      };
-
-      setMessages((prev) => [...prev, tempMessage]);
-
-      // Scroll to bottom when message is sent
-      setTimeout(() => {
-        scrollToBottom();
-      }, 100);
-
-      if (tempMessageTimeoutRef.current) {
-        clearTimeout(tempMessageTimeoutRef.current);
-      }
-      tempMessageTimeoutRef.current = setTimeout(() => {
-        setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
-        tempMessageTimeoutRef.current = null;
-      }, 5000);
+      isSendingRef.current = true;
 
       try {
-        await conversation.send(content);
+        let conversation = selectedConversation;
+        let wasNewConversation = false;
 
-        setIsWaitingForAgent(true);
-        if (waitingTimeoutRef.current) {
-          clearTimeout(waitingTimeoutRef.current);
+        if (!conversation) {
+          const agentsToUse = agents || selectedAgents;
+          if (agentsToUse.length === 0) {
+            isSendingRef.current = false;
+            return;
+          }
+
+          try {
+            console.log(
+              "[ConversationView] Creating conversation via send button:",
+              agentsToUse.map((a) => a.name),
+            );
+            setCreateError(null);
+            setIsCreatingConversation(true);
+            const agentAddresses = agentsToUse.map((agent) => agent.address);
+            conversation = await createGroupWithAgentAddresses(
+              client,
+              agentAddresses,
+            );
+
+            // Sync conversation to ensure it's fully ready
+            console.log(
+              "[ConversationView] Syncing newly created conversation:",
+              conversation.id,
+            );
+            await conversation.sync();
+
+            // Set conversation state before navigation
+            setSelectedConversation(conversation);
+
+            // Navigate to conversation URL
+            navigate(`/conversation/${conversation.id}`, { replace: true });
+
+            // Refresh conversations list in background
+            void refreshConversations();
+
+            wasNewConversation = true;
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "Failed to create conversation";
+            console.error(
+              "[ConversationView] Failed to create conversation:",
+              error,
+            );
+            setCreateError(errorMessage);
+            setIsCreatingConversation(false);
+            isSendingRef.current = false;
+            return;
+          } finally {
+            setIsCreatingConversation(false);
+          }
         }
-        waitingTimeoutRef.current = setTimeout(() => {
-          setIsWaitingForAgent(false);
-          waitingTimeoutRef.current = null;
-        }, 10000);
-      } catch {
-        setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
-        setIsWaitingForAgent(false);
-        if (waitingTimeoutRef.current) {
-          clearTimeout(waitingTimeoutRef.current);
-          waitingTimeoutRef.current = null;
+
+        if (!conversation) {
+          console.error(
+            "[ConversationView] No conversation available after creation attempt",
+          );
+          isSendingRef.current = false;
+          return;
         }
+
+        // For newly created conversations, wait a brief moment for state to settle
+        if (wasNewConversation) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+
+        const tempMessage: Message = {
+          id: `temp-${Date.now()}`,
+          role: "user",
+          content,
+          sentAt: new Date(),
+        };
+
+        setMessages((prev) => [...prev, tempMessage]);
+
+        // Scroll to bottom when message is sent
+        setTimeout(() => {
+          scrollToBottom();
+        }, 100);
+
         if (tempMessageTimeoutRef.current) {
           clearTimeout(tempMessageTimeoutRef.current);
-          tempMessageTimeoutRef.current = null;
         }
+        tempMessageTimeoutRef.current = setTimeout(() => {
+          setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
+          tempMessageTimeoutRef.current = null;
+        }, 5000);
+
+        try {
+          // Ensure conversation is synced before sending
+          if (wasNewConversation) {
+            await conversation.sync();
+          }
+
+          await conversation.send(content);
+
+          setIsWaitingForAgent(true);
+          if (waitingTimeoutRef.current) {
+            clearTimeout(waitingTimeoutRef.current);
+          }
+          waitingTimeoutRef.current = setTimeout(() => {
+            setIsWaitingForAgent(false);
+            waitingTimeoutRef.current = null;
+          }, 10000);
+        } catch (error) {
+          console.error("[ConversationView] Failed to send message:", error);
+          setMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
+          setIsWaitingForAgent(false);
+          if (waitingTimeoutRef.current) {
+            clearTimeout(waitingTimeoutRef.current);
+            waitingTimeoutRef.current = null;
+          }
+          if (tempMessageTimeoutRef.current) {
+            clearTimeout(tempMessageTimeoutRef.current);
+            tempMessageTimeoutRef.current = null;
+          }
+          // Show error to user
+          setCreateError(
+            error instanceof Error
+              ? `Failed to send message: ${error.message}`
+              : "Failed to send message",
+          );
+        }
+      } finally {
+        isSendingRef.current = false;
       }
     },
     [
@@ -724,7 +811,10 @@ export function ConversationView({
                 messages={messages}
                 isGroup={selectedConversation instanceof Group}
                 onMentionClick={(agent) => {
-                  console.log("[ConversationView] Mention clicked:", agent.name);
+                  console.log(
+                    "[ConversationView] Mention clicked:",
+                    agent.name,
+                  );
                   if (selectedConversation instanceof Group) {
                     setSelectedAgent(agent);
                     setRightNavTab("permissions");

@@ -1,5 +1,5 @@
 import { AnalyticsIcon } from "@ui/icons";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/utils";
 import { useIsMobile } from "@hooks/use-mobile";
 
 type FloatingRightNavToggleProps = {

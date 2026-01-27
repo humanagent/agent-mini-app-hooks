@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Conversation } from "@xmtp/browser-sdk";
 import { Group } from "@xmtp/browser-sdk";
-import type { AgentConfig } from "@/agent-registry/agents";
+import type { AgentConfig } from "@/src/agents";
 import { useToast } from "@ui/toast";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
 

@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
-import { AI_AGENTS, type AgentConfig } from "@/agent-registry/agents";
+import { AI_AGENTS, type AgentConfig } from "@/src/agents";
 import { AgentCard } from "./agent-card";
 import { Input } from "@ui/input";
 import { SearchIcon } from "@ui/icons";
@@ -16,9 +16,9 @@ export function ExplorePage() {
 
   const categories = useMemo(() => {
     const uniqueCategories = new Set(
-      allAgents.map((agent) => agent.category).filter(
-        (category): category is string => Boolean(category),
-      ),
+      allAgents
+        .map((agent) => agent.category)
+        .filter((category): category is string => Boolean(category)),
     );
     return ["All", ...Array.from(uniqueCategories).sort()];
   }, [allAgents]);
@@ -75,7 +75,7 @@ export function ExplorePage() {
           <div className="mb-8">
             <h1 className="mb-2 font-semibold text-xl">Agent Store</h1>
             <p className="text-xs text-muted-foreground">
-              Discover and interact with XMTP agents
+              Discover and interact with group chat agents
             </p>
           </div>
 

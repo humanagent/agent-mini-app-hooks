@@ -1,6 +1,6 @@
-import { useXMTPClient } from "@hooks/use-xmtp-client";
+import { useClient } from "@xmtp/hooks/use-client";
 import { useConversationsContext } from "@/src/contexts/xmtp-conversations-context";
-import { ExploreIcon, MessageIcon, AnalyticsIcon } from "@ui/icons";
+import { MessageIcon } from "@ui/icons";
 import {
   SidebarContent,
   SidebarFooter,
@@ -17,13 +17,13 @@ import { SidebarUserNav } from "@/src/components/sidebar/user-nav";
 import { ConversationItem } from "@/src/components/sidebar/conversation-item";
 import type { Conversation } from "@xmtp/browser-sdk";
 import { useCallback, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
-import { denyConversation } from "@/lib/xmtp/consent";
+import { useLocation, useNavigate } from "react-router";
+import { denyConversation } from "@xmtp/utils";
 import {
   sortConversationsByLastMessage,
   type ConversationWithMeta,
 } from "@/src/components/sidebar/utils";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/utils";
 
 const SidebarLogo = ({
   className,
@@ -34,7 +34,7 @@ const SidebarLogo = ({
 }) => (
   <img
     src="/icon.svg"
-    alt="XMTP Agents"
+    alt="Agent Mini App Hooks"
     onClick={onClick}
     onKeyDown={(e) => {
       if (e.key === "Enter" || e.key === " ") {
@@ -52,7 +52,7 @@ const SidebarLogo = ({
 );
 
 export function Sidebar() {
-  const { client } = useXMTPClient();
+  const { client } = useClient();
   const {
     conversations,
     selectedConversation,
@@ -154,32 +154,9 @@ export function Sidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              asChild
-              isActive={
-                location.pathname === "/" || location.pathname === "/explore"
-              }
-              tooltip="Browse"
-            >
-              <Link
-                to="/"
-                onClick={() => {
-                  setSelectedConversation(null);
-                  if (isMobile) {
-                    setOpenMobile(false);
-                  }
-                }}
-              >
-                <ExploreIcon size={16} />
-                <span className="group-data-[collapsible=icon]:hidden">
-                  Browse
-                </span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
               tooltip="Chats"
               isActive={
+                location.pathname === "/" ||
                 location.pathname === "/chat" ||
                 location.pathname.startsWith("/conversation/")
               }

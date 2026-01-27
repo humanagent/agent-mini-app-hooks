@@ -1,11 +1,5 @@
-import { useXMTPClient } from "@hooks/use-xmtp-client";
-import {
-  CopyIcon,
-  CheckIcon,
-  ResetIcon,
-  CodeIcon,
-  ChevronDownIcon,
-} from "@ui/icons";
+import { useClient } from "@xmtp/hooks/use-client";
+import { CopyIcon, CheckIcon, ResetIcon, ChevronDownIcon } from "@ui/icons";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@ui/sidebar";
 import {
   Dialog,
@@ -25,10 +19,9 @@ import {
 } from "@ui/dropdown-menu";
 import { Button } from "@ui/button";
 import { Skeleton } from "@ui/skeleton";
-import { shortAddress } from "@/lib/utils";
-import { clearEphemeralAccountKey } from "@/lib/xmtp/signer";
+import { shortAddress } from "@/src/utils";
+import { clearEphemeralAccountKey } from "@xmtp/utils";
 import { useState, useCallback, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router";
 
 function generateGradient(address: string): string {
   // Generate two colors from the address for gradient
@@ -42,9 +35,7 @@ function generateGradient(address: string): string {
 }
 
 export function SidebarUserNav() {
-  const { client, isLoading } = useXMTPClient();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { client, isLoading } = useClient();
   const [copied, setCopied] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const address = client?.accountIdentifier?.identifier;
@@ -52,7 +43,6 @@ export function SidebarUserNav() {
     ? shortAddress(address.toLowerCase())
     : "Guest";
   const initial = address ? address.substring(2, 3).toUpperCase() : "G";
-  const isPortal = location.pathname.startsWith("/dev-portal");
 
   const avatarGradient = useMemo(() => {
     return address ? generateGradient(address) : undefined;
@@ -148,20 +138,6 @@ export function SidebarUserNav() {
                   <CopyIcon size={16} />
                 )}
                 <span>{copied ? "Copied!" : "Copy address"}</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  if (isPortal) {
-                    navigate("/");
-                  } else {
-                    navigate("/dev-portal");
-                  }
-                }}
-                className="w-full"
-              >
-                <CodeIcon size={16} />
-                <span>{isPortal ? "Back to App" : "Developer Portal"}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

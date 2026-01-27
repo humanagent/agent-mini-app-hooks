@@ -1,16 +1,11 @@
 import { ConversationView } from "@components/message-list/index";
 import { Sidebar } from "@components/sidebar/sidebar";
 import { FloatingNavButton } from "@components/sidebar/floating-nav-button";
-import { PortalSidebar } from "@/src/portal/sidebar";
-import { useXMTPClient } from "@hooks/use-xmtp-client";
+import { useClient } from "@xmtp/hooks/use-client";
 import { SidebarInset, SidebarProvider, useSidebar } from "@ui/sidebar";
 import { ConversationsProvider } from "@/src/contexts/xmtp-conversations-context";
 import { ToastProvider } from "@ui/toast";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router";
-import { ExplorePage } from "@components/explore/index";
-import { AnalyticsPage } from "@/src/portal/analytics/index";
-import { PortalPage } from "@/src/portal/index";
-import { HelpPage } from "@/src/portal/help";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { useSwipeGesture } from "@hooks/use-swipe-gesture";
 
 function SidebarInsetWithSwipe() {
@@ -30,57 +25,20 @@ function SidebarInsetWithSwipe() {
   return (
     <SidebarInset {...combinedHandlers}>
       <Routes>
-        <Route path="/" element={<ExplorePage />} />
-        <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/" element={<ConversationView />} />
         <Route path="/chat" element={<ConversationView />} />
         <Route
           path="/conversation/:conversationId"
           element={<ConversationView />}
         />
-      </Routes>
-    </SidebarInset>
-  );
-}
-
-function PortalSidebarInsetWithSwipe() {
-  const { isMobile, openMobile, setOpenMobile } = useSidebar();
-
-  const swipeHandlers = useSwipeGesture({
-    onSwipeLeft: () => {
-      if (isMobile && !openMobile) {
-        setOpenMobile(true);
-      }
-    },
-    minSwipeDistance: 50,
-  });
-
-  const combinedHandlers = isMobile ? swipeHandlers : {};
-
-  return (
-    <SidebarInset {...combinedHandlers}>
-      <Routes>
-        <Route path="/dev-portal" element={<PortalPage />} />
-        <Route path="/dev-portal/help" element={<HelpPage />} />
-        <Route path="/dev-portal/analytics" element={<AnalyticsPage />} />
+        <Route path="/explore" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </SidebarInset>
   );
 }
 
 function AppContent() {
-  const location = useLocation();
-  const isPortal = location.pathname.startsWith("/dev-portal");
-
-  if (isPortal) {
-    return (
-      <SidebarProvider>
-        <FloatingNavButton />
-        <PortalSidebar />
-        <PortalSidebarInsetWithSwipe />
-      </SidebarProvider>
-    );
-  }
-
   return (
     <SidebarProvider>
       <FloatingNavButton />
@@ -91,7 +49,7 @@ function AppContent() {
 }
 
 export default function App() {
-  const { client, isLoading, error } = useXMTPClient();
+  const { client } = useClient();
 
   return (
     <BrowserRouter>

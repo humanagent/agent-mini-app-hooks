@@ -11,9 +11,9 @@
     "paths": {
       "@/*": ["./*"],
       "@hooks/*": ["./src/hooks/*"],
-      "@lib/*": ["./src/lib/*"],
       "@components/*": ["./src/components/*"],
-      "@ui/*": ["./src/ui/*"]
+      "@ui/*": ["./src/ui/*"],
+      "@xmtp/*": ["./src/xmtp/*"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,
@@ -21,13 +21,6 @@
     "strict": true,
     "target": "ESNext"
   },
-  "include": [
-    "src",
-    "lib",
-    "agent-registry",
-    "scripts",
-    "vite.config.ts",
-    "postcss.config.cjs"
-  ],
+  "include": ["src", "scripts", "vite.config.ts", "postcss.config.cjs"],
   "exclude": ["dist", "node_modules"]
 }
