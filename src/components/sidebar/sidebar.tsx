@@ -203,6 +203,7 @@ export function Sidebar() {
                 onDelete={(e) => {
                   void handleDeleteConversation(conversation, e);
                 }}
+                onNameUpdated={refreshConversations}
               />
             ))
           )}

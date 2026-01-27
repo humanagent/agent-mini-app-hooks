@@ -48,8 +48,10 @@ export function InputArea({
 }) {
   const [input, setInput] = useState("");
   const [plusPanelOpen, setPlusPanelOpen] = useState(false);
+  const [shouldOpenUp, setShouldOpenUp] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
   const isSubmittingRef = useRef(false);
   const isGroup = conversation instanceof Group;
   const isMobile = useIsMobile();
@@ -191,6 +193,38 @@ export function InputArea({
     }
   }, [openAgentsDialog, onOpenAgentsDialogChange]);
 
+  // Check if dropdown should open up based on viewport position
+  const checkShouldOpenUp = () => {
+    if (!inputContainerRef.current) return false;
+    const rect = inputContainerRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - rect.bottom;
+    const dropdownHeight = 250; // approximate max height
+    const margin = 20; // margin for safety
+    return spaceBelow < dropdownHeight + margin;
+  };
+
+  // Update shouldOpenUp when panel opens or viewport changes
+  useEffect(() => {
+    if (!plusPanelOpen) return;
+
+    const updatePosition = () => {
+      setShouldOpenUp(checkShouldOpenUp());
+    };
+
+    // Check immediately
+    updatePosition();
+
+    // Listen for resize and scroll events
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [plusPanelOpen]);
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -248,11 +282,13 @@ export function InputArea({
           agents={liveAgents}
           selectedAgents={currentSelectedAgents}
           onSelectAgent={handleAddAgent}
+          shouldOpenUp={shouldOpenUp}
         />
-        <PromptInput
-          className={`transition-all duration-200 focus-within:border-zinc-700 hover:border-zinc-700 ${isMultiAgentMode ? "p-2" : "p-3"}`}
-          onSubmit={handleSubmit}
-        >
+        <div ref={inputContainerRef}>
+          <PromptInput
+            className="transition-all duration-200 focus-within:border-zinc-700 hover:border-zinc-700 p-2"
+            onSubmit={handleSubmit}
+          >
           <div className="flex items-center gap-2">
             <Button
               type="button"
@@ -262,14 +298,14 @@ export function InputArea({
                 plusPanelOpen
                   ? "text-foreground hover:text-foreground"
                   : "text-muted-foreground hover:text-foreground",
-                isMobile ? "h-10 w-10" : isMultiAgentMode ? "h-7 w-7" : "h-8 w-8",
+                isMobile ? "h-10 w-10" : "h-7 w-7",
               )}
               onClick={() => setPlusPanelOpen((prev) => !prev)}
             >
-              <PlusIcon size={isMobile ? 20 : isMultiAgentMode ? 12 : 16} />
+              <PlusIcon size={isMobile ? 20 : 12} />
             </Button>
             <PromptInputTextarea
-              className={`grow resize-none border-0! border-none! bg-transparent text-xs outline-none ring-0 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden ${isMultiAgentMode ? "px-1 py-1 min-h-[24px] max-h-[120px]" : "p-2"}`}
+              className="grow resize-none border-0! border-none! bg-transparent px-1 py-1 text-xs outline-none ring-0 min-h-[24px] max-h-[120px] [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden"
               placeholder="Send a message..."
               value={input}
               onChange={(e) => {
@@ -279,15 +315,16 @@ export function InputArea({
             />
             <div className="flex items-center gap-1 shrink-0">
               <PromptInputSubmit
-                className={`rounded bg-zinc-800 text-foreground transition-all duration-200 hover:bg-zinc-700 active:scale-[0.97] disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none ${isMobile ? "size-10" : isMultiAgentMode ? "size-7" : "size-8"}`}
+                className={cn(
+                  "rounded bg-zinc-800 text-foreground transition-all duration-200 hover:bg-zinc-700 active:scale-[0.97] disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none",
+                  isMobile ? "size-10" : "size-7",
+                )}
                 disabled={
                   !input.trim() ||
                   (isMultiAgentMode && currentSelectedAgents.length === 0)
                 }
               >
-                <ArrowUpIcon
-                  size={isMobile ? 16 : isMultiAgentMode ? 12 : 14}
-                />
+                <ArrowUpIcon size={isMobile ? 16 : 12} />
               </PromptInputSubmit>
             </div>
           </div>
@@ -303,6 +340,7 @@ export function InputArea({
             </PromptInputTools>
           </PromptInputToolbar>
         </PromptInput>
+        </div>
       </div>
       <AddAgentDialog
         open={confirmAddAgentOpen}

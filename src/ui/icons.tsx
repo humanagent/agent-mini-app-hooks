@@ -722,3 +722,24 @@ export const CircleIcon = ({
     <circle cx="8" cy="8" r="3" fill="currentColor" />
   </svg>
 );
+
+export const RobotIcon = ({
+  size = 16,
+  ...props
+}: { size?: number } & React.SVGProps<SVGSVGElement>) => (
+  <svg
+    height={size}
+    strokeLinejoin="round"
+    style={{ color: "currentcolor", ...props.style }}
+    viewBox="0 0 16 16"
+    width={size}
+    {...props}
+  >
+    <path
+      clipRule="evenodd"
+      d="M4 2.5C3.17157 2.5 2.5 3.17157 2.5 4V12C2.5 12.8284 3.17157 13.5 4 13.5H12C12.8284 13.5 13.5 12.8284 13.5 12V4C13.5 3.17157 12.8284 2.5 12 2.5H4ZM1 4C1 2.34315 2.34315 1 4 1H12C13.6569 1 15 2.34315 15 4V12C15 13.6569 13.6569 15 12 15H4C2.34315 15 1 13.6569 1 12V4ZM5 5.5C5 5.22386 5.22386 5 5.5 5H6.5C6.77614 5 7 5.22386 7 5.5C7 5.77614 6.77614 6 6.5 6H5.5C5.22386 6 5 5.77614 5 5.5ZM9 5.5C9 5.22386 9.22386 5 9.5 5H10.5C10.7761 5 11 5.22386 11 5.5C11 5.77614 10.7761 6 10.5 6H9.5C9.22386 6 9 5.77614 9 5.5ZM5.5 8.5C5.5 7.67157 6.17157 7 7 7H9C9.82843 7 10.5 7.67157 10.5 8.5V10.5C10.5 11.3284 9.82843 12 9 12H7C6.17157 12 5.5 11.3284 5.5 10.5V8.5ZM7 8.5V10.5H9V8.5H7Z"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);

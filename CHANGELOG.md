@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.53] - 2026-01-27
+
+### Changed
+
+- Input area plus and send button alignment and layout refinements
+
 ## [0.1.52] - 2026-01-27
 
 ### Fixed

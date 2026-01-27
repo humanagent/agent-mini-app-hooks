@@ -350,6 +350,35 @@ export function ConversationView({
       shouldNavigateAfterCreateRef.current = false;
     }
   }, [selectedConversation, location.pathname]);
+
+  // Clear messages when navigating to /chat or / without a conversationId
+  // This ensures messages are cleared even if selectedConversation was already null
+  useEffect(() => {
+    const isOnHome =
+      !conversationId &&
+      (location.pathname === "/" || location.pathname === "/chat");
+    const wasOnConversation = prevConversationIdRef.current !== undefined;
+
+    if (isOnHome && wasOnConversation && selectedConversation === null) {
+      console.log("[ConversationView] Navigating to home, clearing messages");
+      setMessages([]);
+      setSyncError(null);
+      setLoadError(null);
+      setCreateError(null);
+
+      // Cleanup stream if it exists
+      if (streamCleanupRef.current) {
+        void streamCleanupRef.current();
+        streamCleanupRef.current = null;
+      }
+
+      if (tempMessageTimeoutRef.current) {
+        clearTimeout(tempMessageTimeoutRef.current);
+        tempMessageTimeoutRef.current = null;
+      }
+    }
+  }, [conversationId, location.pathname, selectedConversation]);
+
   useEffect(() => {
     if (conversationId) {
       const conversation = conversations.find((c) => c.id === conversationId);
@@ -448,13 +477,7 @@ export function ConversationView({
   ]);
 
   useEffect(() => {
-    // Skip if stream already exists (handled by first message flow)
-    if (streamCleanupRef.current) {
-      console.log("[ConversationView] Stream already exists, skipping setup");
-      return;
-    }
-
-    // Clear messages immediately when conversation changes
+    // Always clear messages when conversation changes or is cleared
     setMessages([]);
     setSyncError(null);
     setLoadError(null);
@@ -464,7 +487,17 @@ export function ConversationView({
       tempMessageTimeoutRef.current = null;
     }
 
-    if (!client || !selectedConversation) {
+    // Cleanup stream when conversation is cleared
+    if (!selectedConversation && streamCleanupRef.current) {
+      void streamCleanupRef.current();
+      streamCleanupRef.current = null;
+    }
+
+    // Skip if stream already exists (handled by first message flow) OR no conversation
+    if (streamCleanupRef.current || !client || !selectedConversation) {
+      if (streamCleanupRef.current && selectedConversation) {
+        console.log("[ConversationView] Stream already exists, skipping setup");
+      }
       return;
     }
 
@@ -831,30 +864,32 @@ export function ConversationView({
             )}
             {showCenteredInput && (
               <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-4 md:px-8">
-                {!selectedConversation &&
-                  !createError &&
-                  !conversationId &&
-                  messages.length === 0 &&
-                  (customGreeting ? (
-                    customGreeting
-                  ) : (
-                    <Greeting
-                      onOpenAgents={() => {
-                        setOpenAgentsDialog(true);
+                <div className="-translate-y-[20%] flex flex-col">
+                  {!selectedConversation &&
+                    !createError &&
+                    !conversationId &&
+                    messages.length === 0 &&
+                    (customGreeting ? (
+                      customGreeting
+                    ) : (
+                      <Greeting
+                        onOpenAgents={() => {
+                          setOpenAgentsDialog(true);
+                        }}
+                      />
+                    ))}
+                  <div className="mt-8">
+                    <InputArea
+                      selectedAgents={selectedAgents}
+                      setSelectedAgents={setSelectedAgents}
+                      openAgentsDialog={openAgentsDialog}
+                      onOpenAgentsDialogChange={setOpenAgentsDialog}
+                      sendMessage={(content, agents) => {
+                        void handleSendMessage(content, agents);
                       }}
+                      conversation={selectedConversation ?? undefined}
                     />
-                  ))}
-                <div className="mt-8">
-                  <InputArea
-                    selectedAgents={selectedAgents}
-                    setSelectedAgents={setSelectedAgents}
-                    openAgentsDialog={openAgentsDialog}
-                    onOpenAgentsDialogChange={setOpenAgentsDialog}
-                    sendMessage={(content, agents) => {
-                      void handleSendMessage(content, agents);
-                    }}
-                    conversation={selectedConversation ?? undefined}
-                  />
+                  </div>
                 </div>
               </div>
             )}

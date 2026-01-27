@@ -10,8 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@ui/dialog";
+import { Input } from "@ui/input";
 import { TrashIcon } from "@ui/icons";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useIsMobile } from "@hooks/use-mobile";
 import { useClient } from "@xmtp/use-client";
 import { useConversationMembers } from "@xmtp/use-conversation-members";
@@ -23,15 +24,19 @@ interface ConversationItemProps {
   isActive: boolean;
   onClick: () => void;
   onDelete: (event: React.MouseEvent) => void;
+  onNameUpdated?: () => void;
   lastMessagePreview?: string;
   hasUnread?: boolean;
 }
+
+const DEFAULT_GROUP_NAME = "Agent Group";
 
 export function ConversationItem({
   conversation,
   isActive,
   onClick,
   onDelete,
+  onNameUpdated,
   lastMessagePreview,
   hasUnread = false,
 }: ConversationItemProps) {
@@ -42,14 +47,75 @@ export function ConversationItem({
       ? `${conversation.id.slice(0, 10)}...${conversation.id.slice(-6)}`
       : conversation.id;
   const displayText =
-    isGroup && groupName && groupName !== "Agent Group" ? groupName : displayId;
-  const isNamed = isGroup && groupName && groupName !== "Agent Group";
+    isGroup && groupName && groupName !== DEFAULT_GROUP_NAME
+      ? groupName
+      : displayId;
+  const isNamed =
+    isGroup && groupName && groupName !== DEFAULT_GROUP_NAME;
 
   const _isMobile = useIsMobile();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editNameValue, setEditNameValue] = useState("");
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const { client } = useClient();
   const { members } = useConversationMembers(conversation.id, client);
   const conversationAgents = matchAgentsFromMembers(members, AI_AGENTS);
+
+  useEffect(() => {
+    if (isEditingName) {
+      nameInputRef.current?.focus();
+      nameInputRef.current?.select();
+    }
+  }, [isEditingName]);
+
+  const handleSaveName = useCallback(() => {
+    if (!isGroup || !(conversation instanceof Group)) {
+      setIsEditingName(false);
+      return;
+    }
+    const trimmed = editNameValue.trim();
+    const nameToSet = trimmed || DEFAULT_GROUP_NAME;
+    void conversation.updateName(nameToSet).then(() => {
+      setIsEditingName(false);
+      onNameUpdated?.();
+    });
+  }, [
+    conversation,
+    editNameValue,
+    isGroup,
+    onNameUpdated,
+  ]);
+
+  const handleCancelEdit = useCallback(() => {
+    setIsEditingName(false);
+    setEditNameValue(isGroup ? conversation.name ?? "" : "");
+  }, [conversation, isGroup]);
+
+  const handleNameDoubleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isGroup) return;
+      e.stopPropagation();
+      e.preventDefault();
+      setEditNameValue(conversation.name ?? "");
+      setIsEditingName(true);
+    },
+    [conversation, isGroup],
+  );
+
+  const handleNameKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleSaveName();
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleCancelEdit();
+      }
+    },
+    [handleSaveName, handleCancelEdit],
+  );
 
   return (
     <SidebarMenuItem>
@@ -61,15 +127,36 @@ export function ConversationItem({
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
           <div className="flex flex-col items-start gap-0.5 min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-            <div className="flex items-center gap-1.5 w-full">
-              {hasUnread && (
+            <div
+              className="flex items-center gap-1.5 w-full"
+              onClick={isEditingName ? (e) => e.stopPropagation() : undefined}
+              onKeyDown={isEditingName ? (e) => e.stopPropagation() : undefined}
+              role={isEditingName ? "group" : undefined}
+              aria-label={isEditingName ? "Edit group name" : undefined}
+            >
+              {hasUnread && !isEditingName && (
                 <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
               )}
-              <span
-                className={`truncate text-xs ${isNamed ? "font-medium" : "font-mono"} ${hasUnread ? "text-foreground" : ""}`}
-              >
-                {displayText}
-              </span>
+              {isEditingName ? (
+                <Input
+                  ref={nameInputRef}
+                  type="text"
+                  value={editNameValue}
+                  onChange={(e) => setEditNameValue(e.target.value)}
+                  onBlur={handleSaveName}
+                  onKeyDown={handleNameKeyDown}
+                  className="h-6 min-w-0 flex-1 py-1 text-xs font-mono"
+                  aria-label="Group name"
+                />
+              ) : (
+                <span
+                  className={`truncate text-xs ${isNamed ? "font-medium" : "font-mono"} ${hasUnread ? "text-foreground" : ""} ${isGroup ? "cursor-text select-text" : ""}`}
+                  onDoubleClick={handleNameDoubleClick}
+                  title={isGroup ? "Double-click to edit name" : undefined}
+                >
+                  {displayText}
+                </span>
+              )}
             </div>
             {lastMessagePreview && (
               <div className="flex items-center gap-1.5 w-full">

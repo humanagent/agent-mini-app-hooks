@@ -40,6 +40,7 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Business",
     description: "Token launch and deployment assistance",
+    image: "https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/eaf43a7b-25d5-4121-0f40-99f579f86d00/anim=false,fit=contain,f=auto,w=576"
   },
   {
     name: "mamo",
@@ -103,6 +104,7 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Trading",
     description: "Trading and market analysis",
+    image: "https://res.cloudinary.com/base-app/image/upload/f_m3u8,f_png/v1757681221/video_uploads/b718c4d3-2676-437e-9ece-2428d4e29307.png"
   },
   {
     name: "bracky",
@@ -111,6 +113,7 @@ export const AI_AGENTS: AgentConfig[] = [
     live: true,
     category: "Trading",
     description: "Sports betting and odds analysis",
+    image: "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/c58cb239-9e92-4fb5-d982-50fd5b903800/original",
   },
   {
     name: "bankr",
@@ -163,6 +166,7 @@ export const AI_AGENTS: AgentConfig[] = [
     category: "Business",
     description: "XMTP documentation and code examples",
     domain: "xmtp-docs.eth",
+    image:"https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/08b13610-dc81-4761-f5e9-ac92020a7800/anim=false,fit=contain,f=auto,w=576"
   },
 ];
 
