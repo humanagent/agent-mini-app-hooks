@@ -1,6 +1,6 @@
 {
   "name": "agent-mini-app-hooks",
-  "version": "0.1.49",
+  "version": "0.1.50",
   "private": true,
   "description": "Minimal React hooks for building XMTP agent mini apps",
   "type": "module",

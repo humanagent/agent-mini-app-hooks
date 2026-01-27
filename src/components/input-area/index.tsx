@@ -70,12 +70,6 @@ export function InputArea({
     shuffleArray(AI_AGENTS.filter((agent) => agent.live)),
   );
 
-  // Find default "gm" agent
-  const defaultGmAgent = useMemo(
-    () => AI_AGENTS.find((agent) => agent.name === "gm" && agent.live),
-    [],
-  );
-
   // Load conversation members and match agents
   const { members: conversationMembers } = useConversationMembers(
     conversation?.id || null,
@@ -87,10 +81,9 @@ export function InputArea({
   );
 
   // State for single agent (can be set when adding agent before conversation exists)
-  // Default to "gm" agent on initialization
   const [singleAgentState, setSingleAgentState] = useState<
     AgentConfig | undefined
-  >(defaultGmAgent);
+  >(undefined);
 
   // Determine single agent for non-multi-agent mode
   const singleAgent = useMemo(() => {
@@ -117,25 +110,6 @@ export function InputArea({
       setSingleAgentState(undefined);
     }
   }, [isMessageListMode, conversation]);
-
-  // Default to "gm" agent on refresh when no conversation exists
-  useEffect(() => {
-    if (!conversation && !isMessageListMode && defaultGmAgent) {
-      // Sync with selectedAgents prop if provided and empty
-      if (
-        setSelectedAgents &&
-        (!selectedAgents || selectedAgents.length === 0)
-      ) {
-        setSelectedAgents([defaultGmAgent]);
-      }
-    }
-  }, [
-    conversation,
-    isMessageListMode,
-    defaultGmAgent,
-    setSelectedAgents,
-    selectedAgents,
-  ]);
 
   // Agent management
   const {

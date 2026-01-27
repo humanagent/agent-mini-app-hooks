@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.50] - 2026-01-27
+
+### Changed
+
+- Updated README with component documentation and sentence case formatting
+- Removed default "gm" agent selection on initialization
+
 ## [0.1.49] - 2026-01-27
 
 ### Fixed

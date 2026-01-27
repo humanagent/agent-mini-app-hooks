@@ -1,8 +1,8 @@
-# Agent Mini App Hooks
+# Agent mini-app hooks
 
 Minimal React hooks for building XMTP agent mini apps. Simple, composable hooks for all XMTP operations.
 
-## Quick Start
+## Quick start
 
 ```tsx
 import { useClient } from "@/src/xmtp-hooks/use-client";
@@ -247,65 +247,134 @@ removeAgent("0x123...");
 clearSelection();
 ```
 
-## Utilities
+## Components
 
-### Agent Configuration
+Reusable React components for building XMTP agent mini apps.
 
-**Import:**
+### `InputArea`
 
-```tsx
-import {
-  AI_AGENTS,
-  getAgentByAddress,
-  getAgentById,
-  type AgentConfig,
-} from "@/src/xmtp-hooks/agents";
-```
-
-**AgentConfig Type:**
-
-```tsx
-type AgentConfig = {
-  name: string;
-  address: string;
-  networks: string[];
-  live: boolean;
-  image?: string;
-  domain?: string;
-  category?: string;
-  description?: string;
-};
-```
-
-**Functions:**
-
-- `AI_AGENTS` - Array of all available agent configurations
-- `getAgentByAddress(address: string)` - Find agent by Ethereum address
-- `getAgentById(id: string)` - Find agent by name or domain
-
-### Utility Functions
+Message input component with agent selection, plus panel, and agent chips.
 
 **Import:**
 
 ```tsx
-import {
-  matchAgentsFromMembers,
-  extractMemberAddresses,
-  assignMessageRole,
-  createGroupWithAgentAddresses,
-  isConversationAllowed,
-  denyConversation,
-  clearEphemeralAccountKey,
-  type ContentTypes,
-} from "@/src/xmtp-hooks/utils";
+import { InputArea } from "@/src/components/input-area";
 ```
 
-**Functions:**
+**Props:**
 
-- `matchAgentsFromMembers(members, agentList)` - Match group members to agent configs
-- `extractMemberAddresses(members)` - Extract Ethereum addresses from members
-- `assignMessageRole(message, clientInboxId)` - Assign "user" or "assistant" role to message
-- `createGroupWithAgentAddresses(client, addresses)` - Create group with agent addresses
-- `isConversationAllowed(conversation, client)` - Check if conversation is allowed (not denied)
-- `denyConversation(conversation, client)` - Deny/block a group conversation
-- `clearEphemeralAccountKey()` - Clear stored ephemeral account key
+- `selectedAgents?` - `AgentConfig[]` - Selected agents (for chat area mode)
+- `setSelectedAgents?` - `(agents: AgentConfig[]) => void` - Set selected agents
+- `sendMessage?` - `(content: string, agents?: AgentConfig[]) => void` - Send message callback
+- `conversation?` - `Conversation | null` - Active conversation (for message list mode)
+- `openAgentsDialog?` - `boolean` - Control plus panel visibility
+- `onOpenAgentsDialogChange?` - `(open: boolean) => void` - Plus panel change handler
+
+**Example:**
+
+```tsx
+<InputArea
+  selectedAgents={selectedAgents}
+  setSelectedAgents={setSelectedAgents}
+  sendMessage={(content, agents) => {
+    void handleSendMessage(content, agents);
+  }}
+  conversation={conversation}
+/>
+```
+
+**Notes:**
+
+- Supports two modes: chat area (multi-agent selection) and message list (conversation-based)
+- Plus panel opens with CMD/CTRL + K shortcut
+- Automatically matches agents from conversation members in message list mode
+
+---
+
+### `MessageList` / `ConversationView`
+
+Message display and conversation management component.
+
+**Import:**
+
+```tsx
+import { MessageList, ConversationView } from "@/src/components/message-list";
+```
+
+**MessageList Props:**
+
+- `messages` - `Message[]` - Array of messages to display
+- `onMentionClick?` - `(agent: AgentConfig) => void` - Click handler for agent mentions
+- `isGroup?` - `boolean` - Whether conversation is a group
+- `conversationId?` - `string` - Conversation ID for member matching
+
+**ConversationView Props:**
+
+- `initialAgents?` - `AgentConfig[]` - Initial agents for new conversations
+- `customGreeting?` - `React.ReactNode` - Custom greeting component
+
+**Example:**
+
+```tsx
+<ConversationView
+  initialAgents={selectedAgents}
+  customGreeting={<CustomGreeting />}
+/>
+```
+
+**Notes:**
+
+- Automatically handles message streaming and optimistic updates
+- Creates conversations on first message send
+- Supports both DM and group conversations
+
+---
+
+### `Sidebar`
+
+Navigation sidebar with conversations list and user nav.
+
+**Import:**
+
+```tsx
+import { Sidebar } from "@/src/components/sidebar";
+```
+
+**Example:**
+
+```tsx
+<Sidebar />
+```
+
+**Notes:**
+
+- Automatically sorts conversations by last message
+- Handles conversation deletion via deny
+- Mobile-responsive with drawer behavior
+- Integrates with routing for navigation
+
+---
+
+### `Greeting`
+
+Empty state greeting component for chat area.
+
+**Import:**
+
+```tsx
+import { Greeting } from "@/src/components/chat-area";
+```
+
+**Props:**
+
+- `onOpenAgents?` - `() => void` - Callback to open agent selection
+
+**Example:**
+
+```tsx
+<Greeting
+  onOpenAgents={() => {
+    setOpenAgentsDialog(true);
+  }}
+/>
+```
