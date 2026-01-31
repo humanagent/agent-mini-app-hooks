@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Updated README Documentation section from latest skills: added intro for skills directory, enriched scope column with when-to-use from each skill, noted that useAgentSelection and Components are README-only
+
 ## [0.1.53] - 2026-01-27
 
 ### Changed
