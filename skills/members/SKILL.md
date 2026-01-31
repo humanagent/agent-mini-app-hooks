@@ -24,10 +24,6 @@ Reference these guidelines when:
 ## Quick start
 
 ```typescript
-import { useClient } from "./xmtp-hooks/use-client";
-import { useConversationMembers } from "./xmtp-hooks/use-conversation-members";
-import { extractMemberAddresses } from "./xmtp-hooks/utils";
-
 function MemberList({ conversationId }) {
   const { client } = useClient();
   const { members, isLoading, error } = useConversationMembers(

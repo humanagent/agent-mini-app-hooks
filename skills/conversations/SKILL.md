@@ -26,9 +26,6 @@ Reference these guidelines when:
 ## Quick start
 
 ```typescript
-import { useClient } from "./xmtp-hooks/use-client";
-import { useConversations } from "./xmtp-hooks/use-conversations";
-
 function Inbox() {
   const { client } = useClient();
   const { conversations, isLoading, error, refresh } = useConversations(client);

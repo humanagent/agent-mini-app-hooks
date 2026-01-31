@@ -25,8 +25,6 @@ Reference these guidelines when:
 ## Quick start
 
 ```typescript
-import { useClient } from "./xmtp-hooks/use-client";
-
 function App() {
   // Default: uses ephemeral account (anonymous)
   const { client, isLoading, error } = useClient();
@@ -42,8 +40,6 @@ function App() {
 **With wallet signer:**
 
 ```typescript
-import { useClient } from "./xmtp-hooks/use-client";
-
 function App({ walletSigner }) {
   const { client, isLoading, error } = useClient(walletSigner, {
     env: "production",
